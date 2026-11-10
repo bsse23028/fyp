@@ -1,0 +1,14 @@
+{
+  "expo": {
+    "name": "KidBuddy",
+    "slug": "kidbuddy",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "androidStatusBar": {
+      "barStyle": "dark-content",
+      "backgroundColor": "#FFFFFF"
+    },
+    "ios": { "supportsTablet": false },
+    "android": {}
+  }
+}

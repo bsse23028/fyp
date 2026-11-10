@@ -1,0 +1,10 @@
+[
+  { "word": "caterpillar", "count": 5, "topic": "At School" },
+  { "word": "vegetable", "count": 4, "topic": "Food" },
+  { "word": "lightning", "count": 4, "topic": "Weather" },
+  { "word": "enormous", "count": 3, "topic": "Animals" },
+  { "word": "beautiful", "count": 3, "topic": "At School" },
+  { "word": "measured", "count": 2, "topic": "At School" },
+  { "word": "chocolate", "count": 2, "topic": "Weather" },
+  { "word": "cousins", "count": 1, "topic": "My Family" }
+]

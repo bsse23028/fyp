@@ -1,0 +1,147 @@
+[
+  {
+    "id": "animals", "title": "Animals", "icon": "🐶", "tint": "bluePale",
+    "levels": {
+      "easy": [
+        { "words": ["The", "cat", "sat", "on", "the", "mat."], "focus": 1,
+          "ur": { "words": ["بلی", "چٹائی", "پر", "بیٹھی۔"], "focus": 0 } },
+        { "words": ["A", "dog", "can", "run", "fast."], "focus": 1,
+          "ur": { "words": ["کتا", "تیز", "دوڑ", "سکتا", "ہے۔"], "focus": 0 } },
+        { "words": ["I", "see", "a", "red", "bird."], "focus": 4,
+          "ur": { "words": ["مجھے", "ایک", "سرخ", "چڑیا", "نظر", "آتی", "ہے۔"], "focus": 2 } }
+      ],
+      "medium": [
+        { "words": ["The", "fluffy", "cat", "sat", "on", "the", "soft", "mat."], "focus": 6,
+          "ur": { "words": ["پیاری", "بلی", "نرم", "چٹائی", "پر", "بیٹھی۔"], "focus": 2 } },
+        { "words": ["A", "happy", "dog", "ran", "to", "the", "big", "park."], "focus": 6,
+          "ur": { "words": ["ایک", "خوش", "کتا", "بڑے", "پارک", "کی", "طرف", "بھاگا۔"], "focus": 3 } },
+        { "words": ["We", "see", "a", "red", "bird", "in", "the", "tree."], "focus": 3,
+          "ur": { "words": ["ہم", "درخت", "میں", "ایک", "سرخ", "چڑیا", "دیکھتے", "ہیں۔"], "focus": 4 } }
+      ],
+      "hard": [
+        { "words": ["The", "little", "rabbit", "hopped", "quickly", "across", "the", "green", "meadow."], "focus": 4,
+          "ur": { "words": ["چھوٹا", "خرگوش", "تیزی", "سے", "ہرے", "میدان", "میں", "کودتا", "رہا۔"], "focus": 2 } },
+        { "words": ["A", "friendly", "elephant", "splashed", "water", "over", "its", "enormous", "back."], "focus": 2,
+          "ur": { "words": ["ایک", "دوستانہ", "ہاتھی", "نے", "اپنی", "بڑی", "پیٹھ", "پر", "پانی", "چھڑکا۔"], "focus": 2 } },
+        { "words": ["Two", "yellow", "butterflies", "danced", "around", "the", "beautiful", "flower."], "focus": 2,
+          "ur": { "words": ["دو", "پیلی", "تتلیاں", "خوبصورت", "پھول", "کے", "گرد", "ناچ", "رہی", "تھیں۔"], "focus": 2 } }
+      ]
+    }
+  },
+  {
+    "id": "food", "title": "Food", "icon": "🍎", "tint": "sagePale",
+    "levels": {
+      "easy": [
+        { "words": ["I", "like", "red", "apples."], "focus": 3,
+          "ur": { "words": ["مجھے", "سرخ", "سیب", "پسند", "ہیں۔"], "focus": 2 } },
+        { "words": ["Milk", "is", "good", "for", "me."], "focus": 0,
+          "ur": { "words": ["دودھ", "میرے", "لیے", "اچھا", "ہے۔"], "focus": 0 } },
+        { "words": ["We", "eat", "rice", "and", "fish."], "focus": 2,
+          "ur": { "words": ["ہم", "چاول", "اور", "مچھلی", "کھاتے", "ہیں۔"], "focus": 1 } }
+      ],
+      "medium": [
+        { "words": ["Mom", "cuts", "the", "sweet", "mango", "into", "small", "pieces."], "focus": 4,
+          "ur": { "words": ["امی", "میٹھے", "آم", "کو", "چھوٹے", "ٹکڑوں", "میں", "کاٹتی", "ہیں۔"], "focus": 2 } },
+        { "words": ["We", "drink", "warm", "milk", "before", "we", "go", "to", "bed."], "focus": 2,
+          "ur": { "words": ["ہم", "سونے", "سے", "پہلے", "گرم", "دودھ", "پیتے", "ہیں۔"], "focus": 4 } },
+        { "words": ["The", "baker", "puts", "fresh", "bread", "on", "the", "shelf."], "focus": 3,
+          "ur": { "words": ["نانبائی", "تازہ", "روٹی", "شیلف", "پر", "رکھتا", "ہے۔"], "focus": 1 } }
+      ],
+      "hard": [
+        { "words": ["Grandma", "stirred", "the", "hot", "vegetable", "soup", "with", "a", "wooden", "spoon."], "focus": 4,
+          "ur": { "words": ["دادی", "نے", "لکڑی", "کے", "چمچ", "سے", "گرم", "سبزیوں", "کا", "سوپ", "ہلایا۔"], "focus": 7 } },
+        { "words": ["My", "favourite", "breakfast", "is", "a", "golden", "pancake", "with", "strawberry", "jam."], "focus": 2,
+          "ur": { "words": ["میرا", "پسندیدہ", "ناشتہ", "اسٹرابیری", "جیم", "کے", "ساتھ", "سنہری", "پینکیک", "ہے۔"], "focus": 2 } },
+        { "words": ["We", "should", "wash", "every", "vegetable", "carefully", "before", "we", "cook", "dinner."], "focus": 5,
+          "ur": { "words": ["کھانا", "پکانے", "سے", "پہلے", "ہمیں", "ہر", "سبزی", "احتیاط", "سے", "دھونی", "چاہیے۔"], "focus": 7 } }
+      ]
+    }
+  },
+  {
+    "id": "family", "title": "My Family", "icon": "👨‍👩‍👧", "tint": "yellowPale",
+    "levels": {
+      "easy": [
+        { "words": ["I", "love", "my", "mom."], "focus": 3,
+          "ur": { "words": ["مجھے", "اپنی", "امی", "سے", "پیار", "ہے۔"], "focus": 2 } },
+        { "words": ["My", "dad", "can", "cook."], "focus": 3,
+          "ur": { "words": ["میرے", "ابو", "کھانا", "پکا", "سکتے", "ہیں۔"], "focus": 1 } },
+        { "words": ["We", "play", "with", "my", "sister."], "focus": 4,
+          "ur": { "words": ["ہم", "اپنی", "بہن", "کے", "ساتھ", "کھیلتے", "ہیں۔"], "focus": 2 } }
+      ],
+      "medium": [
+        { "words": ["My", "grandpa", "tells", "us", "funny", "stories", "at", "night."], "focus": 4,
+          "ur": { "words": ["میرے", "دادا", "رات", "کو", "ہمیں", "مزے", "کی", "کہانیاں", "سناتے", "ہیں۔"], "focus": 7 } },
+        { "words": ["My", "brother", "helps", "me", "tie", "my", "shoes."], "focus": 4,
+          "ur": { "words": ["میرا", "بھائی", "جوتوں", "کے", "تسمے", "باندھنے", "میں", "میری", "مدد", "کرتا", "ہے۔"], "focus": 4 } },
+        { "words": ["Our", "whole", "family", "eats", "dinner", "together", "every", "evening."], "focus": 5,
+          "ur": { "words": ["ہمارا", "پورا", "خاندان", "ہر", "شام", "اکٹھے", "کھانا", "کھاتا", "ہے۔"], "focus": 5 } }
+      ],
+      "hard": [
+        { "words": ["On", "Sundays,", "my", "cousins", "visit", "us", "and", "we", "play", "hide", "and", "seek."], "focus": 3,
+          "ur": { "words": ["اتوار", "کو", "میرے", "کزن", "ہم", "سے", "ملنے", "آتے", "ہیں", "اور", "ہم", "چھپن", "چھپائی", "کھیلتے", "ہیں۔"], "focus": 3 } },
+        { "words": ["My", "grandmother", "knits", "colourful", "scarves", "for", "everyone", "in", "the", "family."], "focus": 3,
+          "ur": { "words": ["میری", "دادی", "خاندان", "کے", "ہر", "فرد", "کے", "لیے", "رنگ", "برنگے", "مفلر", "بنتی", "ہیں۔"], "focus": 10 } },
+        { "words": ["When", "I", "feel", "sad,", "my", "parents", "give", "me", "a", "gentle", "hug."], "focus": 9,
+          "ur": { "words": ["جب", "مجھے", "اداسی", "محسوس", "ہوتی", "ہے", "تو", "میرے", "والدین", "مجھے", "نرمی", "سے", "گلے", "لگاتے", "ہیں۔"], "focus": 10 } }
+      ]
+    }
+  },
+  {
+    "id": "weather", "title": "Weather", "icon": "🌦️", "tint": "purplePale",
+    "levels": {
+      "easy": [
+        { "words": ["The", "sun", "is", "hot."], "focus": 1,
+          "ur": { "words": ["سورج", "گرم", "ہے۔"], "focus": 0 } },
+        { "words": ["I", "see", "a", "big", "cloud."], "focus": 4,
+          "ur": { "words": ["مجھے", "ایک", "بڑا", "بادل", "نظر", "آتا", "ہے۔"], "focus": 3 } },
+        { "words": ["It", "is", "a", "rainy", "day."], "focus": 3,
+          "ur": { "words": ["آج", "بارش", "کا", "دن", "ہے۔"], "focus": 1 } }
+      ],
+      "medium": [
+        { "words": ["We", "wear", "warm", "coats", "when", "the", "wind", "is", "cold."], "focus": 2,
+          "ur": { "words": ["جب", "ہوا", "ٹھنڈی", "ہو", "تو", "ہم", "گرم", "کوٹ", "پہنتے", "ہیں۔"], "focus": 6 } },
+        { "words": ["A", "bright", "rainbow", "appeared", "after", "the", "rain", "stopped."], "focus": 2,
+          "ur": { "words": ["بارش", "رکنے", "کے", "بعد", "ایک", "روشن", "قوس", "قزح", "نکل", "آئی۔"], "focus": 6 } },
+        { "words": ["The", "snowman", "melted", "in", "the", "warm", "afternoon", "sun."], "focus": 2,
+          "ur": { "words": ["برف", "کا", "آدمی", "گرم", "دوپہر", "کی", "دھوپ", "میں", "پگھل", "گیا۔"], "focus": 8 } }
+      ],
+      "hard": [
+        { "words": ["Thunder", "rumbled", "loudly", "while", "lightning", "flashed", "across", "the", "dark", "sky."], "focus": 4,
+          "ur": { "words": ["اندھیرے", "آسمان", "میں", "بجلی", "چمکی", "اور", "بادل", "زور", "سے", "گرجے۔"], "focus": 3 } },
+        { "words": ["In", "autumn,", "the", "colourful", "leaves", "fall", "gently", "from", "the", "tall", "trees."], "focus": 3,
+          "ur": { "words": ["خزاں", "میں", "رنگ", "برنگے", "پتے", "اونچے", "درختوں", "سے", "آہستہ", "آہستہ", "گرتے", "ہیں۔"], "focus": 2 } },
+        { "words": ["Because", "it", "was", "freezing", "outside,", "we", "stayed", "home", "and", "drank", "hot", "chocolate."], "focus": 3,
+          "ur": { "words": ["باہر", "بہت", "ٹھنڈ", "تھی", "اس", "لیے", "ہم", "گھر", "پر", "رہے", "اور", "گرم", "چاکلیٹ", "پی۔"], "focus": 2 } }
+      ]
+    }
+  },
+  {
+    "id": "school", "title": "At School", "icon": "🎒", "tint": "orangePale",
+    "levels": {
+      "easy": [
+        { "words": ["We", "read", "a", "book."], "focus": 3,
+          "ur": { "words": ["ہم", "کتاب", "پڑھتے", "ہیں۔"], "focus": 1 } },
+        { "words": ["My", "bag", "is", "blue."], "focus": 1,
+          "ur": { "words": ["میرا", "بستہ", "نیلا", "ہے۔"], "focus": 1 } },
+        { "words": ["The", "teacher", "says", "hello."], "focus": 1,
+          "ur": { "words": ["ٹیچر", "سلام", "کہتی", "ہیں۔"], "focus": 0 } }
+      ],
+      "medium": [
+        { "words": ["We", "draw", "a", "colourful", "picture", "with", "our", "crayons."], "focus": 3,
+          "ur": { "words": ["ہم", "اپنے", "کریونز", "سے", "رنگین", "تصویر", "بناتے", "ہیں۔"], "focus": 4 } },
+        { "words": ["The", "class", "sings", "a", "happy", "song", "every", "morning."], "focus": 1,
+          "ur": { "words": ["کلاس", "ہر", "صبح", "ایک", "خوشی", "کا", "گیت", "گاتی", "ہے۔"], "focus": 6 } },
+        { "words": ["At", "lunch", "time,", "we", "share", "our", "food", "with", "our", "friends."], "focus": 4,
+          "ur": { "words": ["لنچ", "کے", "وقت", "ہم", "اپنے", "دوستوں", "کے", "ساتھ", "کھانا", "بانٹتے", "ہیں۔"], "focus": 9 } }
+      ],
+      "hard": [
+        { "words": ["Our", "teacher", "showed", "us", "how", "a", "caterpillar", "becomes", "a", "beautiful", "butterfly."], "focus": 6,
+          "ur": { "words": ["ہماری", "ٹیچر", "نے", "ہمیں", "دکھایا", "کہ", "سنڈی", "کیسے", "خوبصورت", "تتلی", "بن", "جاتی", "ہے۔"], "focus": 6 } },
+        { "words": ["During", "the", "science", "lesson,", "we", "measured", "the", "length", "of", "the", "classroom."], "focus": 5,
+          "ur": { "words": ["سائنس", "کے", "سبق", "کے", "دوران", "ہم", "نے", "کلاس", "روم", "کی", "لمبائی", "ناپی۔"], "focus": 10 } },
+        { "words": ["After", "school,", "we", "always", "finish", "our", "homework", "before", "we", "play", "outside."], "focus": 6,
+          "ur": { "words": ["اسکول", "کے", "بعد", "ہم", "باہر", "کھیلنے", "سے", "پہلے", "ہمیشہ", "اپنا", "ہوم", "ورک", "مکمل", "کرتے", "ہیں۔"], "focus": 10 } }
+      ]
+    }
+  }
+]
