@@ -161,7 +161,7 @@
   "Profile not found": "پروفائل نہیں ملی",
   "Delete profile": "پروفائل حذف کریں",
   "Delete {name}?": "{name} کو حذف کریں؟",
-  "This removes the profile and all of its progress from this phone. It cannot be undone.": "یہ پروفائل اور اس کی تمام پیش رفت اس فون سے مٹا دے گا۔ اسے واپس نہیں کیا جا سکتا۔",
+  "This deletes the profile and all of its progress from your account. It cannot be undone.": "یہ پروفائل اور اس کی تمام پیش رفت آپ کے اکاؤنٹ سے حذف کر دے گا۔ اسے واپس نہیں کیا جا سکتا۔",
   "Basics": "بنیادی معلومات",
   "Areas of support": "معاونت کے شعبے",
   "Activities": "سرگرمیاں",

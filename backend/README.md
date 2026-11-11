@@ -26,12 +26,15 @@ personalisation, Read-Along topics, stars / progress and struggle words.
 2. Click **Start** next to **MySQL**. It turns green and shows port **3306**.
    *(Apache is only needed if you want phpMyAdmin.)*
 
-### 2.2 Create the database (only the first time)
+### 2.2 Create the database: import the SQL files IN THIS ORDER (only the first time)
 If the `kidbuddy` database already exists with its tables, **skip this step**.
 
 1. Start **Apache** too, then open <http://localhost/phpmyadmin>.
-2. Click **Import**, choose `database/01_schema.sql`, and click **Go**.
-3. Click **Import** again, choose `database/02_seed.sql`, and click **Go**.
+2. Click **Import**, choose **`database/01_schema.sql`**, and click **Go**.
+   It creates the `kidbuddy` database and every table (you do not need to create the database first).
+3. Click **Import** again, choose **`database/02_seed.sql`**, and click **Go**.
+   It fills the choice lists (age bands, avatars, activities ...) and the reading topics.
+4. Do **not** import the files in `database/migrations/` by hand: `npm run migrate` runs them (step 2.3).
 
 > ⚠️ **Warning:** `01_schema.sql` starts with `DROP TABLE IF EXISTS ...`. Importing it again
 > **deletes every table and all data** in `kidbuddy`. Import it only once, on an empty database.
@@ -47,6 +50,17 @@ npm run migrate
 
 The script remembers what it has already run (in a table `schema_migrations`), so running it
 twice is safe. A new migration added later is run the same way.
+
+> **Already added the column by hand** (in phpMyAdmin)? Then `npm run migrate` stops with
+> `Duplicate column name 'relation_text'`, because the table `schema_migrations` does not know it was done.
+> Record it once (phpMyAdmin → database `kidbuddy` → SQL tab), then `npm run migrate` says "up to date":
+> ```sql
+> CREATE TABLE IF NOT EXISTS schema_migrations (
+>   name VARCHAR(190) NOT NULL PRIMARY KEY,
+>   applied_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+> ) ENGINE=InnoDB;
+> INSERT INTO schema_migrations (name) VALUES ('001_add_relation_text_to_story_answers.sql');
+> ```
 
 > Without this migration, saving a child's **story** fails. Everything else works.
 
@@ -95,6 +109,7 @@ Check it in a browser: <http://localhost:4000/health> → `{"status":"ok"}`
 | `Could not connect to MySQL database "kidbuddy"` | Start MySQL in XAMPP. Check `DB_USER` / `DB_PASSWORD` in `.env`. |
 | `Missing setting JWT_SECRET` | You have no `.env` yet, or `JWT_SECRET` is empty. |
 | `Unknown column 'relation_text'` | Run `npm run migrate`. |
+| `Migration failed: Duplicate column name 'relation_text'` | The column was added by hand: see the note in 2.3. |
 | `EADDRINUSE :4000` | Another program uses port 4000. Change `PORT` in `.env`. |
 
 ### Emails (the 6-digit codes)
@@ -105,12 +120,26 @@ Check it in a browser: <http://localhost:4000/health> → `{"status":"ok"}`
 
 ---
 
-## 4. Calling the API from the phone
+## 4. Connecting the app (a real phone): `API_BASE_URL`
 
-- **Android emulator:** `http://10.0.2.2:4000`
-- **iOS simulator / Expo web:** `http://localhost:4000`
-- **A real phone with Expo Go:** your computer's Wi-Fi IP address, for example `http://192.168.1.20:4000`
-  (find it with `ipconfig`). The phone must be on the same Wi-Fi. Windows Firewall may ask to allow Node.js.
+The app finds the backend through **one setting**, `API_BASE_URL` in **`src/shared/config.js`** (project root).
+On a real phone `localhost` means the phone itself, so use the computer's Wi-Fi address:
+
+1. On the computer open **Command Prompt** and type `ipconfig`.
+2. Under **"Wireless LAN adapter Wi-Fi"** copy the **IPv4 Address**, for example `192.168.1.20`.
+3. In `src/shared/config.js`:
+   ```js
+   export const API_BASE_URL = 'http://192.168.1.20:4000';
+   ```
+4. Open `http://192.168.1.20:4000/health` in the **phone's** browser: it must show `{"status":"ok"}`.
+
+If it does not load: same Wi-Fi for phone and computer · allow Node.js in Windows Firewall (*Private networks*) ·
+the backend must be running (`npm start`) · some university / office Wi-Fi blocks phone-to-computer traffic
+(use a phone hotspot) · after reconnecting, the address may change (run `ipconfig` again).
+
+Other devices: **Android emulator** `http://10.0.2.2:4000` · **iOS simulator / Expo web** `http://localhost:4000`.
+
+Then start the app from the project root (a second terminal): `npx expo start -c`, and scan the QR code with Expo Go.
 
 Every protected request sends the login token:
 ```
@@ -184,3 +213,19 @@ Any error goes to `middleware/errorHandler.js`.
 - Every SQL value uses a `?` placeholder (parameterised queries).
 - Answers never contain password hashes, PIN hashes, codes, or SQL errors.
 - "Forgot password" and "resend code" give the **same answer** whether or not the email exists.
+
+---
+
+## 8. Known limitations
+
+- **No real email sending.** With `EMAIL_MODE=console` (the default) every 6-digit code is **printed in the
+  terminal where `npm start` runs**. The app's `DEMO_MODE` pop-up reminds the parent to look there.
+  `EMAIL_MODE=smtp` sends real emails, but it needs SMTP settings and was not tested here.
+- **No rate limiting.** Nothing limits how many requests one address sends. Only the email codes
+  (5 tries, one new code per minute) and the Parent PIN (locked 5 minutes after 5 wrong tries) have limits.
+- **No refresh tokens.** A login token is valid for `JWT_EXPIRES_IN` (default `7d`). After that the API answers
+  401 and the app asks the parent to log in again.
+- **Struggle words need speech scoring.** `POST /api/children/:childId/struggle-words` works, but the app does not
+  score the child's voice yet, so nothing sends words. The app shows sample words until then.
+- **Custom topics have no screen yet.** `POST /api/children/:childId/topics` works, and the topic appears in that
+  child's topic list, but no screen in the app creates one yet.
