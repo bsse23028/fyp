@@ -18,6 +18,8 @@
 import React from 'react';
 import { ActivityIndicator, View } from 'react-native';
 import FixedHeader from '../../shared/components/FixedHeader';
+import LoadError from '../../shared/components/LoadError';
+import { DEMO_MODE } from '../../shared/config';
 import { useDirection } from '../../shared/utils/direction';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useAuth } from '../context/AuthContext';
@@ -55,13 +57,42 @@ import EditAvatarScreen from '../../screens/child/EditAvatarScreen';
 const Stack = createNativeStackNavigator();
 
 export default function AppNavigator() {
-  const { user, loading: authLoading } = useAuth();
-  const { childProfiles, loading: childLoading } = useChild();
+  const { user, loading: authLoading, startupError, retryRestoreSession } = useAuth();
+  const {
+    childProfiles,
+    loading: childLoading,
+    error: childError,
+    optionsStatus,
+    optionsError,
+    loadChildren,
+    loadOptions,
+  } = useChild();
   const { introSeen, permissions, loading: deviceLoading } = useDevice();
   const { isRTL, directionStyle } = useDirection();
 
-  // Wait until everything saved on the phone has been read.
-  if (authLoading || childLoading || deviceLoading) {
+  // The choice lists: wait for them. If they failed, DEMO_MODE carries on with the
+  // built-in lists (see useChildOptions.js); otherwise the app shows Retry.
+  const optionsLoading = optionsStatus === 'idle' || optionsStatus === 'loading';
+  const optionsProblem = optionsStatus === 'failed' && !DEMO_MODE ? optionsError : null;
+
+  // The server could not be reached while the app was opening: say so, with a Retry button.
+  // (childError only counts while the FIRST list is still missing; later problems are shown
+  // by the screen that asked, e.g. Log In.)
+  const problem = startupError || (childLoading && childError) || optionsProblem;
+  if (problem) {
+    const handleRetry = () => {
+      if (startupError) {
+        retryRestoreSession(); // the children are loaded after it, by ChildLoader
+        return;
+      }
+      if (optionsProblem) loadOptions();
+      if (childLoading && childError) loadChildren().catch(() => {}); // a new error shows here again
+    };
+    return <LoadError message={problem} onRetry={handleRetry} />;
+  }
+
+  // Wait until everything saved on the phone (and the first answers of the server) has arrived.
+  if (authLoading || childLoading || deviceLoading || optionsLoading) {
     return (
       <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: COLORS.white }}>
         <ActivityIndicator color={COLORS.primary} />

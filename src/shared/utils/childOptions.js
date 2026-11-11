@@ -1,6 +1,9 @@
-// CHILD OPTIONS - the choices a parent can pick for a child profile.
-// Used by "Create child profile" and by the "Edit profile" sections.
-// To add an option, add it to the list here.
+// CHILD OPTIONS - the OLD, built-in choice lists for a child profile.
+//
+// The real lists now come from the server (GET /api/options) through
+// app/store/useChildOptions.js. These lists are only used as the DEMO_MODE fallback,
+// when the server's lists could not be loaded. To add an option for real, add it to the
+// lookup tables in the database. (toggleInList below is a small helper the forms still use.)
 
 export const AGE_BANDS = ['4–6 years', '7–9 years', '10–12 years'];
 

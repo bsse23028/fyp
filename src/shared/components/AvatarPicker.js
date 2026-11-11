@@ -5,10 +5,11 @@
 
 import React from 'react';
 import { Image, Pressable, StyleSheet, View } from 'react-native';
-import { AVATARS } from '../theme/avatars';
+import { useChildOptions } from '../../app/store/useChildOptions';
 import { COLORS } from '../theme/theme';
 
 export default function AvatarPicker({ selectedId, onSelect }) {
+  const { avatars: AVATARS } = useChildOptions(); // the buddies the server allows
   return (
     <View style={styles.row}>
       {AVATARS.map((avatar) => {

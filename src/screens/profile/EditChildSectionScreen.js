@@ -6,7 +6,7 @@
 //   'modules'  activities switched on / off (+ "Suggest from areas of support")
 //
 // Every input is separate and optional (except the nickname and the age band).
-// "Save" stores the changes with updateChild (AsyncStorage) and goes back.
+// "Save" stores the changes on the server with updateChild and goes back.
 // The header logo previews the avatar while it is being chosen.
 //
 // Route params: { childId, section }
@@ -23,14 +23,8 @@ import SegmentedControl from '../../shared/components/SegmentedControl';
 import Toggle from '../../shared/components/Toggle';
 import Button from '../../shared/components/Button';
 import { useChild } from '../../app/store/useChild';
-import {
-  AGE_BANDS,
-  LANGUAGES,
-  MODULES,
-  SUPPORT_OPTIONS,
-  suggestModules,
-  toggleInList,
-} from '../../shared/utils/childOptions';
+import { useChildOptions } from '../../app/store/useChildOptions';
+import { toggleInList } from '../../shared/utils/childOptions';
 import { globalStyles } from '../../shared/theme/globalStyles';
 import { COLORS, FONTS } from '../../shared/theme/theme';
 
@@ -43,6 +37,14 @@ const TITLES = {
 export default function EditChildSectionScreen({ navigation, route }) {
   const { childId, section } = route.params;
   const { childProfiles, updateChild } = useChild();
+  // The choice lists from the server (named like the old constants, so the form below did not change).
+  const {
+    ageBands: AGE_BANDS,
+    languages: LANGUAGES,
+    modules: MODULES,
+    supports: SUPPORT_OPTIONS,
+    suggestModules,
+  } = useChildOptions();
   const child = childProfiles.find((c) => c.id === childId) || null;
 
   // Start with the saved values.
@@ -53,6 +55,7 @@ export default function EditChildSectionScreen({ navigation, route }) {
   const [supports, setSupports] = useState((child && child.supports) || []);
   const [modules, setModules] = useState((child && child.modules) || []);
   const [submitted, setSubmitted] = useState(false);
+  const [saving, setSaving] = useState(false);
 
   const nameProblem = name.trim() ? '' : 'Enter your child’s nickname.';
   const ageProblem = ageBand ? '' : 'Choose an age band.';
@@ -65,17 +68,22 @@ export default function EditChildSectionScreen({ navigation, route }) {
     );
   }
 
-  function handleSave() {
+  async function handleSave() {
+    let changes;
     if (section === 'basics') {
       setSubmitted(true);
       if (nameProblem || ageProblem) return;
-      updateChild(child.id, { name: name.trim(), ageBand, avatar, language });
+      changes = { name: name.trim(), ageBand, avatar, language };
     } else if (section === 'support') {
-      updateChild(child.id, { supports });
+      changes = { supports };
     } else {
-      updateChild(child.id, { modules });
+      changes = { modules };
     }
-    navigation.goBack();
+    setSaving(true);
+    // Saved on the server. If that fails, a pop-up explains why and we stay here.
+    const saved = await updateChild(child.id, changes);
+    setSaving(false);
+    if (saved) navigation.goBack();
   }
 
   return (
@@ -160,7 +168,7 @@ export default function EditChildSectionScreen({ navigation, route }) {
 
         <View style={styles.buttons}>
           <Button title="Cancel" variant="secondary" onPress={() => navigation.goBack()} style={styles.cancel} />
-          <Button title="Save" onPress={handleSave} style={styles.save} />
+          <Button title="Save" onPress={handleSave} loading={saving} style={styles.save} />
         </View>
       </View>
     </Screen>

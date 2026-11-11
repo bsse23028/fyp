@@ -59,10 +59,11 @@ export default function LoginScreen({ navigation }) {
 
     setLoading(true);
     try {
-      const account = await logIn(email, password);
+      await logIn(email, password);
       // Where to next? Child Home if this parent already has a child profile,
       // otherwise Create Child Profile (or Permissions if never asked on this phone).
-      const kids = await loadChildren(account.email);
+      // The children come from the server; if it cannot be reached, the message is shown below.
+      const kids = await loadChildren();
       goToStart(navigation, getParentStartScreen(kids, permissions));
     } catch (err) {
       setFormError(err.message);

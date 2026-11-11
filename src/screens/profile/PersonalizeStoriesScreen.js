@@ -38,7 +38,6 @@ import {
   HOBBIES,
   NOTE_IDEAS,
   PLACES,
-  RELATIONS,
   ROUTINES,
   STORY_TYPES,
   TOYS,
@@ -46,6 +45,7 @@ import {
   getStory,
   previewSentence,
 } from '../../shared/utils/storyOptions';
+import { useChildOptions } from '../../app/store/useChildOptions';
 import { COLORS, FONTS } from '../../shared/theme/theme';
 
 const MAX_SIBLINGS = 5;
@@ -62,6 +62,7 @@ const STEPS = [
 
 export default function PersonalizeStoriesScreen({ navigation, route }) {
   const { childProfiles, updateChild } = useChild();
+  const { relations: RELATIONS } = useChildOptions(); // the relationship list comes from the server
   const child = childProfiles.find((c) => c.id === route.params.childId) || null;
 
   const [story, setStory] = useState(getStory(child));
@@ -93,9 +94,9 @@ export default function PersonalizeStoriesScreen({ navigation, route }) {
     if (scrollRef.current) scrollRef.current.scrollTo({ y: 0, animated: false });
   }
 
-  function save() {
-    updateChild(child.id, { story: cleanStory(story) });
-    navigation.goBack();
+  // Saved on the server. If that fails, a pop-up explains why and the answers stay on screen.
+  async function save() {
+    if (await updateChild(child.id, { story: cleanStory(story) })) navigation.goBack();
   }
 
   // "Skip" and "Next" both move on (Skip does not erase anything). The last step saves.

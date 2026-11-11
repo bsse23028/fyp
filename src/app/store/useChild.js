@@ -2,29 +2,64 @@
 //
 //   const { childProfiles, activeChild, addChild, updateChild, deleteChild } = useChild();
 //
-// The data lives in Redux (childSlice.js). This hook only reads it with useSelector and
-// hands out functions that dispatch the right actions, so a screen never has to know
-// about Redux. It also passes the parent's email (from AuthContext) so the children are
-// saved under the right account.
+// The data lives in Redux (childSlice.js) and comes from the backend. This hook only reads
+// it with useSelector and hands out functions that dispatch the right thunks, so a screen
+// never has to know about Redux or the server.
+//
+// addChild, updateChild, deleteChild and enterChildMode ask the server, so they take a
+// moment. They return a PROMISE:
+//   - it worked  -> the promise gives the result (the child, or true)
+//   - it failed  -> a pop-up explains why (with "Retry" when the server could not be
+//                   reached), and the promise gives  null
+// So a screen only has to write:
+//   if (await addChild(profile)) goToParentHome(navigation);
 
+import { Alert } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
-import { useAuth } from '../context/AuthContext';
+import { translate } from '../../shared/i18n/translate';
 import { DEFAULT_AVATAR } from '../../shared/theme/avatars';
 import {
-  addChild,
   addReadingResult,
   childModeExited,
-  deleteChild,
-  enterChildMode,
+  createChild,
   loadChildren,
-  updateChild,
+  loadOptions,
+  removeChild,
+  saveChildChanges,
+  selectChild,
 } from './childSlice';
+
+// Runs a thunk; on failure shows a pop-up. `makeThunk` is a function so "Retry" can run it again.
+function runWithPopup(dispatch, makeThunk, title) {
+  return new Promise((resolve) => {
+    function attempt() {
+      dispatch(makeThunk())
+        .unwrap()
+        .then((result) => resolve(result || true))
+        .catch((error) => {
+          // 401: the API client already logged the parent out and showed "Please log in again".
+          if (error.status === 401) return resolve(null);
+
+          // No connection (status 0) or a server problem (500...): trying again can help.
+          const canRetry = !error.status || error.status >= 500;
+          const buttons = canRetry
+            ? [
+                { text: translate('Cancel'), style: 'cancel', onPress: () => resolve(null) },
+                { text: translate('Retry'), onPress: attempt },
+              ]
+            : [{ text: translate('OK'), onPress: () => resolve(null) }];
+          Alert.alert(translate(title), translate(error.message), buttons, { cancelable: false });
+        });
+    }
+    attempt();
+  });
+}
 
 export function useChild() {
   const dispatch = useDispatch();
-  const { user } = useAuth();
-  const email = user ? user.email : null;
-  const { list, activeId, childMode, loading } = useSelector((state) => state.child);
+  const { list, activeId, childMode, loading, error, optionsStatus, optionsError } = useSelector(
+    (state) => state.child
+  );
 
   const activeChild = list.find((c) => c.id === activeId) || null;
   // The avatar the header logo and mascots show: the child's own in Child Mode, the rabbit everywhere else.
@@ -35,13 +70,22 @@ export function useChild() {
     activeChild,
     childMode,
     displayAvatar,
-    loading,
-    loadChildren: (parentEmail) => dispatch(loadChildren(parentEmail)),
-    addChild: (profile) => dispatch(addChild(email, profile)),
-    updateChild: (id, changes) => dispatch(updateChild(email, id, changes)),
-    deleteChild: (id) => dispatch(deleteChild(email, id)),
-    enterChildMode: (id) => dispatch(enterChildMode(email, id)),
+    loading, // true until the first list has arrived
+    error, // why the list could not be loaded (null = no problem)
+    optionsStatus, // the choice lists: 'idle' | 'loading' | 'ready' | 'failed'
+    optionsError,
+
+    // Returns the list of children. Throws if the server could not be reached.
+    loadChildren: () => dispatch(loadChildren()),
+    loadOptions: () => dispatch(loadOptions()),
+
+    addChild: (profile) =>
+      runWithPopup(dispatch, () => createChild(profile), 'Could not save').then((data) => (data ? data.child : null)),
+    updateChild: (id, changes) =>
+      runWithPopup(dispatch, () => saveChildChanges({ id, changes }), 'Could not save'),
+    deleteChild: (id) => runWithPopup(dispatch, () => removeChild(id), 'Could not delete'),
+    enterChildMode: (id) => runWithPopup(dispatch, () => selectChild(id), 'Could not open Child Mode'),
     exitChildMode: () => dispatch(childModeExited()),
-    addReadingResult: (stars) => dispatch(addReadingResult(email, stars)),
+    addReadingResult: (stars) => dispatch(addReadingResult(stars)),
   };
 }

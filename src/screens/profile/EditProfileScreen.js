@@ -77,9 +77,9 @@ export default function EditProfileScreen({ navigation, route }) {
         {
           text: translate('Delete'),
           style: 'destructive',
-          onPress: () => {
-            deleteChild(child.id);
-            goToParentHome(navigation);
+          // Deleted on the server. If that fails, a pop-up explains why and we stay here.
+          onPress: async () => {
+            if (await deleteChild(child.id)) goToParentHome(navigation);
           },
         },
       ]

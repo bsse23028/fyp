@@ -27,14 +27,15 @@ const DEVICE = { platform: Platform.OS };
 // ---------- session ----------
 
 // When the app opens: is a token saved? Then ask the server who it belongs to.
-export const restoreSession = createAsyncThunk('auth/restoreSession', async () => {
+export const restoreSession = createAsyncThunk('auth/restoreSession', async (_, { rejectWithValue }) => {
   const token = await getToken();
   if (!token) return null; // nobody was logged in
   try {
     return await api.get('/api/auth/me'); // { user, hasPin }
   } catch (error) {
-    // 401: the login ended (the client already deleted the token).
-    // No connection: start logged out; the token is kept, so the next start tries again.
+    // No connection: the app shows the message with a Retry button (the token is kept).
+    if (error.status === 0) return rejectWithValue(error.message);
+    // 401: the login ended (the client already deleted the token). Start logged out.
     return null;
   }
 });
@@ -142,6 +143,7 @@ const authSlice = createSlice({
     user: null, // { id, name, email } of the logged-in parent, or null
     hasPin: false, // has this parent created a Parent PIN?
     loading: true, // true only until restoreSession is done (the app shows a spinner)
+    startupError: null, // restoreSession could not reach the server (the app shows Retry)
     codePurpose: null, // which code we are waiting for: 'signup' | 'reset_password' | 'change_password'
     resetToken: null, // from verifyResetCode, used once by resetPassword
   },
@@ -161,12 +163,16 @@ const authSlice = createSlice({
     };
 
     builder
+      .addCase(restoreSession.pending, (state) => {
+        state.startupError = null; // (again after Retry)
+      })
       .addCase(restoreSession.fulfilled, (state, action) => {
         state.loading = false;
         if (action.payload) loggedIn(state, action);
       })
-      .addCase(restoreSession.rejected, (state) => {
-        state.loading = false;
+      .addCase(restoreSession.rejected, (state, action) => {
+        // Stay "loading": AppNavigator shows this message with a Retry button.
+        state.startupError = action.payload || action.error.message;
       })
       .addCase(logIn.fulfilled, loggedIn)
       .addCase(verifyEmail.fulfilled, loggedIn)

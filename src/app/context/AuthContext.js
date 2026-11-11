@@ -77,7 +77,7 @@ export function AuthProvider({ children }) {
 // Use inside any screen:  const { logIn } = useAuth();
 export function useAuth() {
   const dispatch = useDispatch();
-  const { user, hasPin, loading, codePurpose } = useSelector((state) => state.auth);
+  const { user, hasPin, loading, startupError, codePurpose } = useSelector((state) => state.auth);
 
   // The account password typed in "Forgot PIN?" (PinModal), kept only until the new PIN is saved.
   const verifiedPassword = useRef(null);
@@ -188,6 +188,8 @@ export function useAuth() {
   return {
     user,
     loading,
+    startupError, // the saved login could not be checked (no connection): AppNavigator shows Retry
+    retryRestoreSession: () => dispatch(restoreSession()),
     pin: hasPin, // screens only ask "is there a PIN?" - the PIN itself never leaves the server
     startSignUp,
     finishSignUp,

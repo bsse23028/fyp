@@ -1,9 +1,10 @@
 // CHILD SLICE - the child profiles of the logged-in parent and the Parent / Child MODE,
-// kept in Redux Toolkit.  (Before, this lived in a ChildContext.)
+// kept in Redux Toolkit. The profiles now come from the BACKEND (backend/docs/API.md).
+// (Before, they were saved on the phone with AsyncStorage.)
 //
-// A child profile looks like this (it is saved with AsyncStorage):
+// A child profile looks like this (the server sends exactly this shape):
 //   {
-//     id, name, ageBand, avatar: 'rabbit', language: 'en',
+//     id: '12', name, ageBand: '4–6 years', avatar: 'rabbit', language: 'en',
 //     supports: ['Reading', ...],          areas of support
 //     modules:  ['Read-Along', ...],       activities switched on
 //     story:    answers of "Personalize my child's stories" (see shared/utils/storyOptions.js),
@@ -13,80 +14,115 @@
 //
 // TWO MODES:
 //   Parent Mode (default, every time the app opens) - add / edit / delete children, progress, settings.
-//   Child Mode  - started by choosing a child on "Who is learning?". It is NOT saved.
+//   Child Mode  - started by choosing a child on "Who is learning?". The MODE is not saved,
+//                 but the server remembers which child was chosen last (activeId).
+//
+// THE CHOICE LISTS (age bands, avatars, relations, supports, modules) also come from the
+// server (GET /api/options) and are kept here in `options`. See useChildOptions.js.
 //
 // Screens do not use this file directly. They call  useChild()  (see useChild.js),
 // which gives the same functions as before: addChild, updateChild, deleteChild ...
 //
-// The "reducers" below change the state. The "thunks" at the bottom save the list on the phone.
+// The thunks (createAsyncThunk) talk to the server, exactly like in authSlice.js:
+//   pending -> fulfilled (it worked, action.payload = the answer)  or  rejected (it failed).
 
-import { createSlice } from '@reduxjs/toolkit';
-import { KEYS, loadData, saveData } from '../../shared/utils/storage';
+import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import { api } from '../../shared/api/client';
 import { dayKey } from '../../shared/utils/progress';
-import { AVATARS, DEFAULT_AVATAR } from '../../shared/theme/avatars';
+import { logOut, sessionExpired } from './authSlice';
+
+// Runs one request. If it fails, the thunk is "rejected" with { message, status }
+// (status 0 = the server could not be reached). useChild.js uses the status to decide
+// whether a "Retry" button makes sense.
+async function callServer(work, rejectWithValue) {
+  try {
+    return await work();
+  } catch (error) {
+    return rejectWithValue({ message: error.message, status: error.status });
+  }
+}
+
+// ---------- the choice lists (public, no login needed) ----------
+
+export const loadOptions = createAsyncThunk('child/loadOptions', async (_, { rejectWithValue }) =>
+  callServer(() => api.get('/api/options'), rejectWithValue)
+);
+
+// ---------- the child profiles (logged in) ----------
+
+// GET /api/children  ->  { children: [...], activeId: '12' | null }
+export const fetchChildren = createAsyncThunk('child/fetchChildren', async (_, { getState, rejectWithValue }) =>
+  callServer(async () => {
+    const data = await api.get('/api/children');
+    // The parent logged out while we were waiting: do not show their children any more.
+    if (!getState().auth.user) return { children: [], activeId: null };
+    return data;
+  }, rejectWithValue)
+);
+
+// POST /api/children  ->  { child }
+export const createChild = createAsyncThunk('child/createChild', async (profile, { rejectWithValue }) =>
+  callServer(() => api.post('/api/children', profile), rejectWithValue)
+);
+
+// PATCH /api/children/:id  (only the fields that change)  ->  { child }
+export const saveChildChanges = createAsyncThunk('child/saveChildChanges', async ({ id, changes }, { rejectWithValue }) =>
+  callServer(() => api.patch(`/api/children/${id}`, changes), rejectWithValue)
+);
+
+// DELETE /api/children/:id  ->  204 (no body). We return the id so the reducer knows which one.
+export const removeChild = createAsyncThunk('child/removeChild', async (id, { rejectWithValue }) =>
+  callServer(async () => {
+    await api.delete(`/api/children/${id}`);
+    return id;
+  }, rejectWithValue)
+);
+
+// "Continue as Zara": POST /api/children/:id/select  ->  { activeId }
+export const selectChild = createAsyncThunk('child/selectChild', async (id, { rejectWithValue }) =>
+  callServer(() => api.post(`/api/children/${id}/select`), rejectWithValue)
+);
+
+// Loads the children ONCE even if two places ask at the same time
+// (ChildLoader and the Log In screen both ask right after logging in).
+// Returns the list (the Log In screen uses it to choose the next screen). Throws if it failed.
+let loadingNow = null;
+export const loadChildren = () => (dispatch) => {
+  if (!loadingNow) {
+    loadingNow = dispatch(fetchChildren())
+      .unwrap()
+      .then((data) => data.children)
+      .finally(() => {
+        loadingNow = null;
+      });
+  }
+  return loadingNow;
+};
+
+// ---------- the slice ----------
+
+const emptyState = {
+  list: [], // every child profile of this parent
+  activeId: null, // id of the child who uses (or last used) the app
+  childMode: false, // false = Parent Mode
+};
 
 const childSlice = createSlice({
   name: 'child',
   initialState: {
-    list: [], // every child profile of this parent
-    activeId: null, // id of the child who uses (or last used) the app
-    childMode: false, // false = Parent Mode
-    loading: true, // only true until the FIRST load is done
+    ...emptyState,
+    loading: true, // only true until the FIRST load is done (the app shows a spinner)
+    error: null, // why the children could not be loaded (the app shows it with a Retry button)
+    options: null, // the answer of GET /api/options, or null if it is not loaded
+    optionsStatus: 'idle', // 'idle' | 'loading' | 'ready' | 'failed'
+    optionsError: null,
   },
   reducers: {
-    // The saved children were read from the phone.
-    childrenLoaded(state, action) {
-      state.list = action.payload.list;
-      state.activeId = action.payload.activeId;
-      state.childMode = false; // always start in Parent Mode
-      state.loading = false;
-    },
-
-    // Nobody is logged in: forget everything.
+    // Nobody is logged in: forget the children (the choice lists are kept, they are public).
     childrenCleared(state) {
-      state.list = [];
-      state.activeId = null;
-      state.childMode = false;
+      Object.assign(state, emptyState);
       state.loading = false;
-    },
-
-    // A new child. `prepare` builds the full profile (id + empty progress) before the reducer runs.
-    childAdded: {
-      reducer(state, action) {
-        state.list.push(action.payload);
-        if (!state.activeId) state.activeId = action.payload.id;
-      },
-      prepare(profile) {
-        return {
-          payload: {
-            ...profile,
-            id: String(Date.now()),
-            reading: { date: dayKey(), starsToday: 0, sessions: 0 },
-            activity: {},
-          },
-        };
-      },
-    },
-
-    // Changes some fields of a child:  { id, changes: { avatar: 'wolf' } }
-    childUpdated(state, action) {
-      const { id, changes } = action.payload;
-      const index = state.list.findIndex((c) => c.id === id);
-      if (index >= 0) Object.assign(state.list[index], changes);
-    },
-
-    // Removes a child for good.
-    childDeleted(state, action) {
-      state.list = state.list.filter((c) => c.id !== action.payload);
-      if (state.activeId === action.payload) {
-        state.activeId = state.list.length > 0 ? state.list[0].id : null;
-      }
-    },
-
-    // "Continue as Zara": this child is now using the app.
-    childModeEntered(state, action) {
-      state.activeId = action.payload;
-      state.childMode = true;
+      state.error = null;
     },
 
     // Back to Parent Mode (after the Parent PIN was accepted).
@@ -95,6 +131,7 @@ const childSlice = createSlice({
     },
 
     // Adds stars after a reading session (today's count starts again from 0 each new day).
+    // NOTE: progress is not sent to the server yet, so this only lasts until the app closes.
     readingResultAdded(state, action) {
       const child = state.list.find((c) => c.id === state.activeId);
       if (!child) return;
@@ -107,63 +144,73 @@ const childSlice = createSlice({
       child.activity[today] = { sessions: day.sessions + 1, stars: day.stars + stars };
     },
   },
+  extraReducers: (builder) => {
+    const clear = (state) => {
+      Object.assign(state, emptyState);
+      state.error = null;
+    };
+
+    builder
+      // ----- choice lists -----
+      .addCase(loadOptions.pending, (state) => {
+        state.optionsStatus = 'loading';
+        state.optionsError = null;
+      })
+      .addCase(loadOptions.fulfilled, (state, action) => {
+        state.options = action.payload;
+        state.optionsStatus = 'ready';
+      })
+      .addCase(loadOptions.rejected, (state, action) => {
+        state.optionsStatus = 'failed';
+        state.optionsError = action.payload ? action.payload.message : action.error.message;
+      })
+
+      // ----- the list of children -----
+      .addCase(fetchChildren.pending, (state) => {
+        state.error = null; // a Retry is running: show the spinner again
+      })
+      .addCase(fetchChildren.fulfilled, (state, action) => {
+        const { children, activeId } = action.payload;
+        state.list = children;
+        state.activeId = activeId || (children.length > 0 ? children[0].id : null);
+        state.childMode = false; // always start in Parent Mode
+        state.loading = false;
+        state.error = null;
+      })
+      .addCase(fetchChildren.rejected, (state, action) => {
+        state.error = action.payload ? action.payload.message : action.error.message;
+      })
+
+      // ----- one child -----
+      .addCase(createChild.fulfilled, (state, action) => {
+        state.list.push(action.payload.child);
+        if (!state.activeId) state.activeId = action.payload.child.id;
+      })
+      .addCase(saveChildChanges.fulfilled, (state, action) => {
+        const saved = action.payload.child; // the server sends back the whole, saved child
+        const index = state.list.findIndex((c) => c.id === saved.id);
+        if (index >= 0) state.list[index] = saved;
+      })
+      .addCase(removeChild.fulfilled, (state, action) => {
+        const id = action.payload;
+        state.list = state.list.filter((c) => c.id !== id);
+        if (state.activeId === id) state.activeId = state.list.length > 0 ? state.list[0].id : null;
+      })
+      .addCase(selectChild.fulfilled, (state, action) => {
+        state.activeId = action.payload.activeId;
+        state.childMode = true;
+      })
+
+      // ----- logging out (by the parent, or because the login expired) -----
+      .addCase(logOut.fulfilled, clear)
+      .addCase(sessionExpired, clear);
+  },
 });
 
-export const {
-  childrenLoaded,
-  childrenCleared,
-  childAdded,
-  childUpdated,
-  childDeleted,
-  childModeEntered,
-  childModeExited,
-  readingResultAdded,
-} = childSlice.actions;
+export const { childrenCleared, childModeExited, readingResultAdded } = childSlice.actions;
 export default childSlice.reducer;
 
-// ---------- thunks (they change the state AND save it on the phone) ----------
-
-// Saves the current list for this parent.
-function saveList(email, getState) {
-  if (email) saveData(KEYS.children(email), getState().child.list);
-}
-
-// Reads this parent's children from the phone. Returns them (Login uses that).
-export const loadChildren = (email) => async (dispatch) => {
-  const saved = await loadData(KEYS.children(email), []);
-  // Profiles saved by an older version used colour avatars ('lavender' ...): show them as the rabbit.
-  const list = saved.map((c) => (AVATARS.some((a) => a.id === c.avatar) ? c : { ...c, avatar: DEFAULT_AVATAR }));
-  const savedActive = await loadData(KEYS.activeChild(email), null);
-  const stillExists = list.some((c) => c.id === savedActive);
-  const activeId = stillExists ? savedActive : list.length > 0 ? list[0].id : null;
-  dispatch(childrenLoaded({ list, activeId }));
-  return list;
-};
-
-// Adds a new child (does NOT switch to Child Mode). Returns the new child.
-export const addChild = (email, profile) => (dispatch, getState) => {
-  const action = dispatch(childAdded(profile));
-  saveList(email, getState);
-  return action.payload;
-};
-
-export const updateChild = (email, id, changes) => (dispatch, getState) => {
-  dispatch(childUpdated({ id, changes }));
-  saveList(email, getState);
-};
-
-export const deleteChild = (email, id) => (dispatch, getState) => {
-  dispatch(childDeleted(id));
-  saveList(email, getState);
-  if (email) saveData(KEYS.activeChild(email), getState().child.activeId);
-};
-
-export const enterChildMode = (email, id) => (dispatch) => {
-  dispatch(childModeEntered(id));
-  if (email) saveData(KEYS.activeChild(email), id);
-};
-
-export const addReadingResult = (email, stars) => (dispatch, getState) => {
+// Progress is still only kept in memory (connecting it to the server is a later step).
+export const addReadingResult = (stars) => (dispatch) => {
   dispatch(readingResultAdded(stars));
-  saveList(email, getState);
 };

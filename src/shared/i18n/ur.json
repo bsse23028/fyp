@@ -535,5 +535,9 @@
   "Your login has expired.": "آپ کا لاگ ان ختم ہو گیا ہے۔",
   "Could not send the code": "کوڈ نہیں بھیجا جا سکا",
   "Could not save": "محفوظ نہیں ہو سکا",
-  "We can’t reach the KidBuddy server. Check your Wi-Fi and try again.": "KidBuddy سرور سے رابطہ نہیں ہو سکا۔ اپنا Wi-Fi چیک کریں اور دوبارہ کوشش کریں۔"
+  "We can’t reach the KidBuddy server. Check your Wi-Fi and try again.": "KidBuddy سرور سے رابطہ نہیں ہو سکا۔ اپنا Wi-Fi چیک کریں اور دوبارہ کوشش کریں۔",
+  "Retry": "دوبارہ کوشش کریں",
+  "Could not delete": "حذف نہیں ہو سکا",
+  "Could not open Child Mode": "چائلڈ موڈ نہیں کھل سکا",
+  "Could not connect": "رابطہ نہیں ہو سکا"
 }

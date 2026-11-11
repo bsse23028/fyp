@@ -29,10 +29,10 @@ export default function ProfilePickerScreen({ navigation }) {
 
   const selected = childProfiles.find((c) => c.id === selectedId) || null;
 
-  function handleContinue() {
+  // The server remembers this child as the active one. If that fails, a pop-up explains why.
+  async function handleContinue() {
     if (!selected) return;
-    enterChildMode(selected.id);
-    goToChildHome(navigation);
+    if (await enterChildMode(selected.id)) goToChildHome(navigation);
   }
 
   function handlePinSuccess() {

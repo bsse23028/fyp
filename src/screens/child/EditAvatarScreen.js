@@ -14,17 +14,20 @@ import ChildHeader from '../../shared/components/ChildHeader';
 import ChildInstruction from '../../shared/components/ChildInstruction';
 import Mascot from '../../shared/components/Mascot';
 import { useChild } from '../../app/store/useChild';
-import { AVATARS, getAvatar } from '../../shared/theme/avatars';
+import { useChildOptions } from '../../app/store/useChildOptions';
+import { getAvatar } from '../../shared/theme/avatars';
 import { COLORS, FONTS } from '../../shared/theme/theme';
 
 export default function EditAvatarScreen({ navigation }) {
   const { activeChild, updateChild } = useChild();
+  const { avatars: AVATARS } = useChildOptions(); // the buddies the server allows
   const [avatarId, setAvatarId] = useState(activeChild ? activeChild.avatar : 'rabbit');
   const chosen = getAvatar(avatarId);
 
-  function handleSave() {
-    if (activeChild) updateChild(activeChild.id, { avatar: avatarId });
-    navigation.goBack();
+  // Saved on the server. If that fails, a pop-up explains why and we stay here.
+  async function handleSave() {
+    if (!activeChild) return navigation.goBack();
+    if (await updateChild(activeChild.id, { avatar: avatarId })) navigation.goBack();
   }
 
   return (

@@ -28,7 +28,7 @@ import SegmentedControl from '../../shared/components/SegmentedControl';
 import Button from '../../shared/components/Button';
 import { useChild } from '../../app/store/useChild';
 import { goToParentHome } from '../../app/navigation/helpers';
-import { AGE_BANDS, LANGUAGES, defaultModules } from '../../shared/utils/childOptions';
+import { useChildOptions } from '../../app/store/useChildOptions';
 import { EMPTY_STORY } from '../../shared/utils/storyOptions';
 import { DEFAULT_AVATAR } from '../../shared/theme/avatars';
 import { globalStyles } from '../../shared/theme/globalStyles';
@@ -36,20 +36,24 @@ import { COLORS, FONTS } from '../../shared/theme/theme';
 
 export default function CreateChildProfileScreen({ navigation }) {
   const { addChild } = useChild();
+  const { ageBands, languages, defaultModules } = useChildOptions(); // lists from the server
 
   const [name, setName] = useState('');
   const [ageBand, setAgeBand] = useState('');
   const [avatar, setAvatar] = useState(DEFAULT_AVATAR);
   const [language, setLanguage] = useState('en');
   const [submitted, setSubmitted] = useState(false);
+  const [saving, setSaving] = useState(false);
 
   const nameProblem = name.trim() ? '' : 'Enter your child’s nickname.';
   const ageProblem = ageBand ? '' : 'Choose an age band.';
 
-  function handleCreate() {
+  async function handleCreate() {
     setSubmitted(true);
     if (nameProblem || ageProblem) return;
-    addChild({
+    setSaving(true);
+    // Saved on the server. If that fails, a pop-up explains why and we stay here.
+    const child = await addChild({
       name: name.trim(),
       ageBand,
       avatar,
@@ -58,7 +62,8 @@ export default function CreateChildProfileScreen({ navigation }) {
       modules: defaultModules(),
       story: EMPTY_STORY,
     });
-    goToParentHome(navigation);
+    setSaving(false);
+    if (child) goToParentHome(navigation);
   }
 
   return (
@@ -82,7 +87,7 @@ export default function CreateChildProfileScreen({ navigation }) {
 
         <Text style={[styles.label, globalStyles.fieldGap]}>Age band</Text>
         <View style={styles.chipRow}>
-          {AGE_BANDS.map((band) => (
+          {ageBands.map((band) => (
             <Chip key={band} label={band} selected={ageBand === band} onPress={() => setAgeBand(band)} />
           ))}
         </View>
@@ -92,7 +97,7 @@ export default function CreateChildProfileScreen({ navigation }) {
         <AvatarPicker selectedId={avatar} onSelect={setAvatar} />
 
         <Text style={[styles.label, globalStyles.fieldGap]}>Primary language</Text>
-        <SegmentedControl options={LANGUAGES} value={language} onChange={setLanguage} />
+        <SegmentedControl options={languages} value={language} onChange={setLanguage} />
 
         {/* pushes the buttons to the bottom */}
         <View style={styles.spacer} />
@@ -102,7 +107,7 @@ export default function CreateChildProfileScreen({ navigation }) {
           {navigation.canGoBack() && (
             <Button title="Back" variant="secondary" onPress={() => navigation.goBack()} style={styles.backButton} />
           )}
-          <Button title="Create profile" onPress={handleCreate} style={styles.nextButton} />
+          <Button title="Create profile" onPress={handleCreate} loading={saving} style={styles.nextButton} />
         </View>
       </View>
     </Screen>
