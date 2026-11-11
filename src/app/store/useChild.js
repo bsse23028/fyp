@@ -6,7 +6,7 @@
 // it with useSelector and hands out functions that dispatch the right thunks, so a screen
 // never has to know about Redux or the server.
 //
-// addChild, updateChild, deleteChild and enterChildMode ask the server, so they take a
+// addChild, updateChild, deleteChild, enterChildMode and addReadingResult ask the server, so they take a
 // moment. They return a PROMISE:
 //   - it worked  -> the promise gives the result (the child, or true)
 //   - it failed  -> a pop-up explains why (with "Retry" when the server could not be
@@ -19,13 +19,13 @@ import { useDispatch, useSelector } from 'react-redux';
 import { translate } from '../../shared/i18n/translate';
 import { DEFAULT_AVATAR } from '../../shared/theme/avatars';
 import {
-  addReadingResult,
   childModeExited,
   createChild,
   loadChildren,
   loadOptions,
   removeChild,
   saveChildChanges,
+  saveReadingSession,
   selectChild,
 } from './childSlice';
 
@@ -86,6 +86,10 @@ export function useChild() {
     deleteChild: (id) => runWithPopup(dispatch, () => removeChild(id), 'Could not delete'),
     enterChildMode: (id) => runWithPopup(dispatch, () => selectChild(id), 'Could not open Child Mode'),
     exitChildMode: () => dispatch(childModeExited()),
-    addReadingResult: (stars) => dispatch(addReadingResult(stars)),
+    // A Read-Along session finished. `session` = { childId, clientSessionId, stars, topicId,
+    // level, language, sessionDate }. "Retry" sends the SAME object again, so the same
+    // clientSessionId: the server then never counts the stars twice.
+    addReadingResult: (session) =>
+      runWithPopup(dispatch, () => saveReadingSession(session), 'Your stars are not saved yet'),
   };
 }

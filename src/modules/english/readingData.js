@@ -1,8 +1,8 @@
 // READING DATA - helpers for the reading topics of the English module.
 //
-// The topics themselves are NOT written here. They live in a plain JSON file:
-//     modules/english/data/readingTopics.json
-// Each topic has 3 levels (easy / medium / hard) and each level is a list of sentences:
+// WHERE THE TOPICS COME FROM: the DATABASE. The app loads them with
+//     GET /api/reading/topics?childId=...     (see store/englishSlice.js)
+// in this shape (the same shape the old JSON file had):
 //
 //   { "id": "animals", "title": "Animals", "icon": "🐶", "tint": "bluePale",
 //     "levels": { "easy": [ SENTENCE, SENTENCE, SENTENCE ], "medium": [...], "hard": [...] } }
@@ -13,20 +13,19 @@
 //     focus : the position (0 = first word) of the glowing word on the "Your turn" screen.
 //     ur    : the same sentence in Urdu, with its own focus (Urdu starts on the right).
 //
-// TO ADD A TOPIC: copy one topic block in the JSON file and change the words. Nothing else
-// needs to change - the topic list, the levels and the progress dots follow the file.
+// TO ADD A TOPIC: add it to the reading tables in the database (or, for one child, save a
+// custom topic with saveCustomTopic). The topic list, the levels and the progress dots follow.
 //
-// LATER (personalised stories): topics made for one child will be saved in the Redux slice
-// (`customTopics` in store/englishSlice.js) in this very same shape, and they will show up
-// in the topic list automatically.
+// data/readingTopics.json is KEPT, but only as the DEMO_MODE fallback (when the server's
+// content is not loaded). Do not edit it to change what children read.
 
 import topicsFile from './data/readingTopics.json';
 
-// The topics that come with the app.
-export const BUILT_IN_TOPICS = topicsFile;
+// DEMO_MODE fallback only: the topics that used to come with the app.
+export const DEMO_TOPICS = topicsFile;
 
-// The three levels, in the order they are shown.
-export const LEVELS = [
+// DEMO_MODE fallback only: the three levels (the real ones come from the database).
+export const DEMO_LEVELS = [
   { id: 'easy', label: 'Easy', stars: 1, tint: 'sagePale', color: 'sage' },
   { id: 'medium', label: 'Medium', stars: 2, tint: 'yellowPale', color: 'yellow' },
   { id: 'hard', label: 'Hard', stars: 3, tint: 'coralPale', color: 'coral' },
@@ -43,7 +42,10 @@ export function findSentences(topics, topicId, levelId) {
 }
 
 // One sentence in the chosen language: { words, focus }.
+// The database may say focus = null ("no glowing word"); then the first word is used, so
+// the "Your turn" screen always has a word. A sentence without Urdu falls back to English.
 export function getSentence(sentences, index, language) {
   const sentence = sentences[index];
-  return language === 'ur' ? sentence.ur : { words: sentence.words, focus: sentence.focus };
+  const chosen = language === 'ur' && sentence.ur ? sentence.ur : { words: sentence.words, focus: sentence.focus };
+  return { words: chosen.words, focus: chosen.focus == null ? 0 : chosen.focus };
 }

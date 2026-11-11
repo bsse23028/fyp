@@ -13,13 +13,13 @@ import Text from '../../../shared/components/AppText';
 import Screen from '../../../shared/components/Screen';
 import ChildHeader from '../../../shared/components/ChildHeader';
 import ChildInstruction from '../../../shared/components/ChildInstruction';
-import { levelChosen, selectTopic } from '../store/englishSlice';
-import { LEVELS } from '../readingData';
+import { levelChosen, selectLevels, selectTopic } from '../store/englishSlice';
 import { COLORS, FONTS } from '../../../shared/theme/theme';
 
 export default function ReadingLevelScreen({ navigation }) {
   const dispatch = useDispatch();
   const topic = useSelector(selectTopic); // the topic picked on the last screen
+  const LEVELS = useSelector(selectLevels); // Easy / Medium / Hard, from the database
 
   function startLevel(level) {
     dispatch(levelChosen(level.id)); // remember the choice

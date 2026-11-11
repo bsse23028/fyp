@@ -36,6 +36,16 @@ describe('GET /api/reading/topics', () => {
     });
   });
 
+  // The app now reads its topics from the database instead of readingTopics.json.
+  // This checks that the database has EVERY topic, sentence, focus and Urdu translation of that file.
+  test('the database content is the same as the app’s old readingTopics.json', async () => {
+    const appFile = require('../../src/modules/english/data/readingTopics.json');
+    const parent = await createParent();
+    const res = await api().get('/api/reading/topics').set(auth(parent.token));
+    const fromDatabase = res.body.topics.map(({ isCustom, ...topic }) => topic);
+    expect(fromDatabase).toEqual(appFile);
+  });
+
   test('needs a login (401); another parent’s childId gives 404', async () => {
     expect((await api().get('/api/reading/topics')).status).toBe(401);
     const owner = await createParent();

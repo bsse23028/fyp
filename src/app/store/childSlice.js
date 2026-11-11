@@ -8,9 +8,11 @@
 //     supports: ['Reading', ...],          areas of support
 //     modules:  ['Read-Along', ...],       activities switched on
 //     story:    answers of "Personalize my child's stories" (see shared/utils/storyOptions.js),
-//     reading:  { date: '2026-10-12', starsToday: 3, sessions: 1 },
+//     reading:  { date: '2026-10-12', starsToday: 3, sessions: 1 },   latest Read-Along day
 //     activity: { '2026-10-12': { sessions: 1, stars: 3 }, ... },   history for Parent progress
 //   }
+// `reading` and `activity` are worked out by the SERVER. After a reading session is saved
+// (saveReadingSession) the server sends the new totals and they replace the old ones.
 //
 // TWO MODES:
 //   Parent Mode (default, every time the app opens) - add / edit / delete children, progress, settings.
@@ -28,7 +30,6 @@
 
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { api } from '../../shared/api/client';
-import { dayKey } from '../../shared/utils/progress';
 import { logOut, sessionExpired } from './authSlice';
 
 // Runs one request. If it fails, the thunk is "rejected" with { message, status }
@@ -83,6 +84,15 @@ export const selectChild = createAsyncThunk('child/selectChild', async (id, { re
   callServer(() => api.post(`/api/children/${id}/select`), rejectWithValue)
 );
 
+// A Read-Along session finished: POST /api/children/:id/sessions
+//   session = { childId, clientSessionId, stars, topicId, level, language, sessionDate }
+// The server answers with the child's NEW totals: { duplicate, reading, activity }.
+// Sending the same clientSessionId again (Retry) never adds the stars twice.
+export const saveReadingSession = createAsyncThunk('child/saveReadingSession', async (session, { rejectWithValue }) => {
+  const { childId, ...body } = session;
+  return callServer(() => api.post(`/api/children/${childId}/sessions`, body), rejectWithValue);
+});
+
 // Loads the children ONCE even if two places ask at the same time
 // (ChildLoader and the Log In screen both ask right after logging in).
 // Returns the list (the Log In screen uses it to choose the next screen). Throws if it failed.
@@ -128,20 +138,6 @@ const childSlice = createSlice({
     // Back to Parent Mode (after the Parent PIN was accepted).
     childModeExited(state) {
       state.childMode = false;
-    },
-
-    // Adds stars after a reading session (today's count starts again from 0 each new day).
-    // NOTE: progress is not sent to the server yet, so this only lasts until the app closes.
-    readingResultAdded(state, action) {
-      const child = state.list.find((c) => c.id === state.activeId);
-      if (!child) return;
-      const stars = action.payload;
-      const today = dayKey();
-      const old = child.reading && child.reading.date === today ? child.reading : { date: today, starsToday: 0, sessions: 0 };
-      const day = (child.activity && child.activity[today]) || { sessions: 0, stars: 0 };
-      child.reading = { date: today, starsToday: old.starsToday + stars, sessions: old.sessions + 1 };
-      if (!child.activity) child.activity = {};
-      child.activity[today] = { sessions: day.sessions + 1, stars: day.stars + stars };
     },
   },
   extraReducers: (builder) => {
@@ -200,6 +196,13 @@ const childSlice = createSlice({
         state.activeId = action.payload.activeId;
         state.childMode = true;
       })
+      // The session is saved: use the server's totals (Child Home stars, Parent Home, Parent Progress).
+      .addCase(saveReadingSession.fulfilled, (state, action) => {
+        const child = state.list.find((c) => c.id === action.meta.arg.childId);
+        if (!child) return;
+        child.reading = action.payload.reading;
+        child.activity = action.payload.activity;
+      })
 
       // ----- logging out (by the parent, or because the login expired) -----
       .addCase(logOut.fulfilled, clear)
@@ -207,10 +210,5 @@ const childSlice = createSlice({
   },
 });
 
-export const { childrenCleared, childModeExited, readingResultAdded } = childSlice.actions;
+export const { childrenCleared, childModeExited } = childSlice.actions;
 export default childSlice.reducer;
-
-// Progress is still only kept in memory (connecting it to the server is a later step).
-export const addReadingResult = (stars) => (dispatch) => {
-  dispatch(readingResultAdded(stars));
-};

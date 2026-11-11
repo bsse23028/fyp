@@ -15,9 +15,9 @@
 //                   through useAuth() in app/context/AuthContext.js.
 //   Language / Device context - language and phone settings, also needed by the whole app.
 
-import { configureStore } from '@reduxjs/toolkit';
+import { configureStore, createListenerMiddleware } from '@reduxjs/toolkit';
 import authReducer from './authSlice';
-import childReducer from './childSlice';
+import childReducer, { selectChild } from './childSlice';
 import { MODULES } from '../../modules';
 
 // { auth: ..., child: ..., english: ..., numbers: ... }
@@ -26,7 +26,24 @@ MODULES.forEach((module) => {
   if (module.reducer) reducers[module.name] = module.reducer;
 });
 
-export const store = configureStore({ reducer: reducers });
+// A LISTENER waits for one action and then runs some code.
+// Here: when "Continue as Zara" worked (selectChild.fulfilled), every module that wants to
+// can load its data for that child (the English module loads its reading topics).
+const listener = createListenerMiddleware();
+listener.startListening({
+  actionCreator: selectChild.fulfilled,
+  effect: (action, listenerApi) => {
+    const childId = action.payload.activeId;
+    MODULES.forEach((module) => {
+      if (module.onChildSelected) listenerApi.dispatch(module.onChildSelected(childId));
+    });
+  },
+});
+
+export const store = configureStore({
+  reducer: reducers,
+  middleware: (getDefaultMiddleware) => getDefaultMiddleware().prepend(listener.middleware),
+});
 
 // Some modules need to read their saved data when the app starts.
 MODULES.forEach((module) => {

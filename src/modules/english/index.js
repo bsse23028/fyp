@@ -4,7 +4,8 @@
 // Inside this folder:
 //   screens/   WordsHub, ReadingTopics, ReadingLevel, ReadingAlong, ReadingYourTurn,
 //              ReadingSummary, StruggleWords
-//   data/      readingTopics.json (topics x 3 levels) · sampleStruggleWords.json
+//   data/      readingTopics.json (DEMO_MODE fallback only; the real topics are in the
+//              database) · sampleStruggleWords.json
 //   store/     englishSlice.js (Redux Toolkit)
 //   i18n/      ur.json (the Urdu words used only by this module)
 //   readingData.js   small helpers for the topics file
@@ -14,7 +15,7 @@
 //   ../../../app/...      useChild(), useLanguage(), navigation helpers
 // and from nowhere else (never from another module).
 
-import englishReducer, { loadEnglishData } from './store/englishSlice';
+import englishReducer, { fetchReadingContent } from './store/englishSlice';
 import ur from './i18n/ur.json';
 import WordsHubScreen from './screens/WordsHubScreen';
 import ReadingTopicsScreen from './screens/ReadingTopicsScreen';
@@ -27,7 +28,9 @@ import StruggleWordsScreen from './screens/StruggleWordsScreen';
 export default {
   name: 'english',
   reducer: englishReducer,
-  load: loadEnglishData,
+  // When a child is chosen ("Continue as Zara"), load the Read-Along content for this child
+  // from the database: topics, levels, sentences, Urdu, and the child's custom topics.
+  onChildSelected: (childId) => fetchReadingContent({ childId }),
   translations: ur,
   screens: [
     { name: 'WordsHub', component: WordsHubScreen },

@@ -11,7 +11,7 @@
 // The progress dots at the top show which sentence of the session this is.
 //
 // The sentences come from the topic + level the child picked (kept in Redux, see
-// ../store/englishSlice.js and ../data/readingTopics.json).
+// ../store/englishSlice.js). The sentences themselves come from the database.
 //
 // Route params: { index }  - which sentence (0 = first)
 // Props: { navigation, route }

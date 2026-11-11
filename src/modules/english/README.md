@@ -6,9 +6,9 @@ Everything about the English / Words activities lives in THIS folder.
 ```
 english/
   index.js            what the module contains (name, Redux slice, screens, Urdu words)
-  readingData.js      small helpers for the topics file (LEVELS, findSentences, getSentence)
-  data/               readingTopics.json (topics x easy/medium/hard) · sampleStruggleWords.json
-  store/              englishSlice.js  (Redux Toolkit: picked topic + level, struggle words, custom topics)
+  readingData.js      small helpers for the topics (findSentences, getSentence) + the DEMO_MODE fallback
+  data/               readingTopics.json (DEMO_MODE fallback ONLY) · sampleStruggleWords.json
+  store/              englishSlice.js  (Redux Toolkit: picked topic + level, reading content, struggle words)
   i18n/ur.json        Urdu words used only by this module
   screens/            WordsHub · ReadingTopics · ReadingLevel · ReadingAlong · ReadingYourTurn
                       ReadingSummary · StruggleWords (Parent -> Plan)
@@ -44,6 +44,9 @@ Screen names are global in the app, so give a new module's screens unique names 
 
 ## Things to know
 - Sentence format, topic format and the "add a topic" steps are described at the top of `readingData.js`.
-- Redux: `useSelector((state) => state.english)`; actions: `topicChosen`, `levelChosen`, `reportStruggleWord`, `saveCustomTopic`.
+- Redux: `useSelector((state) => state.english)`; actions: `topicChosen`, `levelChosen`, `reportStruggleWord(childId, word, topic)`,
+  `saveCustomTopic({ childId, topic })`. Selectors: `selectAllTopics`, `selectLevels`, `selectTopic`, `selectSentences`.
+- The topics, levels, sentences and Urdu come from the DATABASE (`GET /api/reading/topics?childId=`), loaded once
+  when a child is chosen (see `onChildSelected` in `index.js`). `data/readingTopics.json` is only used when `DEMO_MODE` is on.
 - The Parent Plan screen (`src/screens/parent/ParentPlanScreen.js`) opens `StruggleWords` by its screen name.
 - The Urdu sentences were written by Claude - please have a native speaker review them.

@@ -1,7 +1,8 @@
 // READING SUMMARY SCREEN - "Nice reading!" - where Read Along ends.
 //
-// When it opens, the stars are added to today's total (saved with AsyncStorage),
-// so they show up on Child Home. "Finish" goes back to Child Home.
+// When it opens, the session is sent to the server (POST /api/children/:id/sessions).
+// The server adds the stars to today's total and sends the new totals back, so they show
+// up on Child Home and in Parent Progress. "Finish" goes back to "Pick a level".
 //
 // Props: { navigation }
 
@@ -11,13 +12,19 @@ import Text from '../../../shared/components/AppText';
 import Screen from '../../../shared/components/Screen';
 import Mascot from '../../../shared/components/Mascot';
 import StarRow from '../../../shared/components/StarRow';
+import { useSelector } from 'react-redux';
 import { useChild } from '../../../app/store/useChild';
 // import { goToChildHome } from '../../../app/navigation/helpers';
 import { STARS_PER_SESSION } from '../readingData';
+import { selectAllTopics } from '../store/englishSlice';
+import { makeUuid } from '../../../shared/utils/uuid';
+import { dayKey } from '../../../shared/utils/progress';
 import { COLORS, FONTS } from '../../../shared/theme/theme';
 
 export default function ReadingSummaryScreen({ navigation }) {
-  const { addReadingResult } = useChild();
+  const { activeChild, addReadingResult } = useChild();
+  const { topicId, level } = useSelector((state) => state.english); // what the child picked
+  const topics = useSelector(selectAllTopics);
   // Back to "Pick a level". The stack is rebuilt as Child Home > Words > Topics > Level,
   // so the long chain of reading screens is cleared, Child Home stays the first screen
   // (a child can never go back into Parent Mode) and back still walks up one step at a time.
@@ -27,9 +34,21 @@ export default function ReadingSummaryScreen({ navigation }) {
       routes: [{ name: 'ChildHome' }, { name: 'WordsHub' }, { name: 'ReadingTopics' }, { name: 'ReadingLevel' }],
     });
   }
-  // Runs once, when the screen opens.
+  // Runs once, when the screen opens: send this session to the server.
+  // The session (with its clientSessionId) is made ONCE here. If saving fails, the pop-up's
+  // "Retry" sends this same object again, so the stars are never counted twice.
   useEffect(() => {
-    addReadingResult(STARS_PER_SESSION);
+    if (!activeChild) return;
+    addReadingResult({
+      childId: activeChild.id,
+      clientSessionId: makeUuid(),
+      stars: STARS_PER_SESSION,
+      // The same fallback as selectSentences: nothing picked -> first topic, easy.
+      topicId: topicId || (topics[0] ? topics[0].id : 'animals'),
+      level: level || 'easy',
+      language: 'en', // the English module
+      sessionDate: dayKey(), // the phone's own today, e.g. "2026-11-11"
+    });
   }, []);
 
   return (

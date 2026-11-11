@@ -162,6 +162,40 @@ describe('GET / PATCH / DELETE /api/children/:childId', () => {
     expect(res.body.child.story.people.mother).toBe(''); // the whole story was replaced
   });
 
+  // What "Personalize my child's stories" does: PATCH { story: cleanStory(story) }.
+  // When the app is opened again it calls GET /api/children - the story must come back the same.
+  test('Personalize Stories: the saved story comes back when the app reopens', async () => {
+    const parent = await createParent();
+    const child = await createChild(parent.token);
+    // The exact shape cleanStory() in src/shared/utils/storyOptions.js sends.
+    const appStory = {
+      people: {
+        preferredName: 'Zaru',
+        mother: 'Ayesha',
+        father: '',
+        siblings: ['Omar'],
+        others: [
+          { name: 'Dadi', relation: 'Grandmother' },
+          { name: 'Bushra', relation: 'Nanny' },
+          { name: 'Sana', relation: '' },
+        ],
+      },
+      favourites: { animal: 'Cat', toy: '', food: 'Mango', colour: 'Blue', character: '', game: '' },
+      interests: { hobbies: ['Drawing'], place: 'Park', storyTypes: ['Animals', 'Funny'] },
+      everyday: { hometown: 'Lahore', activity: '', places: ['Home'], routine: 'Bedtime story' },
+      notes: 'Keep sentences short and simple.',
+    };
+
+    const saved = await api().patch(`/api/children/${child.id}`).set(auth(parent.token)).send({ story: appStory });
+    expect(saved.status).toBe(200);
+    expect(saved.body.child.story).toEqual(appStory);
+
+    // "Reopen the app": the list the app loads at start-up.
+    const list = await api().get('/api/children').set(auth(parent.token));
+    expect(list.status).toBe(200);
+    expect(list.body.children.find((c) => c.id === child.id).story).toEqual(appStory);
+  });
+
   test('PATCH: nothing to change (400), bad value (400)', async () => {
     const parent = await createParent();
     const child = await createChild(parent.token);
