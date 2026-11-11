@@ -529,5 +529,11 @@
   "A sample of how your answers can be used in a story.": "آپ کے جوابات کہانی میں کیسے استعمال ہو سکتے ہیں، اس کی ایک مثال۔",
   "e.g. {name}": "مثلاً {name}",
   "{a} · {b}": "{a} · {b}",
-  "{a}, {b}": "{a}، {b}"
+  "{a}, {b}": "{a}، {b}",
+  "Your 6-digit code is printed in the backend terminal (the window where the server runs).": "آپ کا 6 ہندسوں کا کوڈ بیک اینڈ ٹرمینل میں لکھا ہے (وہ ونڈو جس میں سرور چل رہا ہے)۔",
+  "Please log in again": "دوبارہ لاگ ان کریں",
+  "Your login has expired.": "آپ کا لاگ ان ختم ہو گیا ہے۔",
+  "Could not send the code": "کوڈ نہیں بھیجا جا سکا",
+  "Could not save": "محفوظ نہیں ہو سکا",
+  "We can’t reach the KidBuddy server. Check your Wi-Fi and try again.": "KidBuddy سرور سے رابطہ نہیں ہو سکا۔ اپنا Wi-Fi چیک کریں اور دوبارہ کوشش کریں۔"
 }

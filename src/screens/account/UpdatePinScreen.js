@@ -24,7 +24,7 @@ import { COLORS, FONTS } from '../../shared/theme/theme';
 const PIN_FORMAT = /^\d{4}$/;
 
 export default function UpdatePinScreen({ navigation }) {
-  const { user, checkPin, sendChangeCode, changePin } = useAuth();
+  const { user, changePin } = useAuth();
 
   const [step, setStep] = useState('form'); // 'form' or 'code'
   const [oldPin, setOldPin] = useState('');
@@ -57,16 +57,12 @@ export default function UpdatePinScreen({ navigation }) {
   //      setStep('code');
   //   }
   // }
-function handleUpdatePin() {
+// The server checks the old PIN itself ("Your old PIN is not right." comes back as an error).
+async function handleUpdatePin() {
   setSubmitted(true);
   setFormError('');
 
   if (oldProblem || newProblem || confirmProblem) return;
-
-  if (!checkPin(oldPin)) {
-    setFormError('Your old PIN is not right.');
-    return;
-  }
 
   if (oldPin === newPin) {
     setFormError('Choose a PIN you have not used before.');
@@ -74,7 +70,7 @@ function handleUpdatePin() {
   }
 
   try {
-    changePin(oldPin, newPin);
+    await changePin(oldPin, newPin);
 
     Alert.alert(
       translate('PIN updated'),
@@ -85,8 +81,8 @@ function handleUpdatePin() {
     setFormError(error.message || 'Could not update PIN.');
   }
 }
-  function handleVerify(code) {
-    changePin(oldPin, newPin, code); // throws if the code is wrong
+  async function handleVerify(code) {
+    await changePin(oldPin, newPin, code); // throws if the PIN is wrong
     Alert.alert(translate('PIN updated'), translate('Use your new PIN to leave Child Mode.'), [
       { text: translate('OK'), onPress: () => navigation.goBack() },
     ]);

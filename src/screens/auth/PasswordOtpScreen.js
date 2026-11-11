@@ -14,7 +14,7 @@ export default function PasswordOtpScreen({ navigation, route }) {
   const { verifyResetCode } = useAuth();
 
   async function handleVerify(code) {
-    verifyResetCode(email, code); // throws if the code is wrong
+    await verifyResetCode(email, code); // asks the server; throws if the code is wrong
     navigation.navigate('ResetPassword', { email });
   }
 

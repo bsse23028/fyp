@@ -1,6 +1,7 @@
 // STORE - the ONE Redux Toolkit store of the app.
 //
 // It is built from:
+//   auth      - who is logged in + Parent PIN, from the backend (app/store/authSlice.js)
 //   child     - the child profiles + Parent/Child mode   (app/store/childSlice.js)
 //   <module>  - one slice per learning module            (english, later numbers, feelings ...)
 //
@@ -10,15 +11,17 @@
 // Which tool for what?
 //   Redux Toolkit - data that screens read and change: child profiles, the Read Along
 //                   topic / level, struggle words ...
-//   AuthContext   - who is logged in (the WHOLE app switches on this), the Parent PIN.
+//   authSlice     - who is logged in, the Parent PIN (data from the backend). Screens use it
+//                   through useAuth() in app/context/AuthContext.js.
 //   Language / Device context - language and phone settings, also needed by the whole app.
 
 import { configureStore } from '@reduxjs/toolkit';
+import authReducer from './authSlice';
 import childReducer from './childSlice';
 import { MODULES } from '../../modules';
 
-// { child: ..., english: ..., numbers: ... }
-const reducers = { child: childReducer };
+// { auth: ..., child: ..., english: ..., numbers: ... }
+const reducers = { auth: authReducer, child: childReducer };
 MODULES.forEach((module) => {
   if (module.reducer) reducers[module.name] = module.reducer;
 });

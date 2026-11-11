@@ -34,8 +34,12 @@ export default function ParentProfileScreen({ navigation }) {
   async function handleSaveName() {
     setSubmitted(true);
     if (nameProblem) return;
-    await updateName(name);
-    setSaved(true);
+    try {
+      await updateName(name); // saved on the server
+      setSaved(true);
+    } catch (err) {
+      Alert.alert(translate('Could not save'), translate(err.message));
+    }
   }
 
   // No PIN yet -> create one. Already has a PIN -> the safe "update" screen.

@@ -8,7 +8,7 @@
 //   - the parent has no PIN yet      -> "Create a 4-digit PIN", then asks to type it again
 //   - the parent has a PIN           -> "Enter your 4-digit PIN"
 //   - "Forgot PIN?"                  -> type the account password, then create a new PIN
-// The PIN is saved by AuthContext (savePin), so it is remembered on the phone.
+// The PIN is saved on the backend by AuthContext (savePin), as a hash - never on the phone.
 
 import React, { useEffect, useState } from 'react';
 import { Modal, Pressable, StyleSheet, View } from 'react-native';
@@ -62,37 +62,48 @@ export default function PinModal({ visible, onClose, onSuccess, forceCreate = fa
     if (next.length === 4) setTimeout(() => submit(next), 150); // tiny pause so the 4th dot shows
   }
 
-  function submit(code) {
-    if (phase === 'enter') {
-      if (checkPin(code)) onSuccess();
-      else {
-        setError('That PIN is not right. Try again.');
+  // checkPin and savePin ask the server, so we wait for them (await).
+  // If the server says no (e.g. the PIN is locked after 5 wrong tries) its message is shown.
+  async function submit(code) {
+    try {
+      if (phase === 'enter') {
+        if (await checkPin(code)) onSuccess();
+        else {
+          setError('That PIN is not right. Try again.');
+          setDigits('');
+        }
+      } else if (phase === 'create') {
+        setFirstPin(code);
         setDigits('');
+        setPhase('confirm');
+      } else if (phase === 'confirm') {
+        if (code === firstPin) {
+          await savePin(code);
+          onSuccess();
+        } else {
+          setError('The two PINs were different. Start again.');
+          setDigits('');
+          setPhase('create');
+        }
       }
-    } else if (phase === 'create') {
-      setFirstPin(code);
+    } catch (err) {
+      setError(err.message);
       setDigits('');
-      setPhase('confirm');
-    } else if (phase === 'confirm') {
-      if (code === firstPin) {
-        savePin(code);
-        onSuccess();
-      } else {
-        setError('The two PINs were different. Start again.');
-        setDigits('');
-        setPhase('create');
-      }
     }
   }
 
   async function handlePassword() {
-    const ok = await checkPassword(password);
-    if (ok) {
-      setPassword('');
-      setError('');
-      setPhase('create');
-    } else {
-      setError('That password is not right.');
+    try {
+      const ok = await checkPassword(password);
+      if (ok) {
+        setPassword('');
+        setError('');
+        setPhase('create');
+      } else {
+        setError('That password is not right.');
+      }
+    } catch (err) {
+      setError(err.message);
     }
   }
 

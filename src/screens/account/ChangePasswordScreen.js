@@ -46,15 +46,19 @@ const [showForgot, setShowForgot] = useState(false);
     if (oldProblem || newProblem || confirmProblem) return;
 
     setLoading(true);
-    if (!(await checkPassword(oldPassword))) {
-       setShowForgot(true);
-      setFormError('Your old password is not right.');
-       
-    } else if (oldPassword === newPassword) {
-      setFormError('Choose a password you have not used before.');
-    } else {
-      sendChangeCode(); // in demo mode the code appears in a pop-up
-      setStep('code');
+    try {
+      if (!(await checkPassword(oldPassword))) {
+         setShowForgot(true);
+        setFormError('Your old password is not right.');
+
+      } else if (oldPassword === newPassword) {
+        setFormError('Choose a password you have not used before.');
+      } else {
+        sendChangeCode(); // in demo mode a pop-up says the code is in the backend terminal
+        setStep('code');
+      }
+    } catch (err) {
+      setFormError(err.message); // e.g. the server cannot be reached
     }
     setLoading(false);
   }
