@@ -63,7 +63,7 @@ export default function ParentHomeScreen({ navigation }) {
   function confirmDelete(child) {
     Alert.alert(
       translate('Delete {name}?', { name: child.name }),
-      translate('This removes the profile and all of its progress from this phone. It cannot be undone.'),
+      translate('This deletes the profile and all of its progress from your account. It cannot be undone.'),
       [
         { text: translate('Cancel'), style: 'cancel' },
         { text: translate('Delete'), style: 'destructive', onPress: () => deleteChild(child.id) }, // on the server; a pop-up explains any problem

@@ -71,7 +71,7 @@ export default function EditProfileScreen({ navigation, route }) {
   function confirmDelete() {
     Alert.alert(
       translate('Delete {name}?', { name: child.name }),
-      translate('This removes the profile and all of its progress from this phone. It cannot be undone.'),
+      translate('This deletes the profile and all of its progress from your account. It cannot be undone.'),
       [
         { text: translate('Cancel'), style: 'cancel' },
         {
