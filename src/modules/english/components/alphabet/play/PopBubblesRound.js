@@ -4,11 +4,13 @@
 
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Animated, StyleSheet, View } from 'react-native';
-import Text from '../../../../../shared/components/AppText';
 import AnimatedPressable from '../../../../../shared/components/AnimatedPressable';
 import Sparkles from '../../../../../shared/components/Sparkles';
 import { motion, useDrift, usePulse, useScaleIn, wiggle, wiggleRotate } from '../../../../../shared/utils/motion';
 import { otherLetters, shuffle } from '../../../data/alphabetData';
+import { LessonLetter } from '../LetterCase';
+import { cheer } from '../../../../../shared/utils/speech';
+import { playSound } from '../../../../../shared/utils/sounds';
 import { CALM, CALM_ACCENTS, FONTS } from '../../../../../shared/theme/theme';
 
 const TARGET_COUNT = 3;
@@ -65,10 +67,10 @@ function Bubble({ bubble, size, spot, index, hint, onPress }) {
           />
           <AnimatedPressable
             onPress={bubble.popped ? undefined : onPress}
-            accessibilityLabel={bubble.letter}
+            accessibilityLabel={bubble.item.letter}
             style={[styles.bubble, { width: size, height: size, borderRadius: size / 2, backgroundColor: accent.pale, borderColor: accent.main }]}
           >
-            <Text style={[styles.letter, { fontSize: size * 0.46, color: accent.deep }]}>{bubble.letter}</Text>
+            <LessonLetter item={bubble.item} style={[styles.letter, { fontSize: size * 0.5, color: accent.deep }]} />
           </AnimatedPressable>
         </Animated.View>
         <Sparkles burstKey={sparkle} size={18} count={3} />
@@ -84,16 +86,13 @@ export default function PopBubblesRound({ item, instruction, voice, buddy, onDon
   const finished = useRef(false);
 
   const initial = useMemo(() => {
-    const letters = [
-      ...Array.from({ length: TARGET_COUNT }, () => item.letter),
-      ...otherLetters(item.letter, SPOTS.length - TARGET_COUNT).map((other) => other.letter),
-    ];
-    return shuffle(letters).map((letter, id) => ({ id, letter, correct: letter === item.letter, popped: false, wobbleKey: 0 }));
+    const letters = [...Array.from({ length: TARGET_COUNT }, () => item), ...otherLetters(item.letter, SPOTS.length - TARGET_COUNT)];
+    return shuffle(letters).map((entry, id) => ({ id, item: entry, correct: entry.letter === item.letter, popped: false, wobbleKey: 0 }));
   }, [item.letter]);
   const [bubbles, setBubbles] = useState(initial);
 
   useEffect(() => {
-    voice.ui(instruction.text, instruction.params);
+    voice.ui(instruction.text, instruction.speakParams || instruction.params);
   }, []);
 
   useEffect(() => {
@@ -112,11 +111,14 @@ export default function PopBubblesRound({ item, instruction, voice, buddy, onDon
       setBubbles((list) => list.map((b) => (b.id === bubble.id ? { ...b, wobbleKey: b.wobbleKey + 1 } : b)));
       return;
     }
-    voice.teach(item.nameSpeech);
+    playSound('pop');
     const next = bubbles.map((b) => (b.id === bubble.id ? { ...b, popped: true } : b));
     setBubbles(next);
-    if (next.filter((b) => b.correct && b.popped).length === TARGET_COUNT) {
+    const allPopped = next.filter((b) => b.correct && b.popped).length === TARGET_COUNT;
+    voice.teach(item.nameSpeech, allPopped ? { onDone: () => cheer() } : undefined);
+    if (allPopped) {
       finished.current = true;
+      if (buddy.party) buddy.party();
       buddy.mood('happy');
       setTimeout(onDone, 1400);
     }

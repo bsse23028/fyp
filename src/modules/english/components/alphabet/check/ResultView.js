@@ -1,22 +1,43 @@
-// RESULT VIEW - the end of a letter: the stars spring in one by one (~400 ms apart), a few ✨ drift
-// up, and two calm choices ("Play again", "Back to letters"). "Next letter" is the main button at the
-// bottom (LessonLayout). With 1 star, "Play again" is the gently highlighted one.
+// RESULT VIEW - the last lesson page: the stars spring in one by one (~400 ms apart), a few ✨ drift up,
+// then three icon buttons (no words): next letter (big), play again, back to letters.
+// With 1 star "play again" is the gently highlighted one; next letter stays available.
 
 import React, { useEffect, useState } from 'react';
 import { Animated, StyleSheet, View } from 'react-native';
-import Text from '../../../../../shared/components/AppText';
+import { Ionicons } from '@expo/vector-icons';
 import StarsRow from '../../../../../shared/components/StarsRow';
 import Sparkles from '../../../../../shared/components/Sparkles';
-import SoftButton from '../../../../../shared/components/SoftButton';
-import { usePulse } from '../../../../../shared/utils/motion';
-import { CALM, CALM_RADIUS, CALM_SHADOW, FONTS } from '../../../../../shared/theme/theme';
+import AnimatedPressable from '../../../../../shared/components/AnimatedPressable';
+import { usePulse, useScaleIn } from '../../../../../shared/utils/motion';
+import { CALM, CALM_RADIUS, CALM_SHADOW } from '../../../../../shared/theme/theme';
 
 const STAR_GAP = 400;
 
-export default function ResultView({ stars, onPlayAgain, onBackToLetters }) {
+function IconButton({ icon, size, main, highlight, onPress, label, delay }) {
+  const appear = useScaleIn(delay);
+  const pulse = usePulse(highlight, { duration: 1300 });
+  const scale = pulse.interpolate({ inputRange: [0, 1], outputRange: [1, 1.08] });
+  return (
+    <Animated.View style={[appear, { transform: [{ scale }] }]}>
+      <AnimatedPressable
+        onPress={onPress}
+        accessibilityLabel={label}
+        style={[
+          styles.iconButton,
+          { width: size, height: size, borderRadius: size / 2 },
+          main || highlight ? [styles.main, CALM_SHADOW.lifted] : [styles.soft, CALM_SHADOW.soft],
+        ]}
+      >
+        <Ionicons name={icon} size={size * 0.48} color={main || highlight ? CALM.onPrimary : CALM.primaryDark} />
+      </AnimatedPressable>
+    </Animated.View>
+  );
+}
+
+export default function ResultView({ stars, hasNext, onNext, onPlayAgain, onBackToLetters }) {
   const [sparkles, setSparkles] = useState(0);
   const lowScore = stars <= 1;
-  const pulse = usePulse(lowScore, { duration: 1400 });
+  const buttonsDelay = stars * STAR_GAP + 300;
 
   useEffect(() => {
     const timer = setTimeout(() => setSparkles(1), stars * STAR_GAP);
@@ -26,22 +47,16 @@ export default function ResultView({ stars, onPlayAgain, onBackToLetters }) {
   return (
     <View style={styles.body}>
       <View style={[styles.card, CALM_SHADOW.soft]}>
-        <Text style={styles.title}>Great job!</Text>
-        <StarsRow count={stars} popIn gap={STAR_GAP} size={54} style={styles.stars} />
-        <Sparkles burstKey={sparkles} size={22} count={4} />
+        <StarsRow count={stars} popIn gap={STAR_GAP} size={64} />
+        <Sparkles burstKey={sparkles} size={24} count={4} />
       </View>
 
       <View style={styles.actions}>
-        <Animated.View style={{ transform: [{ scale: pulse.interpolate({ inputRange: [0, 1], outputRange: [1, 1.04] }) }] }}>
-          <SoftButton
-            title="Play again"
-            icon="🔁"
-            variant={lowScore ? 'primary' : 'soft'}
-            onPress={onPlayAgain}
-            style={styles.button}
-          />
-        </Animated.View>
-        <SoftButton title="Back to letters" icon="🔤" variant="secondary" onPress={onBackToLetters} style={styles.button} />
+        <IconButton icon="refresh" size={68} highlight={lowScore} onPress={onPlayAgain} label="Play again" delay={buttonsDelay} />
+        {hasNext ? (
+          <IconButton icon="arrow-forward" size={92} main={!lowScore} onPress={onNext} label="Next letter" delay={buttonsDelay + 120} />
+        ) : null}
+        <IconButton icon="grid" size={68} onPress={onBackToLetters} label="Back to letters" delay={buttonsDelay + 240} />
       </View>
     </View>
   );
@@ -55,25 +70,26 @@ const styles = StyleSheet.create({
   },
   card: {
     alignItems: 'center',
-    paddingVertical: 22,
-    paddingHorizontal: 34,
+    paddingVertical: 24,
+    paddingHorizontal: 30,
     borderRadius: CALM_RADIUS.xl,
     backgroundColor: CALM.surface,
   },
-  title: {
-    fontFamily: FONTS.nunitoBlack,
-    fontSize: 28,
-    color: CALM.primaryDark,
-  },
-  stars: {
-    marginTop: 8,
-  },
   actions: {
-    marginTop: 22,
-    gap: 12,
+    flexDirection: 'row',
     alignItems: 'center',
+    gap: 18,
+    marginTop: 30,
+    direction: 'ltr',
   },
-  button: {
-    minWidth: 230,
+  iconButton: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  main: {
+    backgroundColor: CALM.primary,
+  },
+  soft: {
+    backgroundColor: CALM.surface,
   },
 });

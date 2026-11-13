@@ -156,6 +156,16 @@ export const motion = {
   loop(animation, iterations = -1) {
     return enabled ? Animated.loop(animation, { iterations }) : NOOP_ANIMATION;
   },
+  // A step that only runs `fn` (e.g. a landing sound) at that moment of a sequence.
+  call(fn) {
+    return {
+      ...NOOP_ANIMATION,
+      start: (cb) => {
+        if (fn) fn();
+        if (cb) cb({ finished: true });
+      },
+    };
+  },
 };
 
 // Endless slow sway around a fixed spot (background bubbles). Each bubble gets its own timing.
@@ -262,4 +272,25 @@ export function hop(hopValue, squashValue, height = 14) {
     motion.timing(squashValue, 0.9, { duration: 80 }),
     motion.spring(squashValue, 1, { friction: 4, tension: 160 }),
   ]);
+}
+
+// Quick "flip" (scale down and back up, ~250 ms) every time `trigger` changes after the first render.
+export function useFlip(trigger) {
+  const scale = useRef(new Animated.Value(1)).current;
+  const first = useRef(true);
+
+  useEffect(() => {
+    if (first.current) {
+      first.current = false;
+      return;
+    }
+    motion
+      .sequence([
+        motion.timing(scale, 0.55, { duration: 110, easing: Easing.in(Easing.quad) }),
+        motion.timing(scale, 1, { duration: 140, easing: Easing.out(Easing.back(1.6)) }),
+      ])
+      .start();
+  }, [trigger]);
+
+  return { transform: [{ scale }] };
 }

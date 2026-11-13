@@ -1,46 +1,47 @@
-// LESSON LAYOUT - the same frame for every lesson stage, so nothing jumps around:
-//   top: back + StageProgress, then the instruction (written) with a 🔊 to hear it again
-//   middle: the stage content
-//   bottom: the buddy in the bottom-left corner, the Next button bottom-centre
+// LESSON LAYOUT - the same frame for every lesson page, so nothing ever moves around:
+//   top: back (left) + `right` (the case toggle), then the icon progress
+//   middle: the pages (full width, the SwipePager)
+//   bottom: the buddy in the bottom-left corner with the small back arrow beside it,
+//           a small 🔊 above the big forward arrow on the right. No written instructions.
+//   over everything: the party-popper Confetti (`confetti` = { key, big }), which never catches touches.
 
 import React from 'react';
-import { StyleSheet, View, useWindowDimensions } from 'react-native';
-import Text from '../../../shared/components/AppText';
+import { StyleSheet, View } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import Screen from '../../../shared/components/Screen';
-import SoundButton from '../../../shared/components/SoundButton';
-import CrossFade from '../../../shared/components/CrossFade';
+import AnimatedPressable from '../../../shared/components/AnimatedPressable';
 import BuddyCharacter from '../../../shared/components/BuddyCharacter';
+import Confetti from '../../../shared/components/Confetti';
 import SectionHeader from './SectionHeader';
-import NextButton from './NextButton';
-import { CALM, FONTS, SPACING } from '../../../shared/theme/theme';
+import ArrowButton from './ArrowButton';
+import { CALM, CALM_SHADOW, SPACING } from '../../../shared/theme/theme';
 
 const BUDDY_SIZE = 76;
-const BUDDY_ROOM = BUDDY_SIZE + 12;
+const BAR_HEIGHT = 96;
 
-export default function LessonLayout({ progress, instruction, onBack, onSound, next, buddy, children }) {
-  const { width } = useWindowDimensions();
-  const nextWidth = Math.max(140, Math.min(230, width - SPACING.screen * 2 - BUDDY_ROOM * 2));
-
+export default function LessonLayout({ progress, right, onBack, onSound, back, next, buddy, confetti, children }) {
   return (
     <Screen mode="child" background={CALM.background}>
       <View style={styles.body}>
-        <SectionHeader onBack={onBack} center={progress} />
+        <SectionHeader onBack={onBack} right={right} />
+        <View style={styles.progress}>{progress}</View>
 
-        <View style={styles.instructionRow}>
-          <CrossFade stepKey={instruction} style={styles.instructionFade}>
-            <Text style={styles.instruction} numberOfLines={3}>
-              {instruction}
-            </Text>
-          </CrossFade>
-          {onSound ? <SoundButton onPress={onSound} /> : null}
+        <View style={styles.pages}>{children}</View>
+
+        <View style={styles.bar}>
+          <View style={styles.backSpot}>{back ? <ArrowButton direction="back" {...back} /> : null}</View>
+          <View style={styles.nextSpot}>
+            {onSound ? (
+              <AnimatedPressable onPress={onSound} hitSlop={6} accessibilityLabel="Say it again" style={[styles.sound, CALM_SHADOW.soft]}>
+                <Ionicons name="volume-high" size={24} color={CALM.primaryDark} />
+              </AnimatedPressable>
+            ) : null}
+            {next ? <ArrowButton direction="next" {...next} /> : null}
+          </View>
         </View>
 
-        <View style={styles.content}>{children}</View>
-
-        <View style={styles.bottom}>
-          <NextButton width={nextWidth} {...next} />
-        </View>
         <BuddyCharacter size={BUDDY_SIZE} style={styles.buddy} {...buddy} />
+        {confetti ? <Confetti burstKey={confetti.key} big={confetti.big} count={confetti.count} /> : null}
       </View>
     </Screen>
   );
@@ -50,34 +51,43 @@ const styles = StyleSheet.create({
   body: {
     flex: 1,
   },
-  instructionRow: {
+  progress: {
+    marginTop: 8,
+  },
+  pages: {
+    flex: 1,
+    marginTop: 8,
+    marginHorizontal: -SPACING.screen,
+  },
+  bar: {
+    height: BAR_HEIGHT,
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: 14,
-    minHeight: 60,
+    justifyContent: 'space-between',
+    direction: 'ltr',
   },
-  instructionFade: {
-    marginEnd: 10,
-    justifyContent: 'center',
+  backSpot: {
+    marginStart: BUDDY_SIZE + 8,
+    width: 56,
+    alignItems: 'center',
   },
-  instruction: {
-    fontFamily: FONTS.nunitoBlack,
-    fontSize: 21,
-    lineHeight: 28,
-    color: CALM.text,
+  nextSpot: {
+    alignItems: 'center',
   },
-  content: {
-    flex: 1,
-    marginTop: 6,
-  },
-  bottom: {
-    height: 96,
+  sound: {
+    position: 'absolute',
+    bottom: '100%',
+    marginBottom: 10,
+    width: 48,
+    height: 48,
+    borderRadius: 24,
     alignItems: 'center',
     justifyContent: 'center',
+    backgroundColor: CALM.surface,
   },
   buddy: {
     position: 'absolute',
-    start: -6,
+    left: -6,
     bottom: 0,
   },
 });

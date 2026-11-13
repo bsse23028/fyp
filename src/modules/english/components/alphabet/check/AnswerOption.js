@@ -7,6 +7,7 @@ import { Animated, StyleSheet } from 'react-native';
 import Text from '../../../../../shared/components/AppText';
 import AnimatedPressable from '../../../../../shared/components/AnimatedPressable';
 import { motion, useScaleIn } from '../../../../../shared/utils/motion';
+import { LessonLetter } from '../LetterCase';
 import { CALM, CALM_RADIUS, CALM_SHADOW, CALM_SUCCESS, FONTS } from '../../../../../shared/theme/theme';
 
 function Twinkle() {
@@ -34,11 +35,11 @@ export default function AnswerOption({ option, width, state, index, onPress }) {
       <Animated.View pointerEvents="none" style={[styles.glow, { opacity: glow }]} />
       <AnimatedPressable
         onPress={state === 'idle' ? onPress : undefined}
-        accessibilityLabel={option.kind === 'letter' ? option.char : option.example.word}
+        accessibilityLabel={option.kind === 'letter' ? option.item.letter : option.example.word}
         style={[styles.card, CALM_SHADOW.soft, lit && styles.lit]}
       >
         {option.kind === 'letter' ? (
-          <Text style={[styles.letter, { color: option.item.accent.deep }]}>{option.char}</Text>
+          <LessonLetter item={option.item} opposite={option.role === 'opposite'} style={[styles.letter, { color: option.item.accent.deep }]} />
         ) : (
           <>
             <Text style={styles.emoji}>{option.example.emoji}</Text>

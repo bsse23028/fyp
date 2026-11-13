@@ -1,22 +1,36 @@
-// CHECK STAGE - stage 3 of a letter: 5 questions that cross-fade one after another (progress dots),
-// then the result. The lesson screen keeps the question index and the score.
+// CHECK STAGE - the Star Check page: 5 questions that cross-fade one after another (progress dots).
+// After the last answer a big soft star waits; the child swipes on to the Result page.
+// The lesson screen keeps the question index and the score.
 
 import React from 'react';
-import { StyleSheet, View } from 'react-native';
+import { Animated, StyleSheet, View } from 'react-native';
 import CrossFade from '../../../../../shared/components/CrossFade';
 import ProgressDots from '../../../../../shared/components/ProgressDots';
+import Text from '../../../../../shared/components/AppText';
 import QuestionView from './QuestionView';
-import ResultView from './ResultView';
+import { usePulse } from '../../../../../shared/utils/motion';
 
-export default function CheckStage({ questions, index, stars, item, voice, buddy, contentWidth, onAnswered, onPlayAgain, onBackToLetters }) {
+function AllAnswered() {
+  const pulse = usePulse(true, { duration: 1300 });
+  const scale = pulse.interpolate({ inputRange: [0, 1], outputRange: [1, 1.08] });
+  return (
+    <View style={styles.center}>
+      <Animated.View style={{ transform: [{ scale }] }}>
+        <Text style={styles.star}>⭐</Text>
+      </Animated.View>
+    </View>
+  );
+}
+
+export default function CheckStage({ questions, index, item, voice, buddy, contentWidth, onChosen, onAnswered }) {
   const finished = index >= questions.length;
 
   return (
     <View style={styles.body}>
-      {!finished && <ProgressDots count={questions.length} current={index} />}
-      <CrossFade stepKey={finished ? 'result' : questions[index].id}>
+      <ProgressDots count={questions.length} current={index} />
+      <CrossFade stepKey={finished ? 'done' : questions[index].id}>
         {finished ? (
-          <ResultView stars={stars} onPlayAgain={onPlayAgain} onBackToLetters={onBackToLetters} />
+          <AllAnswered />
         ) : (
           <QuestionView
             question={questions[index]}
@@ -24,6 +38,7 @@ export default function CheckStage({ questions, index, stars, item, voice, buddy
             voice={voice}
             buddy={buddy}
             contentWidth={contentWidth}
+            onChosen={onChosen}
             onAnswered={onAnswered}
           />
         )}
@@ -35,5 +50,14 @@ export default function CheckStage({ questions, index, stars, item, voice, buddy
 const styles = StyleSheet.create({
   body: {
     flex: 1,
+  },
+  center: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  star: {
+    fontSize: 110,
+    lineHeight: 130,
   },
 });

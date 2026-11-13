@@ -5,13 +5,15 @@
 //   4 small      a capital is shown, tap its small letter
 //   5 which      "Which one is A?" with look-alike letters
 // X uses words that END with x, so its prompts say "has" / "at the end of" instead of "starts with".
+// Options only keep the letter (`item`) and a `role`: 'same' = drawn in the chosen case, 'opposite' = the other
+// case. `prompt(caseMode)` builds the text, so switching the case never rebuilds or reshuffles the questions.
 
 import { ALPHABET, LOOKALIKES, otherLetters, pickLetters, shuffle, soundAlikes } from '../../../data/alphabetData';
 
-const letterOption = (item, char, correct) => ({ key: `${item.letter}-${char}`, kind: 'letter', char, item, correct });
+const letterOption = (item, correct, role = 'same') => ({ key: item.letter, kind: 'letter', item, role, correct });
 const pictureOption = (example, correct) => ({ key: example.word, kind: 'picture', example, correct });
 
-function prompt(text, params) {
+function makePrompt(text, params) {
   let shown = text;
   Object.keys(params).forEach((name) => {
     shown = shown.replace(`{${name}}`, params[name]);
@@ -35,32 +37,38 @@ export default function buildQuestions(item) {
   return [
     {
       id: 'hear',
-      prompt: prompt('Which letter did you hear?', {}),
+      prompt: () => makePrompt('Which letter did you hear?', {}),
       say: item.nameSpeech,
-      options: shuffle([letterOption(item, letter, true), ...heard.map((o) => letterOption(o, o.letter, false))]),
+      options: shuffle([letterOption(item, true), ...heard.map((o) => letterOption(o, false))]),
     },
     {
       id: 'picture',
-      prompt: prompt(atEnd ? 'Which picture has {letter}?' : 'Which picture starts with {letter}?', { letter }),
-      showLetter: `${letter}${lower}`,
+      prompt: (caseMode) =>
+        makePrompt(atEnd ? 'Which picture has {letter}?' : 'Which picture starts with {letter}?', {
+          letter: caseMode === 'lower' ? lower : letter,
+        }),
+      showLetter: 'same',
       options: shuffle([pictureOption(picture, true), ...pictureOthers.map((ex) => pictureOption(ex, false))]),
     },
     {
       id: 'letterFor',
-      prompt: prompt(atEnd ? 'Which letter is at the end of {word}?' : 'Which letter does {word} start with?', { word }),
+      prompt: () => makePrompt(atEnd ? 'Which letter is at the end of {word}?' : 'Which letter does {word} start with?', { word }),
       showPicture: picture,
-      options: shuffle([letterOption(item, letter, true), ...notInWord.map((o) => letterOption(o, o.letter, false))]),
+      options: shuffle([letterOption(item, true), ...notInWord.map((o) => letterOption(o, false))]),
     },
     {
       id: 'small',
-      prompt: prompt('Tap the small letter for {letter}.', { letter }),
-      showLetter: letter,
-      options: shuffle([letterOption(item, lower, true), ...smallOthers.map((o) => letterOption(o, o.lower, false))]),
+      prompt: (caseMode) =>
+        caseMode === 'lower'
+          ? makePrompt('Tap the big letter for {letter}.', { letter: lower })
+          : makePrompt('Tap the small letter for {letter}.', { letter }),
+      showLetter: 'same',
+      options: shuffle([letterOption(item, true, 'opposite'), ...smallOthers.map((o) => letterOption(o, false, 'opposite'))]),
     },
     {
       id: 'which',
-      prompt: prompt('Which one is {letter}?', { letter }),
-      options: shuffle([letterOption(item, letter, true), ...which.map((o) => letterOption(o, o.letter, false))]),
+      prompt: (caseMode) => makePrompt('Which one is {letter}?', { letter: caseMode === 'lower' ? lower : letter }),
+      options: shuffle([letterOption(item, true), ...which.map((o) => letterOption(o, false))]),
     },
   ];
 }

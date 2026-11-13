@@ -10,9 +10,10 @@ english/
   data/               readingTopics.json (DEMO_MODE fallback ONLY) · sampleStruggleWords.json · alphabetData.js (A-Z)
   store/              englishSlice.js  (Redux Toolkit: picked topic + level, reading content, struggle words)
                       alphabetSlice.js (state.englishAlphabet: best stars per child + letter, saved on the phone)
-  components/         SectionHeader · NextButton · LessonLayout (the fixed lesson frame)
-                      alphabet/  LetterTile · LetterCard · PictureCard
-                                 learn/ (Look, Listen, Say) · play/ (drag + bubbles rounds) · check/ (questions + result)
+  components/         SectionHeader · LessonLayout (the fixed lesson frame) · LessonProgress (icon dots) · ArrowButton
+                      alphabet/  LetterTile · LetterCase (capital/small) · CaseToggle
+                                 learn/ (LookPage, ListenPage, SayPage, JumpingLetter, ListenPicture, useLessonSequence)
+                                 play/ (drag + bubbles rounds) · check/ (questions + result)
   i18n/ur.json        Urdu words used only by this module
   screens/            EnglishHub · AlphabetList · LetterLesson
                       WordsHub (no longer linked) · ReadingTopics · ReadingLevel · ReadingAlong · ReadingYourTurn
@@ -21,8 +22,8 @@ english/
 
 ## Flow
 Child Home (English) -> **EnglishHub**:
-- Alphabets -> **AlphabetList** -> **LetterLesson** (`{ letter }`): Learn -> Play -> Star Check -> result, all on ONE screen
-  (stages cross-fade). Stars are saved only by `recordLetterResult` (nothing in Preview mode).
+- Alphabets -> **AlphabetList** -> **LetterLesson** (`{ letter }`): ONE swipe pager of 7 pages
+  (Look · Listen · Listen · Say · Play · Star Check · Result, forward locked until each page is done). Stars are saved only by `recordLetterResult` (nothing in Preview mode).
 - Words -> "Coming soon".
 - Sentences -> **ReadingTopics** -> **ReadingLevel** ->
 **ReadingAlong** <-> **ReadingYourTurn** (one pair per sentence) -> **ReadingSummary**.

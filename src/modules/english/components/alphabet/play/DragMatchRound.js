@@ -10,6 +10,8 @@ import { StyleSheet, View } from 'react-native';
 import Text from '../../../../../shared/components/AppText';
 import DraggableCard from './DraggableCard';
 import DropTarget from './DropTarget';
+import { cheer } from '../../../../../shared/utils/speech';
+import { playSound } from '../../../../../shared/utils/sounds';
 import { CALM, FONTS } from '../../../../../shared/theme/theme';
 
 const SLACK = 14;
@@ -42,7 +44,7 @@ export default function DragMatchRound({
   const [caption, setCaption] = useState(null);
 
   useEffect(() => {
-    voice.ui(instruction.text, instruction.params);
+    voice.ui(instruction.text, instruction.speakParams || instruction.params);
     return () => timers.current.forEach(clearTimeout);
   }, []);
 
@@ -91,7 +93,9 @@ export default function DragMatchRound({
       setMatched(true);
       setCelebrateKey((k) => k + 1);
       setCaption(successLine);
-      voice.teach(successSpeech || successLine);
+      playSound('pop');
+      if (buddy.party) buddy.party();
+      voice.teach(successSpeech || successLine, { onDone: () => cheer() });
       buddy.mood('happy');
       later(onDone, NEXT_ROUND_DELAY);
     };
