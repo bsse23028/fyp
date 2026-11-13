@@ -3,7 +3,7 @@
 //   big jump with one full turn at the top + squash landing  ->  says the letter NAME ("ay")
 //   then 3 small hops, each with the SOUND ("ah") and a tiny sparkle
 //   then the buddy does a happy hop (onCheer).
-// The sequence also plays ONCE by itself ~1.7 s after the page first appears (a demonstration that does
+// The sequence also plays ONCE by itself `demoDelay` ms (default ~1.7 s) after the page first appears (a demonstration that does
 // NOT finish the page: the child must tap). Taps during a sequence are ignored; leaving the page stops it.
 
 import React, { useEffect, useRef, useState } from 'react';
@@ -19,7 +19,7 @@ const DEMO_DELAY = 1700;
 const SOUND_REPEATS = 3;
 const land = () => playSound('boing');
 
-export default function LookPage({ item, active, cardSize, onDone, onCheer }) {
+export default function LookPage({ item, active, cardSize, onDone, onCheer, demoDelay = DEMO_DELAY }) {
   const letter = useRef(null);
   const sequence = useLessonSequence(active);
   const [tapped, setTapped] = useState(false);
@@ -49,7 +49,7 @@ export default function LookPage({ item, active, cardSize, onDone, onCheer }) {
     const timer = setTimeout(() => {
       demoShown.current = true;
       perform(false);
-    }, DEMO_DELAY);
+    }, demoDelay);
     return () => clearTimeout(timer);
   }, [active]);
 

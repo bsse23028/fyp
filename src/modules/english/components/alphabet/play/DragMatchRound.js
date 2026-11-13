@@ -3,6 +3,7 @@
 //   1st: the card glides back, the buddy tilts its head ("Let's try again")
 //   2nd: glides back and the right target glows softly as a hint
 //   3rd: the buddy places the answer for the child, and the round moves on
+// A target's `content` can be a function ({ matched }) => ... to react to the match.
 // Dropping on empty space just glides back (not counted). Never red, X or a negative sound.
 
 import React, { useEffect, useRef, useState } from 'react';
@@ -28,6 +29,7 @@ export default function DragMatchRound({
   voice,
   buddy,
   onDone,
+  active = true,
 }) {
   const cardRef = useRef(null);
   const targetRefs = useRef({});
@@ -138,12 +140,14 @@ export default function DragMatchRound({
             }}
             width={target.width}
             hover={hover === target.key}
-            hint={hint && target.key === correctKey}
+            hint={active && hint && target.key === correctKey}
             matched={matched && target.key === correctKey}
             badge={badge}
             celebrateKey={target.key === correctKey ? celebrateKey : 0}
           >
-            {target.content}
+            {typeof target.content === 'function'
+              ? target.content({ matched: matched && target.key === correctKey })
+              : target.content}
           </DropTarget>
         ))}
       </View>

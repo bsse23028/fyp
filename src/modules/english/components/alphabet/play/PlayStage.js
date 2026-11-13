@@ -12,6 +12,7 @@ import PopBubblesRound from './PopBubblesRound';
 import { otherLetters, shuffle } from '../../../data/alphabetData';
 import { useScaleIn } from '../../../../../shared/utils/motion';
 import { LessonLetter, useLetterCase } from '../LetterCase';
+import TalkingObject from '../../../../../shared/components/TalkingObject';
 import { CALM, CALM_RADIUS, CALM_SHADOW, FONTS } from '../../../../../shared/theme/theme';
 
 export const PLAY_ROUNDS = ['drag', 'pop', 'case'];
@@ -47,11 +48,20 @@ function LetterFace({ item, size }) {
   );
 }
 
-function Picture({ example }) {
+// A calm little character (blinking only) that does a small happy hop when the letter lands on it.
+function Picture({ example, matched, active }) {
   const { word } = useLetterCase();
   return (
     <View style={styles.picture}>
-      <Text style={styles.pictureEmoji}>{example.emoji}</Text>
+      <TalkingObject
+        emoji={example.emoji}
+        image={example.image}
+        size={58}
+        calm
+        active={active}
+        mood={matched ? 'happy' : 'idle'}
+        moodKey={matched ? 1 : 0}
+      />
       <Text style={styles.pictureWord} numberOfLines={1}>
         {word(example.word)}
       </Text>
@@ -71,7 +81,7 @@ function AllDone() {
   );
 }
 
-export default function PlayStage({ round, item, voice, buddy, contentWidth, onRoundDone }) {
+export default function PlayStage({ round, item, voice, buddy, contentWidth, onRoundDone, active = true }) {
   const { caseMode, show, other } = useLetterCase();
   const name = PLAY_ROUNDS[round] || 'done';
   const instruction = playInstruction(round, item, caseMode);
@@ -88,7 +98,7 @@ export default function PlayStage({ round, item, voice, buddy, contentWidth, onR
   const pictureTargets = pictureOrder.map((example) => ({
     key: example.word,
     width: pictureWidth,
-    content: <Picture example={example} />,
+    content: ({ matched }) => <Picture example={example} matched={matched} active={active} />,
   }));
 
   // "Big and small": the card shows the chosen case, the targets the other case.
@@ -117,9 +127,12 @@ export default function PlayStage({ round, item, voice, buddy, contentWidth, onR
             voice={voice}
             buddy={buddy}
             onDone={onRoundDone}
+            active={active}
           />
         )}
-        {name === 'pop' && <PopBubblesRound item={item} instruction={instruction} voice={voice} buddy={buddy} onDone={onRoundDone} />}
+        {name === 'pop' && (
+          <PopBubblesRound item={item} instruction={instruction} voice={voice} buddy={buddy} onDone={onRoundDone} active={active} />
+        )}
         {name === 'case' && (
           <DragMatchRound
             targets={caseTargets}
@@ -132,6 +145,7 @@ export default function PlayStage({ round, item, voice, buddy, contentWidth, onR
             voice={voice}
             buddy={buddy}
             onDone={onRoundDone}
+            active={active}
           />
         )}
         {name === 'done' && <AllDone />}
@@ -159,10 +173,6 @@ const styles = StyleSheet.create({
   },
   picture: {
     alignItems: 'center',
-  },
-  pictureEmoji: {
-    fontSize: 44,
-    lineHeight: 54,
   },
   pictureWord: {
     marginTop: 4,

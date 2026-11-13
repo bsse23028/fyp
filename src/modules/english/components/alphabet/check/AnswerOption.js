@@ -8,6 +8,7 @@ import Text from '../../../../../shared/components/AppText';
 import AnimatedPressable from '../../../../../shared/components/AnimatedPressable';
 import { motion, useScaleIn } from '../../../../../shared/utils/motion';
 import { LessonLetter } from '../LetterCase';
+import TalkingObject from '../../../../../shared/components/TalkingObject';
 import { CALM, CALM_RADIUS, CALM_SHADOW, CALM_SUCCESS, FONTS } from '../../../../../shared/theme/theme';
 
 function Twinkle() {
@@ -15,7 +16,7 @@ function Twinkle() {
   return <Animated.Text style={[styles.twinkle, pop]}>⭐</Animated.Text>;
 }
 
-export default function AnswerOption({ option, width, state, index, onPress }) {
+export default function AnswerOption({ option, width, state, index, onPress, active = true }) {
   const appear = useScaleIn(120 + index * 90);
   const fade = useRef(new Animated.Value(1)).current;
   const glow = useRef(new Animated.Value(0)).current;
@@ -42,7 +43,15 @@ export default function AnswerOption({ option, width, state, index, onPress }) {
           <LessonLetter item={option.item} opposite={option.role === 'opposite'} style={[styles.letter, { color: option.item.accent.deep }]} />
         ) : (
           <>
-            <Text style={styles.emoji}>{option.example.emoji}</Text>
+            <TalkingObject
+              emoji={option.example.emoji}
+              image={option.example.image}
+              size={54}
+              calm
+              active={active}
+              mood={state === 'right' ? 'happy' : 'idle'}
+              moodKey={state === 'right' ? 1 : 0}
+            />
             <Text style={styles.word} numberOfLines={1}>
               {option.example.word}
             </Text>
@@ -79,10 +88,6 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.nunitoBlack,
     fontSize: 52,
     lineHeight: 64,
-  },
-  emoji: {
-    fontSize: 44,
-    lineHeight: 54,
   },
   word: {
     marginTop: 4,

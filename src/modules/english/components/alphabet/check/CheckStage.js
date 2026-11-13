@@ -10,8 +10,8 @@ import Text from '../../../../../shared/components/AppText';
 import QuestionView from './QuestionView';
 import { usePulse } from '../../../../../shared/utils/motion';
 
-function AllAnswered() {
-  const pulse = usePulse(true, { duration: 1300 });
+function AllAnswered({ active }) {
+  const pulse = usePulse(active, { duration: 1300 });
   const scale = pulse.interpolate({ inputRange: [0, 1], outputRange: [1, 1.08] });
   return (
     <View style={styles.center}>
@@ -22,7 +22,7 @@ function AllAnswered() {
   );
 }
 
-export default function CheckStage({ questions, index, item, voice, buddy, contentWidth, onChosen, onAnswered }) {
+export default function CheckStage({ questions, index, item, voice, buddy, contentWidth, onChosen, onAnswered, active = true }) {
   const finished = index >= questions.length;
 
   return (
@@ -30,7 +30,7 @@ export default function CheckStage({ questions, index, item, voice, buddy, conte
       <ProgressDots count={questions.length} current={index} />
       <CrossFade stepKey={finished ? 'done' : questions[index].id}>
         {finished ? (
-          <AllAnswered />
+          <AllAnswered active={active} />
         ) : (
           <QuestionView
             question={questions[index]}
@@ -40,6 +40,7 @@ export default function CheckStage({ questions, index, item, voice, buddy, conte
             contentWidth={contentWidth}
             onChosen={onChosen}
             onAnswered={onAnswered}
+            active={active}
           />
         )}
       </CrossFade>

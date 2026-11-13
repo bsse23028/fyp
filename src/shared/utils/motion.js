@@ -169,11 +169,17 @@ export const motion = {
 };
 
 // Endless slow sway around a fixed spot (background bubbles). Each bubble gets its own timing.
-export function useDrift({ dx = 8, dy = 10, duration = 8000, delay = 0 } = {}) {
+// `active` = false pauses it (its page is not on screen).
+export function useDrift({ dx = 8, dy = 10, duration = 8000, delay = 0, active = true } = {}) {
   const x = useRef(new Animated.Value(0)).current;
   const y = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
+    if (!active) {
+      x.setValue(0);
+      y.setValue(0);
+      return undefined;
+    }
     const ease = Easing.inOut(Easing.sin);
     const quarter = duration / 4;
     const swing = (value, amount, time) =>
@@ -188,7 +194,7 @@ export function useDrift({ dx = 8, dy = 10, duration = 8000, delay = 0 } = {}) {
     ]);
     animation.start();
     return () => animation.stop();
-  }, []);
+  }, [active]);
 
   return { transform: [{ translateX: x }, { translateY: y }] };
 }

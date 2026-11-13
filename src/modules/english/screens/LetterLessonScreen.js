@@ -4,7 +4,9 @@
 // Back is always open, except in Star Check after the first answer and on the Result page.
 // Pages mount when first reached and stay mounted, so a finished page stays finished.
 // Stars are saved once through recordLetterResult (nothing in Preview). Params: { letter: 'A' }
-// Party-popper confetti on: Look finished (small), Say finished, every Play round, and the Result page (big).
+// Celebrations (Lottie, or the built-in confetti when the file is missing): a "popper" on Look / Say finished
+// and every Play round; "confetti" + "stars" on the Result page.
+// The buddy walks in and says "Hi!" when the lesson opens; on Result it walks to the middle, cheers, then waves.
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { StyleSheet, View, useWindowDimensions } from 'react-native';
@@ -43,6 +45,10 @@ const PLAY = 4;
 const CHECK = 5;
 const RESULT = 6;
 
+const FIRST_HINT_DELAY = 1200; // ms after the buddy's "Hi!" before the first hint
+const FIRST_DEMO_DELAY = 4200; // ms before the Look demo on the first page (after the walk-in, "Hi!" and the hint)
+const RESULT_WAVE_DELAY = 1600; // ms after the Result cheer before the buddy waves
+
 const STAGES = [
   { icon: 'eye', pages: [0] },
   { icon: 'ear', pages: [1, 2] },
@@ -69,6 +75,8 @@ export default function LetterLessonScreen({ navigation, route }) {
   const contentWidth = width - SPACING.screen * 2;
   const cardSize = Math.min(260, contentWidth * 0.72, height * 0.3);
   const pager = useRef(null);
+  const buddyRef = useRef(null);
+  const pageRef = useRef(0);
 
   const [page, setPage] = useState(0);
   const [visited, setVisited] = useState([0]);
@@ -80,7 +88,7 @@ export default function LetterLessonScreen({ navigation, route }) {
   const [stars, setStars] = useState(0);
   const firstTry = useRef(0);
   const [buddy, setBuddy] = useState({ mood: 'idle', moodKey: 0, message: null, messageKey: 0 });
-  const [confetti, setConfetti] = useState({ key: 0, big: false });
+  const [celebration, setCelebration] = useState({ key: 0, types: 'popper', big: false });
   const replay = useRef(null);
 
   const voice = useMemo(
@@ -105,7 +113,10 @@ export default function LetterLessonScreen({ navigation, route }) {
     (message, mood) => setBuddy((b) => ({ ...b, message, messageKey: b.messageKey + 1, mood, moodKey: b.moodKey + 1 })),
     []
   );
-  const party = useCallback((big = false, count) => setConfetti((c) => ({ key: c.key + 1, big, count })), []);
+  // A small win = 'popper'; the Result page = ['confetti', 'stars'] (big).
+  const party = useCallback((big = false, count) => {
+    setCelebration((c) => ({ key: c.key + 1, types: big ? ['confetti', 'stars'] : 'popper', big, count }));
+  }, []);
   const buddyApi = useMemo(() => ({ mood: buddyMood, say: buddySays, party: () => party() }), []);
 
   // The buddy says the page's short hint (spoken + bubble); 🔊 repeats it.
@@ -125,8 +136,14 @@ export default function LetterLessonScreen({ navigation, route }) {
     setDone((list) => (list[index] ? list : list.map((value, i) => (i === index ? true : value))));
   }, []);
 
+  // The first hint waits until the buddy has walked in and said "Hi!".
+  const onBuddyEntered = () => {
+    setTimeout(() => {
+      if (pageRef.current === 0) hint(PAGES[0].hint);
+    }, FIRST_HINT_DELAY);
+  };
+
   useEffect(() => {
-    hint(PAGES[0].hint);
     const unsubscribe = navigation.addListener('blur', stopSpeaking);
     return () => {
       unsubscribe();
@@ -165,12 +182,18 @@ export default function LetterLessonScreen({ navigation, route }) {
 
   function handleIndexChange(next) {
     stopSpeaking();
+    pageRef.current = next;
     setPage(next);
     setVisited((list) => (list.includes(next) ? list : [...list, next]));
     if (next === RESULT) {
-      playSound('tada');
-      party(true);
-      buddySays('Great job!', 'dance');
+      const arrive = () => {
+        playSound('tada');
+        party(true);
+        buddySays('Great job!', 'cheer');
+        setTimeout(() => buddyRef.current && buddyRef.current.wave(), RESULT_WAVE_DELAY);
+      };
+      if (buddyRef.current) buddyRef.current.walkToCenter(contentWidth, arrive);
+      else arrive();
     }
     else hint(PAGES[next].hint);
   }
@@ -201,7 +224,9 @@ export default function LetterLessonScreen({ navigation, route }) {
     let content = null;
     const active = page === index;
     if (index === 0) {
-      content = <LookPage item={item} active={active} cardSize={cardSize} onDone={finishLook} onCheer={() => {}} />;
+      content = (
+        <LookPage item={item} active={active} cardSize={cardSize} onDone={finishLook} onCheer={() => {}} demoDelay={FIRST_DEMO_DELAY} />
+      );
     }
     if (index === 1 || index === 2) {
       content = (
@@ -220,7 +245,15 @@ export default function LetterLessonScreen({ navigation, route }) {
     if (index === SAY) content = <SayPage item={item} active={active} voice={voice} cardSize={cardSize} onDone={onSaid} />;
     if (index === PLAY) {
       content = (
-        <PlayStage round={playRound} item={item} voice={voice} buddy={buddyApi} contentWidth={contentWidth} onRoundDone={onRoundDone} />
+        <PlayStage
+          round={playRound}
+          item={item}
+          voice={voice}
+          buddy={buddyApi}
+          contentWidth={contentWidth}
+          onRoundDone={onRoundDone}
+          active={active}
+        />
       );
     }
     if (index === CHECK) {
@@ -234,6 +267,7 @@ export default function LetterLessonScreen({ navigation, route }) {
           contentWidth={contentWidth}
           onChosen={() => setCheckStarted(true)}
           onAnswered={onAnswered}
+          active={active}
         />
       );
     }
@@ -263,7 +297,9 @@ export default function LetterLessonScreen({ navigation, route }) {
         back={canGoBack(page) ? { onPress: () => pager.current && pager.current.back() } : null}
         next={page < RESULT ? { onPress: () => pager.current && pager.current.next(), locked: !forwardOpen, hint: forwardOpen, hintKey: page } : null}
         buddy={buddy}
-        confetti={confetti}
+        buddyRef={buddyRef}
+        onBuddyEntered={onBuddyEntered}
+        celebration={celebration}
       >
         <SwipePager
           ref={pager}

@@ -8,6 +8,7 @@ import Text from '../../../../../shared/components/AppText';
 import SoundButton from '../../../../../shared/components/SoundButton';
 import AnswerOption from './AnswerOption';
 import { LessonLetter, useLetterCase } from '../LetterCase';
+import TalkingObject from '../../../../../shared/components/TalkingObject';
 import { cheer } from '../../../../../shared/utils/speech';
 import { playSound } from '../../../../../shared/utils/sounds';
 import { CALM, CALM_RADIUS, CALM_SHADOW, FONTS } from '../../../../../shared/theme/theme';
@@ -15,7 +16,7 @@ import { CALM, CALM_RADIUS, CALM_SHADOW, FONTS } from '../../../../../shared/the
 const AFTER_RIGHT_MS = 1500;
 const AFTER_MISS_MS = 2600;
 
-export default function QuestionView({ question, item, voice, buddy, contentWidth, onChosen, onAnswered }) {
+export default function QuestionView({ question, item, voice, buddy, contentWidth, onChosen, onAnswered, active = true }) {
   const [chosen, setChosen] = useState(null);
   const timer = useRef(null);
   const optionWidth = Math.min(112, (contentWidth - 24) / 3);
@@ -62,7 +63,7 @@ export default function QuestionView({ question, item, voice, buddy, contentWidt
         ) : null}
         {question.showPicture ? (
           <View style={[styles.show, CALM_SHADOW.lifted]}>
-            <Text style={styles.showEmoji}>{question.showPicture.emoji}</Text>
+            <TalkingObject emoji={question.showPicture.emoji} image={question.showPicture.image} size={96} calm active={active} />
           </View>
         ) : null}
       </View>
@@ -75,6 +76,7 @@ export default function QuestionView({ question, item, voice, buddy, contentWidt
             index={i}
             width={optionWidth}
             state={stateOf(option)}
+            active={active}
             onPress={() => choose(option)}
           />
         ))}
@@ -109,10 +111,6 @@ const styles = StyleSheet.create({
   },
   showLetter: {
     fontFamily: FONTS.nunitoBlack,
-    fontSize: 64,
-    lineHeight: 78,
-  },
-  showEmoji: {
     fontSize: 64,
     lineHeight: 78,
   },

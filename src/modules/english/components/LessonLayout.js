@@ -3,7 +3,10 @@
 //   middle: the pages (full width, the SwipePager)
 //   bottom: the buddy in the bottom-left corner with the small back arrow beside it,
 //           a small 🔊 above the big forward arrow on the right. No written instructions.
-//   over everything: the party-popper Confetti (`confetti` = { key, big }), which never catches touches.
+//   over everything: the Celebration (`celebration` = { key, types, big }): a Lottie file, or the built-in
+//   Confetti when the file is not there yet. It never catches touches.
+// The buddy walks in from the left when the lesson opens (onBuddyEntered runs when it arrived) and
+// gets `buddyRef` so the lesson can make it walk (walkTo / walkToCenter) or wave.
 
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
@@ -11,18 +14,31 @@ import { Ionicons } from '@expo/vector-icons';
 import Screen from '../../../shared/components/Screen';
 import AnimatedPressable from '../../../shared/components/AnimatedPressable';
 import BuddyCharacter from '../../../shared/components/BuddyCharacter';
-import Confetti from '../../../shared/components/Confetti';
+import Celebration from '../../../shared/components/Celebration';
 import SectionHeader from './SectionHeader';
 import ArrowButton from './ArrowButton';
+import { reportTouch } from '../../../shared/utils/touchPoint';
 import { CALM, CALM_SHADOW, SPACING } from '../../../shared/theme/theme';
 
 const BUDDY_SIZE = 76;
 const BAR_HEIGHT = 96;
 
-export default function LessonLayout({ progress, right, onBack, onSound, back, next, buddy, confetti, children }) {
+export default function LessonLayout({
+  progress,
+  right,
+  onBack,
+  onSound,
+  back,
+  next,
+  buddy,
+  buddyRef,
+  onBuddyEntered,
+  celebration,
+  children,
+}) {
   return (
     <Screen mode="child" background={CALM.background}>
-      <View style={styles.body}>
+      <View style={styles.body} onTouchStart={(e) => reportTouch(e.nativeEvent.pageX, e.nativeEvent.pageY)}>
         <SectionHeader onBack={onBack} right={right} />
         <View style={styles.progress}>{progress}</View>
 
@@ -40,8 +56,18 @@ export default function LessonLayout({ progress, right, onBack, onSound, back, n
           </View>
         </View>
 
-        <BuddyCharacter size={BUDDY_SIZE} style={styles.buddy} {...buddy} />
-        {confetti ? <Confetti burstKey={confetti.key} big={confetti.big} count={confetti.count} /> : null}
+        <BuddyCharacter
+          ref={buddyRef}
+          size={BUDDY_SIZE}
+          style={styles.buddy}
+          enterFromLeft
+          onEntered={onBuddyEntered}
+          idleThink
+          {...buddy}
+        />
+        {celebration ? (
+          <Celebration burstKey={celebration.key} types={celebration.types} big={celebration.big} count={celebration.count} />
+        ) : null}
       </View>
     </Screen>
   );

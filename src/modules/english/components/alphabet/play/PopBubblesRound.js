@@ -25,9 +25,9 @@ const SPOTS = [
   [0.6, 0.82],
 ];
 
-function Bubble({ bubble, size, spot, index, hint, onPress }) {
+function Bubble({ bubble, size, spot, index, hint, active, onPress }) {
   const appear = useScaleIn(index * 60);
-  const drift = useDrift({ dx: 4, dy: 6, duration: 6000 + index * 700, delay: index * 200 });
+  const drift = useDrift({ dx: 4, dy: 6, duration: 6000 + index * 700, delay: index * 200, active });
   const glow = usePulse(hint, { duration: 800 });
   const pop = useRef(new Animated.Value(0)).current;
   const shake = useRef(new Animated.Value(0)).current;
@@ -79,7 +79,7 @@ function Bubble({ bubble, size, spot, index, hint, onPress }) {
   );
 }
 
-export default function PopBubblesRound({ item, instruction, voice, buddy, onDone }) {
+export default function PopBubblesRound({ item, instruction, voice, buddy, onDone, active = true }) {
   const [areaHeight, setAreaHeight] = useState(0);
   const [taps, setTaps] = useState(0);
   const [hintId, setHintId] = useState(null);
@@ -136,7 +136,8 @@ export default function PopBubblesRound({ item, instruction, voice, buddy, onDon
             index={i}
             size={size}
             spot={SPOTS[i]}
-            hint={hintId === bubble.id && !bubble.popped}
+            hint={active && hintId === bubble.id && !bubble.popped}
+            active={active}
             onPress={() => handlePress(bubble)}
           />
         ))}

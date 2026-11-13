@@ -183,6 +183,26 @@ send only its folder (e.g. `src/modules/numbers`) - its README lists what it may
 - **Switches:** animations `shared/utils/motion.js` (`ANIMATIONS_ENABLED`: off = pages change instantly, confetti = one still ✨);
   sound `shared/utils/sounds.js` (`SOUND_ENABLED`: off = effects AND voice silent); voice only `speech.js` (`SPEECH_ENABLED`).
 
+## 5i. Living characters and celebrations
+- **Talking pictures** (`src/shared/components/TalkingObject.js`): the Listen pictures (and, calmer, the Play and Star Check
+  pictures) get blinking eyes that glance at the last touch, a smile that talks while the voice speaks, noodle arms with
+  mitten hands, oval feet and a floor shadow. Moods: idle · wave · dance · jump · happy. Only the page on screen moves.
+- **`talkingObjectConfig.js`** (same folder) holds every number: eye height / gap / size, mouth, arm length and thickness,
+  hand and foot size, colours, blink and talk speed, and `OVERRIDES` per emoji (animals that already have a face only get
+  arms and feet). Example: the eyes of the apple sit too low -> in `OVERRIDES` change `'🍎': { eyeY: 0.5, ... }` to `eyeY: 0.44`.
+- **The buddy** (`src/shared/components/BuddyCharacter.js`) walks in from the left when a lesson opens, waves and says "Hi!",
+  waddles back home after a drag, does a small "think" tilt after ~8 s without a touch, and on the Result page walks to the
+  middle, cheers and waves. `walkTo(x, y, onArrive)` and `wave()` can be called through a ref.
+- **`buddyConfig.js`** (same folder) has one block per avatar (rabbit, wolf, bear, panda): where the waving arm starts
+  (`shoulder`) and where the mitten starts (`hand`), as fractions of the picture, hand size and colours, optional drawn feet,
+  shadow width and whether to mirror the picture when walking left. `BUDDY_MOTION` holds the speeds and angles.
+  Example: the bear's waving hand should start a little higher -> `bear.hand.y: 0.46` -> `0.42`.
+- **Celebrations** (`src/shared/components/Celebration.js`): small wins play the "popper", the Result page "confetti" + "stars".
+  They use free Lottie files that you add yourself: put `confetti.json`, `party-popper.json`, `stars.json`, `balloons.json` in
+  `assets/lottie/` (see the README there, check each licence), then remove the `//` in front of the file's line in
+  `src/shared/components/lottieFiles.js` and restart with `npx expo start -c`. Without a file the built-in confetti plays, so
+  the app always works.
+
 ## 6. How English / Urdu works (beginner guide)
 1. Every `<Text>` in the app is `import Text from '.../components/AppText'`. It looks the English text up in **`src/shared/i18n/ur.json`** (and the module lists) and shows the Urdu when اردو is selected. Text that is not in the file simply stays English.
 2. **Add a new text:** write it in English in your screen, then add one line to `ur.json` (shared, or the module's own):
