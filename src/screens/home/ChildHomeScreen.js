@@ -9,7 +9,7 @@
 //
 // Tap the logo to change the buddy. The 🔒 Parent button (top right) asks for the PIN
 // and returns to Parent Mode; 🏠 Home is in the header on the other child screens.
-// Only "English" is built so far; the other buttons say "Coming soon".
+// Only "English" is built so far; the other buttons say "Coming soon" (in Preview mode they also show a label).
 //
 // Props: { navigation }
 
@@ -21,6 +21,7 @@ import Mascot from '../../shared/components/Mascot';
 import BouncyButton from '../../shared/components/BouncyButton';
 import SpeakButton from '../../shared/components/SpeakButton';
 import { useChild } from '../../app/store/useChild';
+import { usePreview } from '../../app/store/usePreview';
 import { useLanguage } from '../../app/context/LanguageContext';
 import { getGreeting } from '../../shared/utils/greeting';
 import { showComingSoon } from '../../shared/utils/alerts';
@@ -28,7 +29,7 @@ import { COLORS, FONTS } from '../../shared/theme/theme';
 
 // The six big buttons. `screen` is where it goes (null = not built yet).
 const MODULES = [
-  { label: 'English', bg: COLORS.bluePale, accent: COLORS.blue, icon: '📖', screen: 'WordsHub' },
+  { label: 'English', bg: COLORS.bluePale, accent: COLORS.blue, icon: '📖', screen: 'EnglishHub' },
   { label: 'Numbers', bg: COLORS.yellowPale, accent: COLORS.yellow, icon: '🔢', screen: null },
   { label: 'Feelings', bg: COLORS.coralPale, accent: COLORS.coral, icon: '💛', screen: null },
   { label: 'Talk', bg: COLORS.sagePale, accent: COLORS.sage, icon: '💬', screen: null },
@@ -63,6 +64,7 @@ function PopCard({ caret, children }) {
 
 export default function ChildHomeScreen({ navigation }) {
   const { activeChild } = useChild();
+  const { isPreview } = usePreview();
   const { t } = useLanguage();
   const childName = activeChild ? activeChild.name : 'friend';
 
@@ -187,6 +189,11 @@ export default function ChildHomeScreen({ navigation }) {
             >
               <Text style={styles.moduleIcon}>{module.icon}</Text>
               <Text style={styles.moduleLabel}>{module.label}</Text>
+              {isPreview && !module.screen && (
+                <View style={styles.soonTag}>
+                  <Text style={styles.soonText}>Coming soon</Text>
+                </View>
+              )}
             </Pressable>
           ))}
         </View>
@@ -336,6 +343,18 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: COLORS.warmText,
     textAlign: 'center',
+  },
+  soonTag: {
+    marginTop: 8,
+    paddingVertical: 3,
+    paddingHorizontal: 10,
+    borderRadius: 999,
+    backgroundColor: 'rgba(255, 255, 255, 0.85)',
+  },
+  soonText: {
+    fontFamily: FONTS.nunitoExtraBold,
+    fontSize: 12,
+    color: COLORS.warmMuted,
   },
   starsText: {
     flex: 1,

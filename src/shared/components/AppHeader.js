@@ -13,6 +13,7 @@
 //   onLogoPress    - optional: makes the logo tappable
 //   onHomePress    - optional: shows the 🏠 button
 //   onParentPress  - optional: shows the 🔒 Parent button
+//   onMenuPress    - optional: shows a ☰ menu button before the logo (only Parent Home uses it)
 
 import React from 'react';
 import { Pressable, StyleSheet, View, useWindowDimensions } from 'react-native';
@@ -21,19 +22,33 @@ import BrandLogo from './BrandLogo';
 import LanguageToggle from './LanguageToggle';
 import { COLORS, FONTS, SPACING } from '../theme/theme';
 
-export default function AppHeader({ avatar, onLogoPress, onHomePress, onParentPress }) {
+export default function AppHeader({ avatar, onLogoPress, onHomePress, onParentPress, onMenuPress }) {
   const { width } = useWindowDimensions();
   const roomy = width >= 390; // small phones show only the 🔒 icon, big phones also the word "Parent"
 
   return (
     <View style={styles.bar}>
-      {onLogoPress ? (
-        <Pressable onPress={onLogoPress} hitSlop={8} accessibilityRole="button" accessibilityLabel="Change my buddy">
-          <BrandLogo height={38} avatar={avatar} />
-        </Pressable>
-      ) : (
-        <BrandLogo height={38} avatar={avatar} />
-      )}
+      <View style={styles.left}>
+        {onMenuPress ? (
+          <Pressable
+            onPress={onMenuPress}
+            hitSlop={6}
+            accessibilityRole="button"
+            accessibilityLabel="Open menu"
+            style={({ pressed }) => [styles.button, styles.gap, pressed && styles.pressed]}
+          >
+            <Text style={styles.menuIcon}>☰</Text>
+          </Pressable>
+        ) : null}
+
+        {onLogoPress ? (
+          <Pressable onPress={onLogoPress} hitSlop={8} accessibilityRole="button" accessibilityLabel="Change my buddy">
+            <BrandLogo height={38} avatar={avatar} />
+          </Pressable>
+        ) : (
+          <BrandLogo height={onMenuPress && !roomy ? 32 : 38} avatar={avatar} />
+        )}
+      </View>
 
       <View style={styles.right}>
         {onHomePress ? (
@@ -85,9 +100,20 @@ const styles = StyleSheet.create({
     elevation: 4,
     zIndex: 2, // keeps the shadow on top of the screen content
   },
+  left: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
   right: {
     flexDirection: 'row',
     alignItems: 'center',
+  },
+  menuIcon: {
+    fontSize: 20,
+    color: COLORS.text,
+  },
+  pressed: {
+    opacity: 0.6,
   },
   gap: {
     marginEnd: 8,

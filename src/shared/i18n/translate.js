@@ -30,6 +30,10 @@ export function setCurrentLanguage(language) {
   currentLanguage = language;
 }
 
+export function getCurrentLanguage() {
+  return currentLanguage;
+}
+
 // Turn the {name} keys of the list into patterns.
 const patterns = [];
 function buildPatterns() {

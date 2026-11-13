@@ -4,9 +4,10 @@
 //   {
 //     name:         'english',           the name of its Redux slice (state.english)
 //     reducer:      englishReducer,      its Redux Toolkit slice   (optional)
+//     reducers:     { englishAlphabet: ... }   more slices, by state name (optional)
 //     load:         loadSomething,       a thunk that reads its saved data at start-up (optional)
 //     onChildSelected: (childId) => thunk  runs once a child is chosen for Child Mode (optional)
-//     screens:      [ { name, component } ... ],   its screens, added to the navigator
+//     screens:      [ { name, component, options } ... ],   its screens (options = optional navigator options, e.g. a fade)
 //     translations: ur.json,             its own Urdu words        (optional)
 //   }
 //

@@ -14,6 +14,7 @@ export const KEYS = {
   introSeen: 'kidbuddy_intro_seen', // true after the first launch  (whole phone)
   permissions: 'kidbuddy_permissions', // { asked, camera, microphone } (whole phone)
   authToken: 'kidbuddy_auth_token', // the login token (JWT) from the backend (see shared/api/client.js)
+  alphabetProgress: 'kidbuddy_alphabet_progress', // { childId: { A: 3, B: 1 } } best stars per letter (frontend-only for now)
   // These two are per parent, so the parent's email is added to the key:
   children: (email) => `kidbuddy_children_${email}`, // list of child profiles
   activeChild: (email) => `kidbuddy_active_child_${email}`, // id of the child using the app

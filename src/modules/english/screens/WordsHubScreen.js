@@ -10,6 +10,7 @@ import Screen from '../../../shared/components/Screen';
 import ChildHeader from '../../../shared/components/ChildHeader';
 import ChildInstruction from '../../../shared/components/ChildInstruction';
 import { showComingSoon } from '../../../shared/utils/alerts';
+import { usePreview } from '../../../app/store/usePreview';
 import { COLORS, FONTS } from '../../../shared/theme/theme';
 
 const ITEMS = [
@@ -21,6 +22,7 @@ const ITEMS = [
 ];
 
 export default function WordsHubScreen({ navigation }) {
+  const { isPreview } = usePreview();
   function openItem(item) {
     if (item.screen) navigation.navigate(item.screen);
     else showComingSoon(item.title);
@@ -45,6 +47,11 @@ export default function WordsHubScreen({ navigation }) {
             >
               <Text style={styles.tileIcon}>{item.icon}</Text>
               <Text style={styles.tileTitle}>{item.title}</Text>
+              {isPreview && !item.screen && (
+                <View style={styles.soonTag}>
+                  <Text style={styles.soonText}>Coming soon</Text>
+                </View>
+              )}
             </Pressable>
           ))}
         </View>
@@ -76,6 +83,18 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(61, 43, 31, 0.05)',
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  soonTag: {
+    marginTop: 8,
+    paddingVertical: 3,
+    paddingHorizontal: 10,
+    borderRadius: 999,
+    backgroundColor: 'rgba(255, 255, 255, 0.85)',
+  },
+  soonText: {
+    fontFamily: FONTS.nunitoExtraBold,
+    fontSize: 12,
+    color: COLORS.warmMuted,
   },
   tileIcon: {
     fontSize: 44,

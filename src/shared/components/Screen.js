@@ -39,24 +39,35 @@ export default function Screen({
   avatar,
   contentStyle,
   scrollRef, // optional: lets a screen scroll itself back to the top
+  background, // optional: a background colour (white when not given)
+  onMenuPress, // optional: shows a ☰ menu button in the header (Parent Home)
 }) {
   const route = useRoute();
-  const { setConfig, removeConfig } = useHeaderConfig();
+  const { setConfig, removeConfig, setMenuHandler } = useHeaderConfig();
+  const hasMenu = Boolean(onMenuPress);
+  const bg = background ? { backgroundColor: background } : null;
 
   // The header is NOT drawn here any more: it is one fixed header above the navigator
   // (see FixedHeader.js). This screen only tells it what to show.
   useLayoutEffect(() => {
-    setConfig(route.key, { mode, avatar });
-  }, [route.key, mode, avatar]);
+    setConfig(route.key, { mode, avatar, menu: hasMenu });
+  }, [route.key, mode, avatar, hasMenu]);
 
   useLayoutEffect(() => {
-    return () => removeConfig(route.key);
+    setMenuHandler(route.key, onMenuPress || null);
+  }, [route.key, onMenuPress]);
+
+  useLayoutEffect(() => {
+    return () => {
+      removeConfig(route.key);
+      setMenuHandler(route.key, null);
+    };
   }, [route.key]);
 
   return (
-    <View style={styles.root}>
+    <View style={[styles.root, bg]}>
       {/* edges: no "top" - the fixed header above the navigator already covers the notch */}
-      <SafeAreaView style={styles.safe} edges={['bottom', 'left', 'right']}>
+      <SafeAreaView style={[styles.safe, bg]} edges={['bottom', 'left', 'right']}>
         {scroll ? (
           <KeyboardAvoidingView
             style={styles.flex}

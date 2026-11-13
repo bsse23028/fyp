@@ -1,4 +1,4 @@
-# English module (Read Along)
+# English module (Alphabets · Words · Sentences)
 
 Everything about the English / Words activities lives in THIS folder.
 **When you want changes to this module, send only this folder** (plus this README) - nothing else is needed.
@@ -7,15 +7,24 @@ Everything about the English / Words activities lives in THIS folder.
 english/
   index.js            what the module contains (name, Redux slice, screens, Urdu words)
   readingData.js      small helpers for the topics (findSentences, getSentence) + the DEMO_MODE fallback
-  data/               readingTopics.json (DEMO_MODE fallback ONLY) · sampleStruggleWords.json
+  data/               readingTopics.json (DEMO_MODE fallback ONLY) · sampleStruggleWords.json · alphabetData.js (A-Z)
   store/              englishSlice.js  (Redux Toolkit: picked topic + level, reading content, struggle words)
+                      alphabetSlice.js (state.englishAlphabet: best stars per child + letter, saved on the phone)
+  components/         SectionHeader · NextButton · LessonLayout (the fixed lesson frame)
+                      alphabet/  LetterTile · LetterCard · PictureCard
+                                 learn/ (Look, Listen, Say) · play/ (drag + bubbles rounds) · check/ (questions + result)
   i18n/ur.json        Urdu words used only by this module
-  screens/            WordsHub · ReadingTopics · ReadingLevel · ReadingAlong · ReadingYourTurn
+  screens/            EnglishHub · AlphabetList · LetterLesson
+                      WordsHub (no longer linked) · ReadingTopics · ReadingLevel · ReadingAlong · ReadingYourTurn
                       ReadingSummary · StruggleWords (Parent -> Plan)
 ```
 
 ## Flow
-Child Home (English) -> **WordsHub** -> Read Along -> **ReadingTopics** -> **ReadingLevel** ->
+Child Home (English) -> **EnglishHub**:
+- Alphabets -> **AlphabetList** -> **LetterLesson** (`{ letter }`): Learn -> Play -> Star Check -> result, all on ONE screen
+  (stages cross-fade). Stars are saved only by `recordLetterResult` (nothing in Preview mode).
+- Words -> "Coming soon".
+- Sentences -> **ReadingTopics** -> **ReadingLevel** ->
 **ReadingAlong** <-> **ReadingYourTurn** (one pair per sentence) -> **ReadingSummary**.
 Parent: Plan -> Struggle words -> **StruggleWords**.
 

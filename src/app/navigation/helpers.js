@@ -17,11 +17,12 @@ export function goToStart(navigation, screenName) {
 }
 
 // "Who is learning?" as the first screen (the parent pressed Open Child Mode).
-// Parent Mode home.
-export function goToProfilePicker(navigation) {
-  goToStart(navigation, 'ProfilePicker');
+// `childId` (optional) is pre-selected there.
+export function goToProfilePicker(navigation, childId) {
+  navigation.reset({ index: 0, routes: [{ name: 'ProfilePicker', params: childId ? { childId } : undefined }] });
 }
 
+// Parent Mode home.
 export function goToParentHome(navigation) {
   goToStart(navigation, 'ParentHome');
 }

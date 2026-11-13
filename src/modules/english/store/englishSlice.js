@@ -31,6 +31,7 @@ import { createAsyncThunk, createSelector, createSlice } from '@reduxjs/toolkit'
 import { api } from '../../../shared/api/client';
 import { DEMO_MODE } from '../../../shared/config';
 import { logOut, sessionExpired } from '../../../app/store/authSlice';
+import { notInPreview, selectPreviewActive } from '../../../app/store/previewSlice';
 import { DEMO_LEVELS, DEMO_TOPICS, findSentences } from '../readingData';
 
 const LANGUAGE = 'en'; // this module's words are English
@@ -47,7 +48,9 @@ export const fetchReadingContent = createAsyncThunk(
   {
     // `condition` runs BEFORE the request: returning false skips it. This is what makes it
     // "fetch once": the same child's content is not asked for again.
+    // In Preview mode nothing is loaded: the built-in readingTopics.json is used (see the selectors).
     condition: ({ childId, force }, { getState }) => {
+      if (selectPreviewActive(getState())) return false;
       const { contentChildId, contentStatus } = getState().english;
       if (force) return true;
       const sameChild = contentChildId === childId;
@@ -60,25 +63,35 @@ export const fetchReadingContent = createAsyncThunk(
 //   topic = { title, icon, tint, levels: { easy: [ SENTENCE, ... ] } }   (see readingData.js)
 // The server saves it; then the topic list is loaded again, so it shows up straight away.
 // Returns the saved topic (with its new id 'custom-...'). Throws if the server said no.
-export const saveCustomTopic = createAsyncThunk('english/saveCustomTopic', async ({ childId, topic }, { dispatch }) => {
-  const data = await api.post(`/api/children/${childId}/topics`, topic); // { topic }
-  await dispatch(fetchReadingContent({ childId, force: true }));
-  return data.topic;
-});
+export const saveCustomTopic = createAsyncThunk(
+  'english/saveCustomTopic',
+  async ({ childId, topic }, { dispatch }) => {
+    const data = await api.post(`/api/children/${childId}/topics`, topic); // { topic }
+    await dispatch(fetchReadingContent({ childId, force: true }));
+    return data.topic;
+  },
+  { condition: notInPreview }
+);
 
 // ---------- struggle words ----------
 
 // The words of one child, most missed first  ->  { words: [...] }
-export const fetchStruggleWords = createAsyncThunk('english/fetchStruggleWords', async (childId) => {
-  return api.get(`/api/children/${childId}/struggle-words?language=${LANGUAGE}`);
-});
+export const fetchStruggleWords = createAsyncThunk(
+  'english/fetchStruggleWords',
+  async (childId) => api.get(`/api/children/${childId}/struggle-words?language=${LANGUAGE}`),
+  { condition: notInPreview }
+);
 
 // A child struggled with a word. The server adds it, or counts it once more  ->  { word: {...} }
-export const addStruggleWord = createAsyncThunk('english/addStruggleWord', async ({ childId, word, topic }) => {
-  const body = { word, language: LANGUAGE };
-  if (topic) body.topic = topic; // a topic id ('weather') or title ('Weather')
-  return api.post(`/api/children/${childId}/struggle-words`, body);
-});
+export const addStruggleWord = createAsyncThunk(
+  'english/addStruggleWord',
+  async ({ childId, word, topic }) => {
+    const body = { word, language: LANGUAGE };
+    if (topic) body.topic = topic; // a topic id ('weather') or title ('Weather')
+    return api.post(`/api/children/${childId}/struggle-words`, body);
+  },
+  { condition: notInPreview }
+);
 
 // Use this when speech scoring finds a word the child struggled with:
 //   dispatch(reportStruggleWord(activeChild.id, 'lightning', 'Weather'));
@@ -152,6 +165,7 @@ const englishSlice = createSlice({
         state.struggleStatus[action.meta.arg] = 'ready';
       })
       .addCase(fetchStruggleWords.rejected, (state, action) => {
+        if (action.meta.condition) return; // skipped in Preview mode: not an error
         state.struggleStatus[action.meta.arg] = 'failed';
         state.struggleError[action.meta.arg] = action.error.message;
       })
@@ -180,21 +194,27 @@ export default englishSlice.reducer;
 // All topics of the child (built-in + custom) from the database.
 // Not loaded? DEMO_MODE shows readingTopics.json; otherwise there are no topics yet.
 // (createSelector remembers the answer, so it is only rebuilt when the content changes.)
-export const selectAllTopics = createSelector([(state) => state.english.content], (content) => {
+// Preview mode always uses the built-in topics (every topic, every level, nothing from the server).
+export const selectAllTopics = createSelector([(state) => state.english.content, selectPreviewActive], (content, preview) => {
+  if (preview) return DEMO_TOPICS;
   if (content) return content.topics;
   return DEMO_MODE ? DEMO_TOPICS : [];
 });
 
 // Easy / Medium / Hard, from the database (same fallback as above).
-export const selectLevels = createSelector([(state) => state.english.content], (content) => {
+export const selectLevels = createSelector([(state) => state.english.content, selectPreviewActive], (content, preview) => {
+  if (preview) return DEMO_LEVELS;
   if (content) return content.levels;
   return DEMO_MODE ? DEMO_LEVELS : [];
 });
 
 // Is the content usable? { loading, error }  (used by the topics screen for its spinner / Retry)
 export const selectContentState = createSelector(
-  [(state) => state.english.contentStatus, (state) => state.english.contentError],
-  (status, error) => ({ loading: status === 'loading' || status === 'idle', error: status === 'failed' ? error : null })
+  [(state) => state.english.contentStatus, (state) => state.english.contentError, selectPreviewActive],
+  (status, error, preview) =>
+    preview
+      ? { loading: false, error: null }
+      : { loading: status === 'loading' || status === 'idle', error: status === 'failed' ? error : null }
 );
 
 // The topic the child picked (or null).

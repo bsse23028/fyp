@@ -61,10 +61,11 @@ Screens, components and coding style are the same as before - only folders moved
 ```
 Splash → Welcome → Onboarding → Create Parent Account → Verify email → Permissions (once)
 → Create Child Profile (ONE step) → PARENT HOME
-PARENT HOME:  Open Child Mode · Plan · Progress · Settings · child cards (View progress / Edit / Delete) · Add another child
+PARENT HOME:  greeting · Open Child Mode (hero card) · children list (tap = choose, ⋯ = View progress / Edit / Delete) · Add another child · Explore KidBuddy
+☰ (header, Parent Home only) → drawer: Plan · Progress · Settings · Log out
 Settings → My account → edit name · Change password · Create/Update PIN          Settings → Log Out
 Edit (child card) → Edit profile → Basics · Areas of support · Activities · Personalize stories · Delete profile
-Open Child Mode → "Who is learning?" → Continue as Zara → CHILD HOME → Words → Read Along → Pick a topic → Pick a level → Your turn (per sentence) → Nice reading!
+Open Child Mode → "Who is learning?" → Continue as Zara → CHILD HOME → English → Alphabets (letter → Learn · Play · Star Check) | Sentences → Read Along → Pick a topic → Pick a level → Your turn (per sentence) → Nice reading!
 CHILD MODE header:  logo (tap = My Buddy) · 🏠 Home · 🔒 Parent (PIN) · English | اردو
 ```
 The app always opens in Parent Mode. Child Mode is never saved.
@@ -101,15 +102,17 @@ People · Favourite things · Hobbies and interests · Everyday world · Special
 - **Saved as** `child.story` (see the top of `storyOptions.js`), always in English words so a story writer
   (backend phase) gets consistent values. Profiles from the earlier version keep their hobbies and hometown.
 
-## 5c. Redux Toolkit or AuthContext? (the rule used in this project)
-- **AuthContext** (`app/context/AuthContext.js`) - *who is logged in*. The whole app switches on it: the navigator
-  decides where to start, every screen can read `user`, log out resets everything. It also keeps the Parent PIN.
-  LanguageContext and DeviceContext follow the same idea (the whole app re-renders when they change).
-- **Redux Toolkit** - *data that screens read and change*: the child profiles + Parent/Child mode
-  (`app/store/childSlice.js`) and each module's own slice (`modules/english/store/englishSlice.js`:
-  picked topic and level, struggle words, custom topics).
-- Screens still call `useChild()` exactly like before; it now reads from Redux inside.
-- Add a field to a slice: `initialState` + a reducer in the slice file, then `useSelector` / `dispatch` in a screen.
+## 5c. Redux Toolkit, the backend and the contexts (the rule used in this project)
+- **The backend is the source of truth** for accounts, the Parent PIN (stored as a hash) and the child profiles.
+  The app talks to it only through `src/shared/api/client.js` (endpoints: `backend/docs/API.md`).
+- **Redux Toolkit keeps what came from the server**: `app/store/authSlice.js` (who is logged in, `hasPin`),
+  `app/store/childSlice.js` (children, active child, Parent/Child mode, the choice lists), `app/store/previewSlice.js`
+  (Explore KidBuddy switch) and one slice per module (`modules/english/store/englishSlice.js`).
+  The server calls are `createAsyncThunk`s inside those slices. New shared state goes into a slice from now on.
+- **Screens use small hooks**, never the slices directly: `useAuth()` (`app/context/AuthContext.js` is now only a thin
+  wrapper over authSlice), `useChild()`, `useChildOptions()`, `usePreview()`.
+- **LanguageContext / DeviceContext / HeaderContext** stay React contexts: phone settings and the fixed header, not server data.
+- Add a field: `initialState` + a reducer (or a thunk) in the slice, then expose it through the hook a screen already uses.
 
 ## 5d. Read Along: topics and levels
 Flow: Words -> Read Along -> **Pick a topic** -> **Pick a level** -> sentences (Reading Time -> Your turn, repeated) -> Nice reading!
@@ -134,6 +137,37 @@ Flow: Words -> Read Along -> **Pick a topic** -> **Pick a level** -> sentences (
 The navigator, the Redux store and the Urdu words pick the module up from the list. When you want help with one module,
 send only its folder (e.g. `src/modules/numbers`) - its README lists what it may import from the rest of the app.
 
+## 5g. Preview mode (Explore KidBuddy) and the new Parent Home
+- **Preview mode:** Parent Home → *Explore KidBuddy* opens Child Mode with the demo child **Buddy**
+  (`src/shared/utils/demoChild.js`, never saved, never in the child list). Every built activity is open, the English
+  module uses the built-in `data/readingTopics.json`, unbuilt tiles show "Coming soon".
+- **One switch:** `state.preview.active` (`app/store/previewSlice.js`, hook `usePreview()`). It is checked in three places only:
+  `useChild()` (demo child + every save becomes a no-op), the `condition: notInPreview` of every child-data thunk
+  (sessions, select child, children CRUD, reading content, custom topics, struggle words), and the English selectors.
+  Not stored on the phone, so it is always off after a restart; logout / expired login and opening Parent Home also switch it off.
+- **Leaving:** the yellow banner under the header ("Preview mode - nothing is saved") has *Exit preview* (and 🔒 Parent does the same).
+  With a Parent PIN the PIN pop-up is asked first; without one it exits straight to Parent Home.
+- **Parent Home** is split into `src/screens/parent/components/`: `ParentGreeting`, `OpenChildModeCard`, `ChildList`,
+  `ChildActionsMenu`, `ExploreCard`, `ParentDrawer`. The ☰ button is added by `<Screen onMenuPress={...}>` (HeaderContext keeps the handler),
+  so no other header changes.
+- **New look:** tokens `CALM`, `CALM_RADIUS`, `CALM_SPACING`, `CALM_SIZES`, `CALM_SHADOW` in `theme.js` (old tokens untouched).
+  Animations live in `src/shared/utils/motion.js` (`ANIMATIONS_ENABLED` / `setAnimationsEnabled` turns them all off) with
+  `AnimatedPressable`, `FadeInView`, `SoftButton`, `SoftShapes`, `ComingSoonModal` in `shared/components`.
+
+## 5h. English → Alphabets (letters A-Z)
+- **Flow:** Child Home → English (**EnglishHub**: Alphabets · Words *coming soon* · Sentences = the existing Read Along)
+  → **AlphabetList** (26 tiles, stars per letter, next letter glows, all open) → **LetterLesson**.
+- **One lesson screen, three stages** that cross-fade in place (no sliding, no skipping): **Learn** (Look · Listen · Say),
+  **Play** (drag letter to picture · pop the letter bubbles · big and small, with errorless hints) and **Star Check**
+  (5 questions, no hints, stars from first-try answers: 4-5 = 3, 2-3 = 2, 0-1 = 1). Same frame on every stage
+  (instruction top, buddy bottom-left, Next bottom-centre). These screens fade (`options` in the module's screen list).
+- **Progress:** `modules/english/store/alphabetSlice.js` keeps the best stars per child and letter on the phone
+  (`kidbuddy_alphabet_progress`). `recordLetterResult(childId, letter, stars)` is the only save (replace its body for the backend);
+  it never lowers a score and does nothing in Preview mode.
+- **Letters / pictures:** `modules/english/data/alphabetData.js` (emoji now, `image: null` / `audio: null` ready for real art and sounds).
+- **Buddy:** `shared/components/BuddyCharacter.js` (idle sway, tap = bubble + voice, drag and spring home, moods hop/happy/think/cheer/dance).
+- **Switches:** animations `shared/utils/motion.js` (`ANIMATIONS_ENABLED`), speech `shared/utils/speech.js` (`SPEECH_ENABLED`, slow child rate).
+
 ## 6. How English / Urdu works (beginner guide)
 1. Every `<Text>` in the app is `import Text from '.../components/AppText'`. It looks the English text up in **`src/shared/i18n/ur.json`** (and the module lists) and shows the Urdu when اردو is selected. Text that is not in the file simply stays English.
 2. **Add a new text:** write it in English in your screen, then add one line to `ur.json` (shared, or the module's own):
@@ -156,9 +190,12 @@ If it is STILL missing on your phone, check **your project's `app.json`** (it is
 See `app.json.example` next to this README. Then restart with `npx expo start -c`.
 
 ## 8. Good to know
-- **Saved data** is in AsyncStorage on the phone (keys start with `kidbuddy_`). Old children with colour avatars show as the rabbit.
-- **Demo mode** (`src/config.js`): the 6-digit code appears in a pop-up. This is also how the code for Change password / Update PIN arrives.
-- **Parent PIN** is stored as plain text for the demo; hash it in the backend phase.
-- **Still "Coming soon":** Plan sub-screens (except Struggle words), Numbers, Feelings, Talk, My Day, Sounds, Notifications, Export report.
+- **Saved data:** accounts, PINs, children, sessions, stars, custom topics and struggle words are on the **backend** (loaded into Redux).
+  AsyncStorage on the phone only keeps the login token, the language, "intro seen" and the camera/microphone answer (keys start with `kidbuddy_`).
+- **Backend address:** `API_BASE_URL` in `src/shared/config.js` (your computer's Wi-Fi IP, port 4000). The app shows Retry when it cannot reach it.
+- **Demo mode** (`DEMO_MODE` in `src/shared/config.js`): no real emails yet; the 6-digit code is printed in the backend terminal and a pop-up
+  reminds you. If the choice lists or reading content cannot be loaded, the built-in lists / `readingTopics.json` are used.
+- **Parent PIN** is checked and stored (hashed) by the backend; it never leaves the server.
+- **Still "Coming soon":** English → Words, Plan sub-screens (except Struggle words), Numbers, Feelings, Talk, My Day, Sounds, Notifications, Export report, Therapist accounts.
 - **Read Along** does not score the child's voice yet.
 - The logos for wolf / bear / panda are temporary (head cut from the mascot + the KidBuddy name).

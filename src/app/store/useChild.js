@@ -18,6 +18,8 @@ import { Alert } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { translate } from '../../shared/i18n/translate';
 import { DEFAULT_AVATAR } from '../../shared/theme/avatars';
+import { DEMO_CHILD } from '../../shared/utils/demoChild';
+import { selectPreviewActive } from './previewSlice';
 import {
   childModeExited,
   createChild,
@@ -61,14 +63,20 @@ export function useChild() {
     (state) => state.child
   );
 
-  const activeChild = list.find((c) => c.id === activeId) || null;
+  // PREVIEW MODE (Explore KidBuddy): the demo child is the active child, and every function that
+  // would save something does nothing and reports success. The real list is never touched.
+  const isPreview = useSelector(selectPreviewActive);
+  const previewSafe = (work) => (...args) => (isPreview ? Promise.resolve(true) : work(...args));
+
+  const activeChild = isPreview ? DEMO_CHILD : list.find((c) => c.id === activeId) || null;
+  const inChildMode = childMode || isPreview;
   // The avatar the header logo and mascots show: the child's own in Child Mode, the rabbit everywhere else.
-  const displayAvatar = childMode && activeChild ? activeChild.avatar : DEFAULT_AVATAR;
+  const displayAvatar = inChildMode && activeChild ? activeChild.avatar : DEFAULT_AVATAR;
 
   return {
     childProfiles: list,
     activeChild,
-    childMode,
+    childMode: inChildMode,
     displayAvatar,
     loading, // true until the first list has arrived
     error, // why the list could not be loaded (null = no problem)
@@ -79,17 +87,20 @@ export function useChild() {
     loadChildren: () => dispatch(loadChildren()),
     loadOptions: () => dispatch(loadOptions()),
 
-    addChild: (profile) =>
-      runWithPopup(dispatch, () => createChild(profile), 'Could not save').then((data) => (data ? data.child : null)),
-    updateChild: (id, changes) =>
-      runWithPopup(dispatch, () => saveChildChanges({ id, changes }), 'Could not save'),
-    deleteChild: (id) => runWithPopup(dispatch, () => removeChild(id), 'Could not delete'),
-    enterChildMode: (id) => runWithPopup(dispatch, () => selectChild(id), 'Could not open Child Mode'),
+    addChild: previewSafe((profile) =>
+      runWithPopup(dispatch, () => createChild(profile), 'Could not save').then((data) => (data ? data.child : null))
+    ),
+    updateChild: previewSafe((id, changes) =>
+      runWithPopup(dispatch, () => saveChildChanges({ id, changes }), 'Could not save')
+    ),
+    deleteChild: previewSafe((id) => runWithPopup(dispatch, () => removeChild(id), 'Could not delete')),
+    enterChildMode: previewSafe((id) => runWithPopup(dispatch, () => selectChild(id), 'Could not open Child Mode')),
     exitChildMode: () => dispatch(childModeExited()),
     // A Read-Along session finished. `session` = { childId, clientSessionId, stars, topicId,
     // level, language, sessionDate }. "Retry" sends the SAME object again, so the same
     // clientSessionId: the server then never counts the stars twice.
-    addReadingResult: (session) =>
-      runWithPopup(dispatch, () => saveReadingSession(session), 'Your stars are not saved yet'),
+    addReadingResult: previewSafe((session) =>
+      runWithPopup(dispatch, () => saveReadingSession(session), 'Your stars are not saved yet')
+    ),
   };
 }
