@@ -4,7 +4,7 @@
 // Inside this folder:
 //   screens/   EnglishHub (Alphabets · Words · Sentences), AlphabetList, LetterLesson,
 //              WordsHub, ReadingTopics, ReadingLevel, ReadingAlong, ReadingYourTurn,
-//              ReadingSummary, StruggleWords
+//              ReadingSummary, StruggleWords, SpellingWords, SpellingGame (drag letters to spell a word)
 //   data/      readingTopics.json (DEMO_MODE fallback only; the real topics are in the
 //              database) · sampleStruggleWords.json
 //   store/     englishSlice.js (Redux Toolkit)
@@ -29,6 +29,8 @@ import ReadingAlongScreen from './screens/ReadingAlongScreen';
 import ReadingYourTurnScreen from './screens/ReadingYourTurnScreen';
 import ReadingSummaryScreen from './screens/ReadingSummaryScreen';
 import StruggleWordsScreen from './screens/StruggleWordsScreen';
+import SpellingWordsScreen from './screens/SpellingWordsScreen';
+import SpellingGameScreen from './screens/SpellingGameScreen';
 
 // The English section screens fade instead of sliding (calmer, no repeated side swipes).
 const FADE = { animation: 'fade' };
@@ -53,5 +55,7 @@ export default {
     { name: 'ReadingYourTurn', component: ReadingYourTurnScreen },
     { name: 'ReadingSummary', component: ReadingSummaryScreen },
     { name: 'StruggleWords', component: StruggleWordsScreen },
+    { name: 'SpellingWords', component: SpellingWordsScreen, options: FADE },
+    { name: 'SpellingGame', component: SpellingGameScreen, options: FADE },
   ],
 };

@@ -1,4 +1,4 @@
-// ENGLISH HUB SCREEN - the English section: Alphabets · Words (coming soon) · Sentences.
+// ENGLISH HUB SCREEN - the English section: Alphabets · Words (WordsHub: Read Along, Spelling ...) · Sentences.
 // Sentences opens the existing Read Along flow (ReadingTopics) unchanged. Opened from Child Home.
 
 import React, { useEffect, useState } from 'react';
@@ -17,7 +17,7 @@ const GREETING = 'What do you want to learn?';
 
 const SECTIONS = [
   { title: 'Alphabets', subtitle: 'Letters and their sounds', icon: '🔤', screen: 'AlphabetList', accent: CALM_ACCENTS[0] },
-  { title: 'Words', subtitle: 'Read and match words', icon: '🧩', screen: null, accent: CALM_ACCENTS[3] },
+  { title: 'Words', subtitle: 'Read and match words', icon: '🧩', screen: 'WordsHub', accent: CALM_ACCENTS[3] },
   { title: 'Sentences', subtitle: 'Read Along stories', icon: '📖', screen: 'ReadingTopics', accent: CALM_ACCENTS[1] },
 ];
 

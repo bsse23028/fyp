@@ -1,5 +1,5 @@
 // WORDS HUB SCREEN - "Pick a word activity".
-// Only "Read Along" is built so far (it opens the topic list); the other tiles say "Coming soon".
+// "Read Along" opens the topic list and "Spelling" the spelling game; the other tiles say "Coming soon".
 //
 // Props: { navigation }
 
@@ -17,7 +17,7 @@ const ITEMS = [
   { title: 'Read Along', icon: '📖', tint: COLORS.bluePale, screen: 'ReadingTopics' },
   { title: 'Reading Helper', icon: '👓', tint: COLORS.sagePale, screen: null },
   { title: 'Phonics', icon: '🔊', tint: COLORS.yellowPale, screen: null },
-  { title: 'Spelling', icon: '🔤', tint: COLORS.purplePale, screen: null },
+  { title: 'Spelling', icon: '🔤', tint: COLORS.purplePale, screen: 'SpellingWords' },
   { title: 'Writing', icon: '✏️', tint: COLORS.orangePale, screen: null },
 ];
 
