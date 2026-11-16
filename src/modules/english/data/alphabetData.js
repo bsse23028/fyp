@@ -15,12 +15,12 @@ import { CALM_ACCENTS } from '../../../shared/theme/theme';
 const word = (text, emoji, extra = {}) => ({ word: text, emoji, image: null, ...extra });
 
 const LETTERS = [
-  { letter: 'A', nameSpeech: 'ay', soundSpeech: 'ah', examples: [word('Apple', '🍎'), word('Ant', '🐜')] },
+  { letter: 'A', nameSpeech: 'a', soundSpeech: 'ah', examples: [word('Apple', '🍎'), word('Ant', '🐜')] },
   { letter: 'B', nameSpeech: 'bee', soundSpeech: 'buh', examples: [word('Ball', '⚽'), word('Banana', '🍌')] },
   { letter: 'C', nameSpeech: 'see', soundSpeech: 'kuh', examples: [word('Cat', '🐱'), word('Car', '🚗')] },
   { letter: 'D', nameSpeech: 'dee', soundSpeech: 'duh', examples: [word('Dog', '🐶'), word('Duck', '🦆')] },
   { letter: 'E', nameSpeech: 'ee', soundSpeech: 'eh', examples: [word('Egg', '🥚'), word('Elephant', '🐘')] },
-  { letter: 'F', nameSpeech: 'ef', soundSpeech: 'fff', examples: [word('Fish', '🐟'), word('Frog', '🐸')] },
+  { letter: 'F', nameSpeech: 'f', soundSpeech: 'fff', examples: [word('Fish', '🐟'), word('Frog', '🐸')] },
   { letter: 'G', nameSpeech: 'jee', soundSpeech: 'guh', examples: [word('Grapes', '🍇'), word('Goat', '🐐')] },
   { letter: 'H', nameSpeech: 'aitch', soundSpeech: 'hah', examples: [word('Hat', '🎩'), word('House', '🏠')] },
   // WEAK: short "i" objects (igloo, insect) have no clear emoji, so I uses the long "eye" sound.
@@ -35,8 +35,8 @@ const LETTERS = [
   { letter: 'O', nameSpeech: 'oh', soundSpeech: 'aw', examples: [word('Orange', '🍊'), word('Octopus', '🐙')] },
   { letter: 'P', nameSpeech: 'pee', soundSpeech: 'puh', examples: [word('Pig', '🐷'), word('Penguin', '🐧')] },
   // WEAK: no quilt emoji; queen and a question mark are the clearest Q pictures.
-  { letter: 'Q', nameSpeech: 'cue', soundSpeech: 'kwuh', examples: [word('Queen', '👸'), word('Question', '❓')] },
-  { letter: 'R', nameSpeech: 'ar', soundSpeech: 'rrr', examples: [word('Rabbit', '🐰'), word('Rainbow', '🌈')] },
+  { letter: 'Q', nameSpeech: 'q', soundSpeech: 'kwuh', examples: [word('Queen', '👸'), word('Question', '❓')] },
+  { letter: 'R', nameSpeech: 'r', soundSpeech: 'rrr', examples: [word('Rabbit', '🐰'), word('Rainbow', '🌈')] },
   { letter: 'S', nameSpeech: 'ess', soundSpeech: 'sss', examples: [word('Sun', '☀️'), word('Snake', '🐍')] },
   { letter: 'T', nameSpeech: 'tee', soundSpeech: 'tuh', examples: [word('Tiger', '🐯'), word('Tree', '🌳')] },
   // WEAK: "Up" (an arrow) is the clearest second short-u picture.

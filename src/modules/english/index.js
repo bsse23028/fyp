@@ -19,6 +19,10 @@
 import englishReducer, { fetchReadingContent } from './store/englishSlice';
 import alphabetReducer, { loadAlphabetProgress } from './store/alphabetSlice';
 import ur from './i18n/ur.json';
+import { configureLetterAudio } from '../../shared/utils/letterAudio';
+import { LETTER_AUDIO } from './data/letterAudio';
+import { ENGLISH_MUSIC } from './data/englishMusic';
+import { getLetter } from './data/alphabetData';
 import EnglishHubScreen from './screens/EnglishHubScreen';
 import AlphabetListScreen from './screens/AlphabetListScreen';
 import LetterLessonScreen from './screens/LetterLessonScreen';
@@ -32,6 +36,9 @@ import StruggleWordsScreen from './screens/StruggleWordsScreen';
 import SpellingWordsScreen from './screens/SpellingWordsScreen';
 import SpellingGameScreen from './screens/SpellingGameScreen';
 
+// The recorded letter sounds (and what the voice says instead when a clip is missing).
+configureLetterAudio(LETTER_AUDIO, (letter) => getLetter(letter.toUpperCase()).soundSpeech);
+
 // The English section screens fade instead of sliding (calmer, no repeated side swipes).
 const FADE = { animation: 'fade' };
 
@@ -44,6 +51,7 @@ export default {
   // from the database: topics, levels, sentences, Urdu, and the child's custom topics.
   onChildSelected: (childId) => fetchReadingContent({ childId }),
   translations: ur,
+  music: ENGLISH_MUSIC, // the ABC song in the background of the English screens
   screens: [
     { name: 'EnglishHub', component: EnglishHubScreen, options: FADE },
     { name: 'AlphabetList', component: AlphabetListScreen, options: FADE },

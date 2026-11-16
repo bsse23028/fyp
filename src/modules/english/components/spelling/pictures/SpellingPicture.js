@@ -1,5 +1,5 @@
 // SPELLING PICTURE - shows the picture of a spelling word (`image` in spellingWords.js).
-// A word without a picture (a name like Faiqa) shows `fallback` instead (the child's buddy).
+// A word without a picture shows `fallback` instead (the child's buddy).
 
 import React from 'react';
 import { Image, View } from 'react-native';

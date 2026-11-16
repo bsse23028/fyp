@@ -1,71 +1,63 @@
-// CHILD HOME SCREEN - what the child sees first.
+// CHILD HOME SCREEN - what the child sees first. This file only puts the pieces together;
+// the pieces are in ./components and every number is in ./homeConfig.js.
 //
-//   - At the top: two bouncing buttons, the child's Buddy and a star (BouncyButton.js).
-//       Buddy  -> opens the greeting card: "Good morning / afternoon / evening!" chosen
-//                 from the phone's clock (utils/greeting.js) + the child's name
-//       Star   -> opens the "Stars today" card (saved with AsyncStorage after each session)
-//     Only one card is open at a time. Tap anywhere else on the screen to close it.
-//   - "Choose one": English, Numbers, Feelings, Talk, My Day, Sounds
+//   HomeBackground  a soft gradient with a few slowly drifting shapes
+//   GlassBar        the quick-start bar: Alphabets, Words, Sentences (one tap, skips the English hub).
+//                   NAV_POSITION in homeConfig.js puts it under the header ('top') or floating at the bottom.
+//                   The Alphabets button glows softly when the child has started the letters but not finished.
+//   BuddyHero       the child's buddy walks in, waves and greets ("Good morning, Zara!", spoken once per visit)
+//   StarsChip       a small glass chip with the stars earned today
+//   PopCard         the greeting card (tap the speech bubble) and the "Stars today" card (tap the chip).
+//                   Only one card is open at a time; tap anywhere else to close it.
+//   ModuleGrid      "Choose one": six big glass cards (ModuleCard), icons from moduleIcons.js.
+//                   A tap: the buddy says the module's name and the module opens a moment later.
+//                   A module that is not built yet: the card wobbles shyly and the buddy says "Coming soon!".
 //
-// Tap the logo to change the buddy. The 🔒 Parent button (top right) asks for the PIN
-// and returns to Parent Mode; 🏠 Home is in the header on the other child screens.
-// Only "English" is built so far; the other buttons say "Coming soon" (in Preview mode they also show a label).
+// Tap the logo to change the buddy. The 🔒 Parent button (top right) asks for the PIN and returns to
+// Parent Mode. Only "English" is built so far; the other modules say "Coming soon" (in Preview mode they
+// also show a label). Nothing on this screen is saved.
 //
 // Props: { navigation }
 
 import React, { useEffect, useRef, useState } from 'react';
-import { Animated, Pressable, StyleSheet, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { useIsFocused } from '@react-navigation/native';
+import { useSelector } from 'react-redux';
 import Text from '../../shared/components/AppText';
 import Screen from '../../shared/components/Screen';
-import Mascot from '../../shared/components/Mascot';
-import BouncyButton from '../../shared/components/BouncyButton';
 import SpeakButton from '../../shared/components/SpeakButton';
+import HomeBackground from './components/HomeBackground';
+import GlassBar from './components/GlassBar';
+import BuddyHero from './components/BuddyHero';
+import StarsChip from './components/StarsChip';
+import PopCard from './components/PopCard';
+import ModuleGrid from './components/ModuleGrid';
 import { useChild } from '../../app/store/useChild';
 import { usePreview } from '../../app/store/usePreview';
 import { useLanguage } from '../../app/context/LanguageContext';
+import { selectLetterStars } from '../../modules/english/store/alphabetSlice';
 import { getGreeting } from '../../shared/utils/greeting';
-import { showComingSoon } from '../../shared/utils/alerts';
-import { COLORS, FONTS } from '../../shared/theme/theme';
+import { CALM_ACCENTS, COLORS, FONTS, GLASS } from '../../shared/theme/theme';
+import { HOME } from './homeConfig';
 
-// The six big buttons. `screen` is where it goes (null = not built yet).
+const LETTER_COUNT = 26;
+
+// The six modules. `id` = its name in moduleIcons.js, `screen` = where it goes (null = not built yet),
+// `icon` = the emoji drawn while it has no picture, `accent` = its soft colour family (theme.js).
 const MODULES = [
-  { label: 'English', bg: COLORS.bluePale, accent: COLORS.blue, icon: '📖', screen: 'EnglishHub' },
-  { label: 'Numbers', bg: COLORS.yellowPale, accent: COLORS.yellow, icon: '🔢', screen: null },
-  { label: 'Feelings', bg: COLORS.coralPale, accent: COLORS.coral, icon: '💛', screen: null },
-  { label: 'Talk', bg: COLORS.sagePale, accent: COLORS.sage, icon: '💬', screen: null },
-  { label: 'My Day', bg: COLORS.purplePale, accent: COLORS.purple, icon: '☀️', screen: null },
-  { label: 'Sounds', bg: COLORS.orangePale, accent: COLORS.orange, icon: '🎤', screen: null },
+  { id: 'english', label: 'English', accent: CALM_ACCENTS[1], icon: '📖', screen: 'EnglishHub' },
+  { id: 'numbers', label: 'Numbers', accent: CALM_ACCENTS[3], icon: '🔢', screen: null },
+  { id: 'feelings', label: 'Feelings', accent: CALM_ACCENTS[2], icon: '💛', screen: null },
+  { id: 'talk', label: 'Talk', accent: CALM_ACCENTS[4], icon: '💬', screen: null },
+  { id: 'myday', label: 'My Day', accent: CALM_ACCENTS[5], icon: '☀️', screen: null },
+  { id: 'sounds', label: 'Sounds', accent: CALM_ACCENTS[0], icon: '🎤', screen: null },
 ];
-
-// A card that pops in under the buttons. `caret` says where the little pointer sits
-// ('25%' = under the left button, '75%' = under the right button).
-function PopCard({ caret, children }) {
-  const pop = useRef(new Animated.Value(0)).current;
-
-  useEffect(() => {
-    Animated.spring(pop, { toValue: 1, friction: 7, tension: 120, useNativeDriver: true }).start();
-  }, []);
-
-  return (
-    <Animated.View
-      style={[
-        styles.popWrap,
-        { opacity: pop, transform: [{ translateY: pop.interpolate({ inputRange: [0, 1], outputRange: [-12, 0] }) }] },
-      ]}
-    >
-      {/* tapping the card itself does nothing, so it does not close */}
-      <Pressable onPress={() => {}} accessible={false} style={styles.popCard}>
-        <View style={[styles.caret, { start: caret }]} />
-        {children}
-      </Pressable>
-    </Animated.View>
-  );
-}
 
 export default function ChildHomeScreen({ navigation }) {
   const { activeChild } = useChild();
   const { isPreview } = usePreview();
   const { t } = useLanguage();
+  const focused = useIsFocused(); // false while another screen is in front: every loop stops
   const childName = activeChild ? activeChild.name : 'friend';
 
   // Which card is open: null, 'greeting' or 'stars'.
@@ -82,122 +74,113 @@ export default function ChildHomeScreen({ navigation }) {
     return () => clearInterval(timer);
   }, []);
   const greeting = getGreeting(now);
+  // 'Good morning!' -> 'Good morning, {name}!' (the buddy's speech bubble)
+  const greetingKey = greeting.text.replace('!', ', {name}!');
 
   // Stars earned today (the saved count belongs to one day only).
   const reading = activeChild ? activeChild.reading : null;
   const starsToday = reading && reading.date === todayText(now) ? reading.starsToday : 0;
   const filledStars = Math.min(5, starsToday);
 
+  // "Continue here": the child has finished some letters, but not all of them yet.
+  const letterStars = useSelector((state) => selectLetterStars(state, activeChild ? activeChild.id : null));
+  const lettersDone = Object.values(letterStars).filter((stars) => stars > 0).length;
+  const hintId = lettersDone > 0 && lettersDone < LETTER_COUNT ? 'alphabets' : null;
+
+  // What the buddy says in its bubble (a module name or "Coming soon!"), and which card wobbles.
+  const [buddyLine, setBuddyLine] = useState({ text: null, key: 0 });
+  const [wobble, setWobble] = useState({ id: null, key: 0 });
+  const openTimer = useRef(null);
+  useEffect(() => () => clearTimeout(openTimer.current), []);
+
   function openModule(module) {
-    if (module.screen) navigation.navigate(module.screen);
-    else showComingSoon(module.label);
+    if (!module.screen) {
+      // not built yet: a shy wobble and the buddy says so (no pop-up)
+      setWobble((w) => ({ id: module.id, key: w.key + 1 }));
+      setBuddyLine((line) => ({ text: 'Coming soon!', key: line.key + 1 }));
+      return;
+    }
+    setBuddyLine((line) => ({ text: module.label, key: line.key + 1 }));
+    // open it a moment later, so the squash and the hop are seen
+    clearTimeout(openTimer.current);
+    openTimer.current = setTimeout(() => navigation.navigate(module.screen), HOME.CARD_NAV_DELAY);
   }
 
+  const bar = <GlassBar active={focused} hintId={hintId} onOpen={(item) => navigation.navigate(item.screen)} />;
+  const barAtBottom = HOME.NAV_POSITION === 'bottom';
+
   return (
-    <Screen scroll mode="child">
-      {/* tapping any empty part of the screen closes the open card */}
-      <Pressable style={styles.body} onPress={() => setOpenCard(null)} accessible={false}>
-        {/* the two bouncing buttons */}
-        <View style={styles.buddies}>
-          <BouncyButton
-            active={openCard === 'greeting'}
-            onPress={() => toggleCard('greeting')}
-            shadowWidth={68}
-            accessibilityLabel="Greeting"
-          >
-            <Mascot size={100} />
-          </BouncyButton>
+    <Screen mode="child" contentStyle={styles.noPadding} background={GLASS.gradient[0]}>
+      <HomeBackground active={focused}>
+        {!barAtBottom ? <View style={styles.topBar}>{bar}</View> : null}
 
-          <BouncyButton
-            active={openCard === 'stars'}
-            onPress={() => toggleCard('stars')}
-            shadowWidth={50}
-            delay={350}
-            accessibilityLabel="Stars today"
-          >
-            <View>
-              <Text style={styles.bigStar}>⭐</Text>
-              {filledStars > 0 && (
-                <View style={styles.badge}>
-                  <Text style={styles.badgeText}>{filledStars}</Text>
-                </View>
-              )}
-            </View>
-          </BouncyButton>
-        </View>
-
-        {/* greeting card */}
-        {openCard === 'greeting' && (
-          <PopCard key="greeting" caret="25%">
-            <View style={styles.cardRow}>
-              <View style={styles.greetingText}>
-                <Text style={styles.greetingTitle}>
-                  {greeting.text} {greeting.emoji}
-                </Text>
-                <Text style={styles.greetingSub}>Ready to learn, {childName}?</Text>
-              </View>
-              <SpeakButton text={`${t(greeting.text)} ${t('Ready to learn, {name}?', { name: childName })}`} />
-            </View>
-          </PopCard>
-        )}
-
-        {/* stars today card */}
-        {openCard === 'stars' && (
-          <PopCard key="stars" caret="75%">
-            <View style={styles.cardRow}>
-              <View style={styles.starsText}>
-                <Text style={styles.starsTitle}>Stars today</Text>
-                <Text style={styles.starsSub}>A little glow for every try</Text>
-              </View>
-              <View style={styles.starsRow}>
-                {[1, 2, 3, 4, 5].map((n) => (
-                  <Text key={n} style={[styles.star, { color: n <= filledStars ? COLORS.yellow : '#E2D5C8' }]}>
-                    ★
-                  </Text>
-                ))}
-              </View>
-            </View>
-          </PopCard>
-        )}
-
-        {/* today's picks (switched off for now)
-        <Text style={styles.sectionTitle}>Today’s picks</Text>
-        <View style={styles.picksRow}>
-          <Pressable
-            style={styles.pick}
-            onPress={() => navigation.navigate('ReadingAlong', { index: 0 })}
-            accessibilityRole="button"
-          >
-            <Text style={styles.pickIcon}>📖</Text>
-            <Text style={styles.pickLabel}>Read with me</Text>
-          </Pressable>
-          <Pressable style={styles.pick} onPress={() => showComingSoon('Morning steps')} accessibilityRole="button">
-            <Text style={styles.pickIcon}>☀️</Text>
-            <Text style={styles.pickLabel}>Morning steps</Text>
-          </Pressable>
-        </View> */}
-
-        {/* module grid */}
-        <Text style={styles.sectionTitle}>Choose one</Text>
-        <View style={styles.grid}>
-          {MODULES.map((module) => (
-            <Pressable
-              key={module.label}
-              onPress={() => openModule(module)}
-              accessibilityRole="button"
-              style={[styles.module, { backgroundColor: module.bg, borderColor: module.accent + '30' }]}
+        <ScrollView
+          contentContainerStyle={[styles.scroll, barAtBottom && { paddingBottom: HOME.BOTTOM_BAR_SPACE }]}
+          showsVerticalScrollIndicator={false}
+          bounces={false}
+          overScrollMode="never"
+        >
+          {/* tapping any empty part of the page closes the open card */}
+          <Pressable style={styles.body} onPress={() => setOpenCard(null)} accessible={false}>
+            <BuddyHero
+              greetingKey={greetingKey}
+              name={childName}
+              onBubblePress={() => toggleCard('greeting')}
+              message={buddyLine.text}
+              messageKey={buddyLine.key}
+              active={focused}
             >
-              <Text style={styles.moduleIcon}>{module.icon}</Text>
-              <Text style={styles.moduleLabel}>{module.label}</Text>
-              {isPreview && !module.screen && (
-                <View style={styles.soonTag}>
-                  <Text style={styles.soonText}>Coming soon</Text>
+              <StarsChip count={filledStars} onPress={() => toggleCard('stars')} />
+            </BuddyHero>
+
+            {/* greeting card */}
+            {openCard === 'greeting' && (
+              <PopCard key="greeting">
+                <View style={styles.cardRow}>
+                  <View style={styles.cardText}>
+                    <Text style={styles.greetingTitle}>
+                      {greeting.text} {greeting.emoji}
+                    </Text>
+                    <Text style={styles.greetingSub}>Ready to learn, {childName}?</Text>
+                  </View>
+                  <SpeakButton text={`${t(greeting.text)} ${t('Ready to learn, {name}?', { name: childName })}`} />
                 </View>
-              )}
-            </Pressable>
-          ))}
-        </View>
-      </Pressable>
+              </PopCard>
+            )}
+
+            {/* stars today card */}
+            {openCard === 'stars' && (
+              <PopCard key="stars">
+                <View style={styles.cardRow}>
+                  <View style={styles.cardText}>
+                    <Text style={styles.starsTitle}>Stars today</Text>
+                    <Text style={styles.starsSub}>A little glow for every try</Text>
+                  </View>
+                  <View style={styles.starsRow}>
+                    {[1, 2, 3, 4, 5].map((n) => (
+                      <Text key={n} style={[styles.star, { color: n <= filledStars ? COLORS.yellow : '#E2D5C8' }]}>
+                        ★
+                      </Text>
+                    ))}
+                  </View>
+                </View>
+              </PopCard>
+            )}
+
+            <Text style={styles.sectionTitle}>Choose one</Text>
+            <ModuleGrid
+              modules={MODULES}
+              active={focused}
+              isPreview={isPreview}
+              wobbleId={wobble.id}
+              wobbleKey={wobble.key}
+              onOpen={openModule}
+            />
+          </Pressable>
+        </ScrollView>
+
+        {barAtBottom ? <View style={styles.bottomBar}>{bar}</View> : null}
+      </HomeBackground>
     </Screen>
   );
 }
@@ -210,65 +193,37 @@ function todayText(date) {
 }
 
 const styles = StyleSheet.create({
+  // the background must reach the screen edges, so the Screen's own padding is switched off
+  noPadding: {
+    paddingHorizontal: 0,
+    paddingTop: 0,
+    paddingBottom: 0,
+  },
+  topBar: {
+    marginTop: 8,
+    marginHorizontal: HOME.BAR_SIDE_MARGIN,
+    zIndex: 5,
+  },
+  bottomBar: {
+    position: 'absolute',
+    left: HOME.BAR_SIDE_MARGIN,
+    right: HOME.BAR_SIDE_MARGIN,
+    bottom: 12,
+  },
+  scroll: {
+    flexGrow: 1,
+    paddingHorizontal: HOME.SIDE_PADDING,
+    paddingTop: HOME.SECTION_GAP,
+    paddingBottom: 16,
+  },
   body: {
     flex: 1,
-    paddingBottom: 8,
-  },
-  buddies: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    alignItems: 'flex-end',
-  },
-  bigStar: {
-    fontSize: 64,
-    lineHeight: 80,
-    textAlign: 'center',
-  },
-  badge: {
-    position: 'absolute',
-    top: 4,
-    end: -8,
-    minWidth: 26,
-    height: 26,
-    paddingHorizontal: 6,
-    borderRadius: 13,
-    backgroundColor: COLORS.coral,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  badgeText: {
-    fontFamily: FONTS.nunitoBlack,
-    fontSize: 14,
-    color: COLORS.white,
-  },
-  popWrap: {
-    marginTop: 14,
-  },
-  popCard: {
-    padding: 16,
-    borderRadius: 24,
-    backgroundColor: COLORS.white,
-    shadowColor: '#000',
-    shadowOpacity: 0.09,
-    shadowRadius: 14,
-    shadowOffset: { width: 0, height: 4 },
-    elevation: 4,
-  },
-  caret: {
-    position: 'absolute',
-    top: -8,
-    marginStart: -8,
-    width: 16,
-    height: 16,
-    borderRadius: 3,
-    backgroundColor: COLORS.white,
-    transform: [{ rotate: '45deg' }],
   },
   cardRow: {
     flexDirection: 'row',
     alignItems: 'center',
   },
-  greetingText: {
+  cardText: {
     flex: 1,
     marginEnd: 12,
   },
@@ -283,81 +238,6 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.nunitoSemiBold,
     fontSize: 15,
     color: COLORS.warmMuted,
-  },
-  sectionTitle: {
-    marginTop: 18,
-    marginBottom: 10,
-    fontFamily: FONTS.nunitoExtraBold,
-    fontSize: 15,
-    color: COLORS.warmMuted,
-  },
-  picksRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  pick: {
-    width: '48%',
-    minHeight: 72,
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 10,
-    paddingHorizontal: 12,
-    borderRadius: 20,
-    borderWidth: 2,
-    borderColor: COLORS.sagePale,
-    backgroundColor: COLORS.white,
-  },
-  pickIcon: {
-    fontSize: 28,
-    marginEnd: 9,
-  },
-  pickLabel: {
-    flex: 1,
-    fontFamily: FONTS.nunitoBlack,
-    fontSize: 14,
-    color: COLORS.warmText,
-  },
-  grid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-  },
-  module: {
-    width: '48%',
-    minHeight: 130,
-    marginBottom: 14,
-    paddingVertical: 22,
-    paddingHorizontal: 14,
-    borderRadius: 24,
-    borderWidth: 2,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  moduleIcon: {
-    fontSize: 44,
-    lineHeight: 54,
-  },
-  moduleLabel: {
-    marginTop: 8,
-    fontFamily: FONTS.nunitoBlack,
-    fontSize: 18,
-    color: COLORS.warmText,
-    textAlign: 'center',
-  },
-  soonTag: {
-    marginTop: 8,
-    paddingVertical: 3,
-    paddingHorizontal: 10,
-    borderRadius: 999,
-    backgroundColor: 'rgba(255, 255, 255, 0.85)',
-  },
-  soonText: {
-    fontFamily: FONTS.nunitoExtraBold,
-    fontSize: 12,
-    color: COLORS.warmMuted,
-  },
-  starsText: {
-    flex: 1,
   },
   starsTitle: {
     fontFamily: FONTS.nunitoExtraBold,
@@ -375,5 +255,12 @@ const styles = StyleSheet.create({
   star: {
     fontSize: 20,
     marginStart: 3,
+  },
+  sectionTitle: {
+    marginTop: HOME.SECTION_GAP,
+    marginBottom: 10,
+    fontFamily: FONTS.nunitoExtraBold,
+    fontSize: 15,
+    color: COLORS.warmMuted,
   },
 });

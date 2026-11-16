@@ -3,7 +3,7 @@
 // Each time the page appears the picture springs in from the right, then WAVES hello while the voice
 // says "A for apple!" (its mouth talks while the voice speaks); then the buddy says "Tap the picture!".
 // TAP: the picture dances (or jumps if it is still dancing), its letters pop in, the voice says
-// "A says ah, like apple." (mouth talking) and a happy cheer. The first tap finishes the page.
+// "A says", then the RECORDED letter sound plays, then "like apple." (mouth talking), and a happy cheer. The first tap finishes the page.
 // A tap during the intro simply starts the tap sequence. Off screen, every loop stops (active = false).
 
 import React, { useEffect, useRef, useState } from 'react';
@@ -12,7 +12,8 @@ import ListenPicture from './ListenPicture';
 import useLessonSequence from './useLessonSequence';
 import { LessonLetter } from '../LetterCase';
 import { motion } from '../../../../../shared/utils/motion';
-import { cheer } from '../../../../../shared/utils/speech';
+import { cheer, speak } from '../../../../../shared/utils/speech';
+import { playLetterSound } from '../../../../../shared/utils/letterAudio';
 import { playSound } from '../../../../../shared/utils/sounds';
 import { CALM_RADIUS, CALM_SHADOW, FONTS } from '../../../../../shared/theme/theme';
 
@@ -28,6 +29,8 @@ export default function ListenPage({ item, exampleIndex, active, voice, contentW
   const [talk, setTalk] = useState({ mood: 'idle', key: 0 });
   const [speaking, setSpeaking] = useState(false);
   const tapped = useRef(false);
+  const activeNow = useRef(active);
+  activeNow.current = active;
   const size = Math.min(210, contentWidth * 0.6);
 
   const playMood = (mood) => setTalk((t) => ({ mood, key: t.key + 1 }));
@@ -65,11 +68,21 @@ export default function ListenPage({ item, exampleIndex, active, voice, contentW
     tapped.current = true;
     setPopKey((k) => k + 1);
     playSound('pop');
-    const line = `${item.letter} says ${item.soundSpeech}, like ${word}.`;
-    voice.remember(line);
+    const before = `${item.letter} says`;
+    const after = `like ${word}.`;
+    // The speaker button repeats the three parts (it stops by itself when the page is left).
+    voice.rememberPlay(() => {
+      const still = (next) => () => activeNow.current && next();
+      speak(before, { onDone: still(() => playLetterSound(item.letter, still(() => speak(after)))) });
+    });
     setSpeaking(true);
-    const finished = await sequence.play(async ({ say, wait }) => {
-      await Promise.all([say(line), wait(DANCE_MS)]);
+    const finished = await sequence.play(async ({ say, sound, wait }) => {
+      const line = async () => {
+        await say(before);
+        await sound(item.letter);
+        await say(after);
+      };
+      await Promise.all([line(), wait(DANCE_MS)]);
       setSpeaking(false);
       cheer();
     });

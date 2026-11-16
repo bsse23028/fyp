@@ -224,11 +224,17 @@ export function usePulse(active, { duration = 1200 } = {}) {
 }
 
 // The buddy's resting life: a slow small bob and a tiny sway (endless, very calm).
-export function useIdleSway({ height = 4, degrees = 2, duration = 2500 } = {}) {
+// `active` = false pauses it (its screen is not in front).
+export function useIdleSway({ height = 4, degrees = 2, duration = 2500, active = true } = {}) {
   const bob = useRef(new Animated.Value(0)).current;
   const sway = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
+    if (!active) {
+      bob.setValue(0);
+      sway.setValue(0);
+      return undefined;
+    }
     const ease = Easing.inOut(Easing.sin);
     const half = duration / 2;
     const animation = motion.parallel([
@@ -248,7 +254,7 @@ export function useIdleSway({ height = 4, degrees = 2, duration = 2500 } = {}) {
     ]);
     animation.start();
     return () => animation.stop();
-  }, []);
+  }, [active]);
 
   return {
     transform: [

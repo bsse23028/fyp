@@ -40,7 +40,7 @@ export default function EnglishHubScreen({ navigation }) {
         <SectionHeader title="English" onBack={() => navigation.goBack()} onSound={() => speakUi(GREETING)} />
 
         <View style={styles.greeting}>
-          <BuddyCharacter size={84} bubbleSide message={GREETING} messageKey={1} />
+          <BuddyCharacter size={84} bubbleSide message={GREETING} messageKey={1} messageSilent />
         </View>
 
         {SECTIONS.map((section, i) => (

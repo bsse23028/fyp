@@ -4,8 +4,12 @@
 //   mood: 'idle' | 'hop' | 'happy' | 'think' | 'cheer' | 'dance' | 'wave' | 'walk'
 //         (change `moodKey` to play the same mood again)
 //   message: optional bubble text (spoken, hides after ~3 s; change `messageKey` to show it again)
+//   messageSilent: true = the bubble is only shown, not spoken
 //   bubbleSide: show the bubble next to the buddy instead of above it (top of a scroll view)
-//   enterFromLeft: start outside the left edge and walk in to the home corner, then wave and say "Hi!"
+//   enterFromLeft: start outside the left edge and walk in to the home corner, then wave and show "Hi!"
+//   enterFromRight: the same from the right edge (a mirrored, right-to-left layout)
+//   enterGreeting: the bubble shown on arrival ('Hi!' by default; null = only wave, no bubble)
+//   active: false pauses the idle bob and sway (the screen is not in front)
 //                  (onEntered runs when it has arrived)
 //   idleThink: after ~8 s without any touch the buddy does a small "think" tilt (at most twice)
 // With a ref:  buddy.current.walkTo(x, y, onArrive)   x / y = points away from the home corner
@@ -105,9 +109,13 @@ const BuddyCharacter = forwardRef(function BuddyCharacter(
     moodKey = 0,
     message,
     messageKey = 0,
+    messageSilent = false, // true = show the bubble but do not speak it
     avatar,
     bubbleSide = false,
     enterFromLeft = false,
+    enterFromRight = false,
+    enterGreeting = 'Hi!',
+    active = true, // false = the screen is not in front: the idle bob and sway pause
     onEntered,
     idleThink = false,
     style,
@@ -118,10 +126,11 @@ const BuddyCharacter = forwardRef(function BuddyCharacter(
   const chosen = getAvatar(avatar || displayAvatar);
   const cfg = buddyConfigFor(chosen.id);
   const width = size * chosen.ratio;
-  const offscreen = -(width + 40);
+  const entering = enterFromLeft || enterFromRight;
+  const offscreen = (enterFromRight ? 1 : -1) * (width + 40);
 
   // where the buddy is, as an offset from its home corner (drag AND walking move this)
-  const pan = useRef(new Animated.ValueXY({ x: enterFromLeft ? offscreen : 0, y: 0 })).current;
+  const pan = useRef(new Animated.ValueXY({ x: entering ? offscreen : 0, y: 0 })).current;
   const held = useRef(new Animated.Value(0)).current;
   const lift = useRef(new Animated.Value(0)).current;
   const squash = useRef(new Animated.Value(1)).current;
@@ -137,13 +146,13 @@ const BuddyCharacter = forwardRef(function BuddyCharacter(
   const lean = useRef(new Animated.Value(0)).current;
   const waveAngle = useRef(new Animated.Value(0)).current;
   const waveShow = useRef(new Animated.Value(0)).current;
-  const idle = useIdleSway();
+  const idle = useIdleSway({ active });
 
   const [bubble, setBubble] = useState(null);
   const [sparkleKey, setSparkleKey] = useState(0);
   const taps = useRef(0);
   const hideTimer = useRef(null);
-  const position = useRef({ x: enterFromLeft ? offscreen : 0, y: 0 });
+  const position = useRef({ x: entering ? offscreen : 0, y: 0 });
   const moved = useRef(false);
   const walking = useRef(false);
   const walkAnimation = useRef(null);
@@ -160,22 +169,22 @@ const BuddyCharacter = forwardRef(function BuddyCharacter(
     };
   }, []);
 
-  function say(text) {
+  function say(text, silent) {
     clearTimeout(hideTimer.current);
     setBubble({ text, key: Date.now() });
-    speakUi(text);
+    if (!silent) speakUi(text);
     hideTimer.current = setTimeout(() => setBubble(null), BUBBLE_TIME);
   }
 
   // ----- WAVE: the mitten lifts from the configured spot, waves 3 times, the body leans a little -----
-  function wave(text) {
+  function wave(text, silent) {
     const startX = (cfg.hand.x - cfg.shoulder.x) * width;
     const startY = (cfg.hand.y - cfg.shoulder.y) * size;
     const base = (Math.atan2(-startX, startY) * 180) / Math.PI; // the angle that points the arm at `hand`
     const swing = BM.waveDegrees;
     const each = (BM.waveMs - 500) / 6;
     waveAngle.setValue(0);
-    if (text) say(text);
+    if (text) say(text, silent);
     motion
       .parallel([
         motion.sequence([
@@ -246,9 +255,9 @@ const BuddyCharacter = forwardRef(function BuddyCharacter(
 
   // ----- walk in from the left when the lesson opens -----
   useEffect(() => {
-    if (!enterFromLeft) return;
+    if (!entering) return;
     walkTo(0, 0, () => {
-      wave('Hi!');
+      wave(enterGreeting, true); // the bubble is shown, but it is not spoken
       if (onEntered) onEntered();
     });
   }, []);
@@ -313,7 +322,7 @@ const BuddyCharacter = forwardRef(function BuddyCharacter(
   }, [mood, moodKey]);
 
   useEffect(() => {
-    if (message) say(message);
+    if (message) say(message, messageSilent);
   }, [message, messageKey]);
 
   function handleTap() {

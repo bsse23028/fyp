@@ -2,9 +2,13 @@
 // Sizes are in screen points (dp) unless a comment says "canvas pixels" (the 512 x 512 letter pictures).
 // Times are in milliseconds, angles in degrees.
 
+// What is heard when a letter lands in its place: 'name' = the letter NAME ("see", the phone's voice),
+// 'sound' = the letter's recorded SOUND again.
+export const SPELLING_DROP_AUDIO = 'name';
+
 export const SPELLING = {
   // ----- how the word is written -----
-  ALL_CAPS: false, // true = every word in CAPITAL letters (CAKE); false = as written in spellingWords.js (cake, Faiqa)
+  ALL_CAPS: false, // true = every word in CAPITAL letters (CAKE); false = as written in spellingWords.js (cake)
   SHOW_EYES: false, // true = each letter gets two little blinking eyes (a simple first version, see LetterEyes.js)
   EYE_SIZE: 0.2, // size of one eye, as a part of the letter's height
   EYE_GAP: 0.25, // space between the two eyes, as a part of one eye
@@ -33,9 +37,13 @@ export const SPELLING = {
 
   // ----- picking up and holding a letter (it feels like soft jelly) -----
   HOLD_SCALE: 1.3, // the letter pops to this size when picked up
-  LIFT_ABOVE: 26, // the held letter is drawn this far above the finger, so the finger does not hide it
+  LIFT_ABOVE: 26, // the held letter is drawn this far above the finger, so the finger does not hide it (it never trails)
   SHADOW_HELD_SCALE: 1.35, // the shadow of a held letter grows to this (and gets lighter)
-  HOLD_REPEAT_SOUND: 1500, // the letter sound is said once more when the letter is held this long
+  HOLD_REPEAT_ENABLED: true, // true = the letter's sound keeps repeating while the letter is held; false = it plays once
+  HOLD_GAP_MS: 700, // quiet time between two repeats of the sound
+  HOLD_REPEAT_VOLUME: 0.7, // the repeats are a little quieter than the first sound (1 = same loudness)
+  HOLD_MAX_REPEATS: 8, // at most this many repeats in one hold, then silence until the next touch
+  HOLD_REPEAT_SOUND: 1500, // sentence part: a held WORD is said once more after this long
   JELLY_MIN: 0.8, // "breathing": the letter gets as thin / short as this ...
   JELLY_MAX: 1.25, // ... and as fat / tall as this (width and height swing against each other)
   JELLY_SWING: 600, // one breath from fat to thin
@@ -43,9 +51,11 @@ export const SPELLING = {
   WOBBLE_SWING: 460, // one wobble from left to right
   STRETCH_MIN: 0.7, // moving fast: the letter gets as thin as this across its direction ...
   STRETCH_MAX: 1.35, // ... and as long as this along its direction
-  STRETCH_PER_SPEED: 0.9, // how strongly finger speed stretches the letter (bigger = stretchier)
-  FOLLOW_TENSION: 320, // how quickly the letter catches up with the finger (bigger = tighter)
-  FOLLOW_FRICTION: 22, // how much it is slowed (smaller = more wobbly trailing)
+  STRETCH_PER_SPEED: 0.5, // how strongly finger speed stretches the letter: full stretch at (1 / this) x 1000 points per second
+  LEAN_PER_SPEED: 6, // the letter leans this many degrees into a sideways move of 1000 points per second ...
+  LEAN_MAX: 12, // ... but never more than this
+  POP_STIFFNESS: 260, // the pick-up pop (and other small size springs): bigger = faster
+  POP_DAMPING: 12, // ... smaller = more bounce
 
   // ----- the magnet (near the CORRECT placeholder) -----
   MAGNET_DISTANCE: 1.0, // closer than this many letter heights to its own placeholder = "in the magnet"
@@ -54,8 +64,8 @@ export const SPELLING = {
   DROP_SLACK: 22, // a drop this close to a WRONG placeholder counts as a wrong try (elsewhere it does not count)
 
   // ----- letting go -----
-  LAND_TENSION: 110, // sliding into the placeholder: bigger = faster
-  LAND_FRICTION: 6, // ... smaller = more overshoot
+  LAND_STIFFNESS: 180, // sliding into the placeholder: bigger = faster
+  LAND_DAMPING: 14, // ... smaller = more overshoot
   LAND_SQUASH: 0.6, // the squash on landing (0 = none, 1 = strongest)
   LAND_HOP: 0.14, // after landing the letter does one small hop this high (a part of its height)
   FLASH_OPACITY: 0.85, // the colour flash that "fills" the shape on landing: how strong
@@ -64,8 +74,8 @@ export const SPELLING = {
   RING_WIDTH: 4, // thickness of the ring that grows out of a landed letter
   RING_GROW: 1.6, // the ring grows to this many times the letter's size
   RING_TIME: 520, // how long the ring takes to grow and fade
-  HOME_TENSION: 70, // gliding back home after a wrong drop: bigger = faster
-  HOME_FRICTION: 5, // ... smaller = more "boing"
+  HOME_STIFFNESS: 120, // gliding back home after a wrong drop: bigger = faster
+  HOME_DAMPING: 11, // ... smaller = more "boing"
   HINT_AFTER_MISSES: 2, // this many wrong drops of one letter -> its placeholder pulses
   HELP_AFTER_MISSES: 3, // this many wrong drops -> the letter goes to its place by itself
   HELP_DELAY: 1100, // wait before the letter places itself

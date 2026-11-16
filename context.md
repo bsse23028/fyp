@@ -42,6 +42,10 @@
 - **Expo SDK 58** (`expo ~58.0.0`), React Native 0.88.1, React 19.3. Runs in **Expo Go** on a real phone.
 - Navigation: `@react-navigation/native` + `native-stack` (NOT Expo Router).
 - State: `@reduxjs/toolkit` + `react-redux`.
+- Gestures / UI-thread animation (added 2026-11-16, only used by the Spelling game's `LooseLetter`):
+  `react-native-gesture-handler ~3.3.0` (v3 HOOKS api: `usePanGesture` + `GestureDetector`; events are flat, `e.translationX`),
+  `react-native-reanimated 4.7.1`, `react-native-worklets 0.13.0` (`scheduleOnRN`). No babel.config.js (the Expo preset adds
+  the worklets plugin). `App.js` root = `GestureHandlerRootView`. Everything else still uses RN `Animated` via motion.js.
 - Storage: `@react-native-async-storage/async-storage` (keys start with `kidbuddy_`, listed in `src/shared/utils/storage.js`).
 - Voice: `expo-speech`. Sound effects: `expo-audio` (I added it). Icons: `@expo/vector-icons` (Ionicons; I added it,
   because SDK 58 does not bundle it). Lottie: `lottie-react-native` (I added it). Camera/mic: `expo-camera`.
@@ -52,7 +56,7 @@
 
 ## 4. Folder map
 ```
-App.js                       fonts + providers (Redux Provider > Language > Device > Auth > Header > Navigation)
+App.js                       fonts + providers (GestureHandlerRootView > SafeArea > Redux Provider > Language > Device > Auth > Header > Navigation)
 src/app/
   navigation/                AppNavigator.js (all screens; module screens added from src/modules), helpers.js
                              (goToParentHome, goToChildHome, goToProfilePicker(nav, childId), goToProgress ...)
@@ -98,8 +102,36 @@ scripts/makeSounds.js        generates the WAVs: `node scripts/makeSounds.js`
   `stopSpeaking`, `SPEECH_ENABLED`. It also obeys the sound master switch.
 - **Sounds** `shared/utils/sounds.js`: `playSound(name)`, `SOUND_ENABLED` (the master switch: it mutes effects AND the voice),
   `SOUND_FILES` list. A new effect stops the previous one. There is no "wrong" sound, ever.
+- **Letter sounds** `shared/utils/letterAudio.js` (expo-audio): RECORDED phonics clips (Phonicademy pack, `assets/audio/*.mp3`,
+  mapped in `modules/english/data/letterAudio.js`; a.mp3 ... z.mp3, q uses qu.mp3; c.mp3 and k.mp3 are the same recording). `playLetterSound(letter, onDone)`
+  (onDone always fires once), `playLetterSoundAsync`, `stopLetterSound`, `startHoldSound` / `stopHoldSound` (token-guarded repeats),
+  `preloadLetterSounds`, `releaseLetterSounds`. One clip at a time, stops the voice first, respects sound-off, falls back to
+  expo-speech (`soundSpeech`) for a `null` / broken clip. The module registers its files with `configureLetterAudio()` in
+  `modules/english/index.js`. Letter NAMES stay TTS. A DELETED mp3 breaks the bundle (static require): test the fallback with `a: null`.
+  Used by: Look (3 hops), Listen ("A says" + clip + "like apple."), Say (3x, `sound` helper of useLessonSequence), Spelling
+  (hold-repeat, `HOLD_*` in spellingConfig; `SPELLING_DROP_AUDIO`). Play / Star Check only use letter names. Licence: the clips
+  must not be published as standalone files (public repo). Credits line in Parent Settings.
+- **Background music**: a module may declare `music: { file, volume, quietVolume, screens, quietScreens }` (English:
+  `data/englishMusic.js`, the ABC song in `assets/sounds/`). `app/navigation/ModuleMusic.js` (mounted in App.js) watches the
+  current route and calls `shared/utils/backgroundMusic.js` (`playMusic` / `stopMusic`; loop, sound-off, pauses in background).
 - **Celebrations** `shared/components/Celebration.js` (+ `lottieFiles.js`, all `null` until the user adds files): it plays
   Lottie, and falls back to the built-in `Confetti.js`. One at a time. Types: popper (small wins), confetti + stars (Result).
+
+## 5b. Child Home (glass redesign, 2026-11-16)
+- `src/screens/home/ChildHomeScreen.js` only assembles `./components/*`; every number/switch is in `./homeConfig.js`
+  (`USE_BLUR`, `BLUR_INTENSITY`, `NAV_POSITION` 'top'|'bottom', `BUDDY_SIZE`, `HOME_SHAPES`, `QUICK_START`).
+- `HomeBackground` (expo-linear-gradient + drifting shapes via `useDrift({active})`; it is the expo-blur `BlurTargetView`
+  and provides its ref through `GlassContext`), `Glass` (BlurView `blurTarget` + `blurMethod="dimezisBlurView"`, or the
+  plain translucent layer), `GlassBar` (Alphabets → `AlphabetList`, Words → `WordsHub`, Sentences → `ReadingTopics`;
+  pop sound + icon hop + delayed navigate; yellow glow pulse when 0 < letters done < 26), `BuddyHero` (BuddyCharacter 150,
+  walks in + waves, glass greeting bubble 'Good morning, {name}!' spoken once per mount; bubble tap = greeting card),
+  `StarsChip`, `PopCard`, `ModuleGrid` + `ModuleCard` (2-column glass cards: `useEntrance` stagger, icon bob loop only
+  while focused, press squash + icon hop; tap = buddy says the name via BuddyHero `message`, navigate after
+  `CARD_NAV_DELAY`; not built = shy wobble + buddy says "Coming soon!" (no alert); Preview keeps the label).
+  Icons: `moduleIcons.js` (`image: null` = big emoji). Cards are not blurred by default (`BLUR_CARDS`).
+- New theme tokens: `GLASS` (theme.js). BuddyCharacter got `enterFromRight` (RTL), `enterGreeting` (null = no bubble) and
+  `active` (pauses the idle sway; `useIdleSway({ active })` in motion.js).
+- Packages added: `expo-blur ~58.0.6`, `expo-linear-gradient ~58.0.4` (both in Expo Go).
 
 ## 6. Parent side (redesigned)
 - **ParentHome** = greeting + week stats, `OpenChildModeCard` (the hero card → ProfilePicker with the chosen child preselected),
@@ -145,11 +177,12 @@ scripts/makeSounds.js        generates the WAVs: `node scripts/makeSounds.js`
     `touchBox` = bbox + 20%), `LetterArt` (PNG shifted inside a bbox-sized view, optional `tint`), `LooseLetter`
     (letter + code-drawn ellipse shadow; dances while held), `LetterSlot` (grey silhouette placeholder, yellow hint glow),
     `spellingConfig.js` (every number; `SHOW_EYES` flag not built yet).
-  - `LooseLetter` now does its OWN dragging (PanResponder; `DraggableCard` is no longer used by spelling and is back to
-    its original code): jelly while held (breath scaleX/scaleY against each other, wobble, speed stretch, spring trailing,
-    lifted above the finger, shadow bigger + lighter), all in `Animated` values combined with `Animated.multiply/add`.
-    Ref: `landOn(dx, dy, done)`, `goHome({ wiggle })`, `pop()`, `hop(done)`. MAGNET (`findMagnet` in the board): within
-    one letter height of its OWN free placeholder the jelly calms and the slot glows (`near`); release there = placed.
+  - `LooseLetter` = the drag, on the UI THREAD (Gesture Handler `usePanGesture` + Reanimated shared values; no
+    PanResponder, no DraggableCard). Position = finger 1:1 (no spring / trailing, constant `LIFT_ABOVE`); only size and
+    tilt animate (jelly breath, wobble, speed stretch + lean). The magnet is checked in the worklet against the `targets`
+    prop ([{ slot, dx, dy, reach }] from the board's `magnetTargets`); JS is called only for grab / magnet change / drop
+    (`scheduleOnRN`). It reads `animationsEnabled()` at render (off = no jelly). Ref: `landOn(dx, dy, done)`,
+    `goHome({ wiggle })`, `hop(done, height)`, `turnSolid()`. Spring numbers are `*_STIFFNESS` / `*_DAMPING` in the config.
   - Correct drop = `landOn` (overshoot + squash) + small hop + `SlotBurst` (drawn above the letters: colour flash in
     the letter's light colour, growing ring, sparkles) + `sparkle` sound (used as the chime) + letter NAME.
     Wrong placeholder = boing + wiggle home, no voice; 2 misses = slot pulses, 3 = "Here, let me help." + auto-place.
@@ -224,3 +257,10 @@ scripts/makeSounds.js        generates the WAVs: `node scripts/makeSounds.js`
 - 2026-11-16: Spelling: umbrella + Faiqa switched on; a word without a picture uses the child's buddy mascot (word list + pop-out); magnet has a 56-point minimum reach.
 - 2026-11-16: Spelling: `SHOW_EYES` flag built (`LetterEyes.js`, off by default).
 - 2026-11-16: Spelling: sentence part (`SentenceBoard`, `WordArt`, `PieceSpot`, `layoutSentence`; pieces generalised to letters or words) and re-layout on size change / wide screens. app.json orientation NOT changed.
+- 2026-11-16: Recorded phonics sounds (Part 1): `shared/utils/letterAudio.js` + `data/letterAudio.js`; Look/Listen/Say pages and Spelling use the clips; hold-and-repeat in Spelling; Credits in Parent Settings; README note. No packages. Part 2 (Reanimated drag) waits for "continue".
+- 2026-11-16: Spelling Part 2: installed gesture-handler 3.3 / reanimated 4.7.1 / worklets 0.13 (`npx expo install`), `GestureHandlerRootView` in App.js, `LooseLetter` drag rebuilt on the UI thread (1:1 position, magnet in the worklet). README 5j. Untested on a device.
+- 2026-11-16: ABC song as English background music (`backgroundMusic.js`, `ModuleMusic.js`, `englishMusic.js`); `q: null` in letterAudio.js because qu.mp3 was deleted and there is no q.mp3.
+- 2026-11-16: Buddy bubbles can be silent (`messageSilent` on BuddyCharacter): the English hub greeting and the lesson hint "Tap the letter!" (`SILENT_HINTS` in LetterLessonScreen) are shown but not spoken; the speaker buttons still say them.
+- 2026-11-16: Letter sounds going silent (e.g. C, K): the lesson and the spelling board called `releaseLetterSounds()` without letters, so no player was ever freed and they piled up; now they pass their letters (no list = free all). `playLetterSound` no longer waits forever for seekTo and falls back to the voice when a clip does not start within 0.9 s. Clips measured: all similar loudness, 0.6-2.0 s. Buddy "Hi!" is silent (`wave(text, silent)`). Spelling words are now umbrella, cake + cat, dog, sun, ball, fish, apple, hat, bus, milk, tree (no Faiqa; only cake / umbrella have pictures, the others show the buddy).
+- 2026-11-16: Child Home redesign STEP 1: components in `screens/home/components`, `homeConfig.js`, glass tokens, quick-start GlassBar, BuddyHero, StarsChip; installed expo-blur + expo-linear-gradient. Step 2 (alive module cards) waits for "continue".
+- 2026-11-16: Child Home redesign STEP 2: `ModuleCard` glass cards (grid), `moduleIcons.js`, buddy says module names / "Coming soon!", buddy idle pauses off-focus, README 5k. Untested on a device.

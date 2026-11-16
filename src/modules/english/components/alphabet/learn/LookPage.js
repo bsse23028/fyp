@@ -1,7 +1,7 @@
 // LOOK PAGE - the big letter on its floor shadow, gently pulsing to invite a tap.
 // TAP = one joyful sequence, chained to the voice:
 //   big jump with one full turn at the top + squash landing  ->  says the letter NAME ("ay")
-//   then 3 small hops, each with the SOUND ("ah") and a tiny sparkle
+//   then 3 small hops, each with the recorded SOUND of the letter and a tiny sparkle
 //   then the buddy does a happy hop (onCheer).
 // The sequence also plays ONCE by itself `demoDelay` ms (default ~1.7 s) after the page first appears (a demonstration that does
 // NOT finish the page: the child must tap). Taps during a sequence are ignored; leaving the page stops it.
@@ -12,7 +12,6 @@ import AnimatedPressable from '../../../../../shared/components/AnimatedPressabl
 import Sparkles from '../../../../../shared/components/Sparkles';
 import JumpingLetter from './JumpingLetter';
 import useLessonSequence from './useLessonSequence';
-import { SLOW_RATE } from '../../../../../shared/utils/speech';
 import { playSound } from '../../../../../shared/utils/sounds';
 
 const DEMO_DELAY = 1700;
@@ -27,11 +26,11 @@ export default function LookPage({ item, active, cardSize, onDone, onCheer, demo
   const demoShown = useRef(false);
 
   async function perform(byChild) {
-    const finished = await sequence.play(async ({ anim, say }) => {
+    const finished = await sequence.play(async ({ anim, say, sound }) => {
       await Promise.all([anim(letter.current.bigJump(land)), say(item.nameSpeech)]);
       for (let i = 0; i < SOUND_REPEATS; i++) {
         setSparkle((k) => k + 1);
-        await Promise.all([anim(letter.current.smallHop(land)), say(item.soundSpeech, { rate: SLOW_RATE })]);
+        await Promise.all([anim(letter.current.smallHop(land)), sound(item.letter)]);
       }
     });
     if (finished && byChild) {

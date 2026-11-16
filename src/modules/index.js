@@ -9,6 +9,7 @@
 //     onChildSelected: (childId) => thunk  runs once a child is chosen for Child Mode (optional)
 //     screens:      [ { name, component, options } ... ],   its screens (options = optional navigator options, e.g. a fade)
 //     translations: ur.json,             its own Urdu words        (optional)
+//     music:        { file, volume, quietVolume, screens, quietScreens }   a background song (optional)
 //   }
 //
 // ADD A NEW MODULE (for example Numbers) IN 2 STEPS:
@@ -28,6 +29,9 @@ export const MODULES = [english /*, numbers, feelings */];
 MODULES.forEach((module) => {
   if (module.translations) addTranslations(module.translations);
 });
+
+// The background song of every module that has one (played by app/navigation/ModuleMusic.js).
+export const MODULE_MUSIC = MODULES.filter((module) => module.music).map((module) => module.music);
 
 // Every screen of every module, ready for the navigator.
 export const MODULE_SCREENS = MODULES.flatMap((module) => module.screens);

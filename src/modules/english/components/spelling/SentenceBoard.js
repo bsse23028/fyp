@@ -97,20 +97,18 @@ export default function SentenceBoard({ item, sentence, active = true, onCelebra
     return { cx: spot.x + box.width / 2, cy: spot.y + box.height / 2 };
   }
 
-  // MAGNET: is the held word close to its own free place? Returns the word index, or null.
-  function findMagnet(word, dx, dy) {
+  // MAGNET: the word's own free place, as a distance from its home, with how close counts as "near".
+  // The word checks it itself while it is dragged.
+  function magnetTargets(word) {
     const home = homeOf(word);
-    const px = home.cx + dx;
-    const py = home.cy + dy;
-    let best = null;
+    const list = [];
     pieces.forEach((other) => {
-      if (other.text !== word.text || placedRef.current[other.index]) return;
+      if (other.text !== word.text || placed[other.index]) return;
       const r = plan.places[other.index];
-      const distance = Math.hypot(px - r.cx, py - r.cy);
       const reach = Math.max(r.height * SPELLING.MAGNET_DISTANCE, r.width / 2, SPELLING.MAGNET_MIN);
-      if (distance <= reach && (!best || distance < best.distance)) best = { index: other.index, distance };
+      list.push({ slot: other.index, dx: r.cx - home.cx, dy: r.cy - home.cy, reach });
     });
-    return best ? best.index : null;
+    return list;
   }
 
   // Was the word let go on the free place of ANOTHER word? (a wrong try)
@@ -243,7 +241,7 @@ export default function SentenceBoard({ item, sentence, active = true, onCelebra
                   start={isPlaced ? { dx: target.cx - home.cx, dy: target.cy - home.cy } : null}
                   disabled={isPlaced || busy || (dragging !== null && dragging !== w.index)}
                   active={active}
-                  findMagnet={(dx, dy) => findMagnet(w, dx, dy)}
+                  targets={isPlaced ? [] : magnetTargets(w)}
                   onGrab={() => handleGrab(w)}
                   onHoldLong={() => speak(w.say)}
                   onMagnet={setNear}

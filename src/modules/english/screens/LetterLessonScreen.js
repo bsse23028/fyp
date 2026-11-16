@@ -29,6 +29,7 @@ import { recordLetterResult, selectLetterCase, setLetterCase } from '../store/al
 import { useChild } from '../../../app/store/useChild';
 import { cheer, speak, speakUi, stopSpeaking } from '../../../shared/utils/speech';
 import { playSound } from '../../../shared/utils/sounds';
+import { preloadLetterSounds, releaseLetterSounds, stopLetterSound } from '../../../shared/utils/letterAudio';
 import { CALM, SPACING } from '../../../shared/theme/theme';
 
 const PAGES = [
@@ -45,6 +46,7 @@ const PLAY = 4;
 const CHECK = 5;
 const RESULT = 6;
 
+const SILENT_HINTS = ['Tap the letter!']; // these hints are only shown in the bubble, not spoken
 const FIRST_HINT_DELAY = 1200; // ms after the buddy's "Hi!" before the first hint
 const FIRST_DEMO_DELAY = 4200; // ms before the Look demo on the first page (after the walk-in, "Hi!" and the hint)
 const RESULT_WAVE_DELAY = 1600; // ms after the Result cheer before the buddy waves
@@ -97,6 +99,10 @@ export default function LetterLessonScreen({ navigation, route }) {
         replay.current = () => speakUi(text, params);
         speakUi(text, params, options);
       },
+      // remember something else than a spoken text (for example: play the letter's recorded sound)
+      rememberPlay(play) {
+        replay.current = play;
+      },
       remember(text, options) {
         replay.current = () => speak(text, options && options.rate ? { rate: options.rate } : undefined);
       },
@@ -110,7 +116,8 @@ export default function LetterLessonScreen({ navigation, route }) {
 
   const buddyMood = useCallback((mood) => setBuddy((b) => ({ ...b, mood, moodKey: b.moodKey + 1 })), []);
   const buddySays = useCallback(
-    (message, mood) => setBuddy((b) => ({ ...b, message, messageKey: b.messageKey + 1, mood, moodKey: b.moodKey + 1 })),
+    (message, mood, silent = false) =>
+      setBuddy((b) => ({ ...b, message, messageSilent: silent, messageKey: b.messageKey + 1, mood, moodKey: b.moodKey + 1 })),
     []
   );
   // A small win = 'popper'; the Result page = ['confetti', 'stars'] (big).
@@ -123,7 +130,7 @@ export default function LetterLessonScreen({ navigation, route }) {
   function hint(text, mood = 'hop') {
     if (!text) return;
     replay.current = () => speakUi(text);
-    buddySays(text, mood);
+    buddySays(text, mood, SILENT_HINTS.includes(text));
   }
 
   // A success moment: a soft sound + a happy cheer.
@@ -144,10 +151,17 @@ export default function LetterLessonScreen({ navigation, route }) {
   };
 
   useEffect(() => {
-    const unsubscribe = navigation.addListener('blur', stopSpeaking);
+    // Get this letter's recorded sound ready, and stop / free it when the lesson is left.
+    preloadLetterSounds([item.letter]);
+    const quiet = () => {
+      stopSpeaking();
+      stopLetterSound();
+    };
+    const unsubscribe = navigation.addListener('blur', quiet);
     return () => {
       unsubscribe();
-      stopSpeaking();
+      quiet();
+      releaseLetterSounds([item.letter]);
     };
   }, [navigation]);
 
@@ -182,6 +196,7 @@ export default function LetterLessonScreen({ navigation, route }) {
 
   function handleIndexChange(next) {
     stopSpeaking();
+    stopLetterSound();
     pageRef.current = next;
     setPage(next);
     setVisited((list) => (list.includes(next) ? list : [...list, next]));

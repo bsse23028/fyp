@@ -179,3 +179,24 @@ export const CALM_SHADOW = {
     elevation: 5,
   },
 };
+
+// ---------- GLASS (the Child Home look) ----------
+// A see-through white layer with a thin light border and a soft shadow, on a soft gradient.
+export const GLASS = {
+  gradient: [CALM.background, CALM.skyPale], // the page background, from top to bottom
+  fill: 'rgba(255, 255, 255, 0.55)', // the glass layer (about 55 percent white)
+  fillStrong: 'rgba(255, 255, 255, 0.78)', // a more solid glass for small things with text on them
+  border: 'rgba(255, 255, 255, 0.85)', // the thin light edge
+  borderWidth: 1.5,
+  star: '#E0A91B', // the star of the stars chip (a warm gold that is readable on glass)
+  radius: 24, // rounded corners of glass cards and bubbles
+  radiusLarge: 32, // the quick-start bar
+  radiusPill: 999, // chips
+  shadow: {
+    shadowColor: '#6B4E2E',
+    shadowOpacity: 0.1,
+    shadowRadius: 16,
+    shadowOffset: { width: 0, height: 6 },
+    elevation: 0, // Android draws a hard grey edge under see-through views, so the glass has no elevation there
+  },
+};

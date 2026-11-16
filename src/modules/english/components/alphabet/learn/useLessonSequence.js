@@ -2,12 +2,14 @@
 //   const sequence = useLessonSequence(active);
 //   await sequence.play(async ({ anim, say, wait }) => {
 //     await Promise.all([anim(letter.bigJump()), say('ay')]);   // voice and motion stay together
+//     await sound('A');                                         // the recorded letter SOUND (waits for the clip)
 //   });
 // play() returns true when the script finished, false when it was skipped (already playing) or
 // cancelled (the page stopped being active, or cancel() was called). Taps during a script are ignored.
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { speakAsync } from '../../../../../shared/utils/speech';
+import { playLetterSoundAsync } from '../../../../../shared/utils/letterAudio';
 
 const CANCELLED = { cancelled: true };
 
@@ -44,6 +46,7 @@ export default function useLessonSequence(active) {
     const helpers = {
       anim: (animation) => guard(new Promise((resolve) => animation.start(() => resolve()))),
       say: (text, options) => guard(speakAsync(text, options)),
+      sound: (letter) => guard(playLetterSoundAsync(letter)),
       wait: (ms) => guard(new Promise((resolve) => setTimeout(resolve, ms))),
     };
 

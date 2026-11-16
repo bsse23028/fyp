@@ -1,5 +1,5 @@
-// SAY PAGE - (the buddy says "Say it with me!") a big round mic button pulses. Tapping it says the
-// sound slowly 3 times, the letter beating with each one. Then a big thumbs-up button appears
+// SAY PAGE - (the buddy says "Say it with me!") a big round mic button pulses. Tapping it plays the
+// recorded letter sound 3 times with a short pause, the letter beating with each one. Then a big thumbs-up button appears
 // (no text; nothing is recorded): tapping it makes the buddy cheer and finishes the page.
 
 import React, { useEffect, useRef, useState } from 'react';
@@ -9,11 +9,12 @@ import AnimatedPressable from '../../../../../shared/components/AnimatedPressabl
 import JumpingLetter from './JumpingLetter';
 import useLessonSequence from './useLessonSequence';
 import { motion, usePulse } from '../../../../../shared/utils/motion';
-import { SLOW_RATE } from '../../../../../shared/utils/speech';
+import { playLetterSound } from '../../../../../shared/utils/letterAudio';
 import { playSound } from '../../../../../shared/utils/sounds';
 import { CALM, CALM_SHADOW, CALM_SUCCESS } from '../../../../../shared/theme/theme';
 
 const REPEATS = 3;
+const SAY_GAP = 350; // ms of quiet between two sounds
 
 function RoundIconButton({ icon, color, size, pulsing, onPress, label }) {
   const pulse = usePulse(pulsing, { duration: 1000 });
@@ -49,10 +50,11 @@ export default function SayPage({ item, active, voice, cardSize, onDone }) {
     if (sequence.playing) return;
     playSound('sparkle');
     setPhase((p) => (p === 'ready' ? 'saying' : p));
-    voice.remember(item.soundSpeech, { rate: SLOW_RATE });
-    const finished = await sequence.play(async ({ anim, say }) => {
+    voice.rememberPlay(() => playLetterSound(item.letter)); // the speaker button plays the sound again
+    const finished = await sequence.play(async ({ anim, sound, wait }) => {
       for (let i = 0; i < REPEATS; i++) {
-        await Promise.all([anim(letter.current.beat()), say(item.soundSpeech, { rate: SLOW_RATE })]);
+        await Promise.all([anim(letter.current.beat()), sound(item.letter)]);
+        if (i < REPEATS - 1) await wait(SAY_GAP);
       }
     });
     if (finished) setPhase((p) => (p === 'done' ? p : 'canSay'));

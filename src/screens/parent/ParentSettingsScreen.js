@@ -142,6 +142,9 @@ export default function ParentSettingsScreen({ navigation }) {
         <Row title="Share with therapist" copy="Export a summary, no therapist login" onPress={() => showComingSoon('Share with therapist')} />
 
         <Button title="Log Out" variant="secondary" onPress={confirmLogOut} style={styles.logout} />
+
+        <Text style={styles.credits}>Credits</Text>
+        <Text style={styles.note}>Phonics sounds: Phonicademy (phonicademy.com)</Text>
       </View>
 
       <PinModal visible={pinOpen} onClose={() => setPinOpen(false)} onSuccess={handlePinSaved} forceCreate />
@@ -245,6 +248,12 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.interRegular,
     fontSize: 12,
     lineHeight: 18,
+    color: COLORS.textMuted,
+  },
+  credits: {
+    marginTop: 22,
+    fontFamily: FONTS.interSemiBold,
+    fontSize: 12,
     color: COLORS.textMuted,
   },
   logout: {

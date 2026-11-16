@@ -4,7 +4,8 @@
 //   around   the word's letters lying loose on the page at random spots (a new layout every game), at the
 //            SAME size they have inside the word, never on top of the word: above and below it on a tall
 //            screen, left and right of it on a wide one
-// The child picks up a loose letter (it turns to jelly and says its SOUND, see LooseLetter.js):
+// The child picks up a loose letter (it turns to jelly, see LooseLetter.js). Its recorded SOUND plays at the
+// touch and keeps repeating while the letter is held (letterAudio.js); letting go stops it at once.
 //   MAGNET       near its own placeholder the letter calms down and the placeholder glows
 //   let go inside the magnet -> it slides exactly onto the placeholder and stays for good, says its NAME,
 //                               a colour flash + ring + sparkles (SlotBurst), one small hop and a soft chime
@@ -31,12 +32,19 @@ import PieceSpot from './PieceSpot';
 import LetterArt from './LetterArt';
 import SentenceBoard from './SentenceBoard';
 import { layoutWord, scatterPieces, touchBox } from './wordLayout';
-import { SPELLING } from './spellingConfig';
+import { SPELLING, SPELLING_DROP_AUDIO } from './spellingConfig';
 import { LETTER_ART } from '../../data/letterImages';
 import { lettersOf } from '../../data/spellingWords';
 import { motion, wiggleRotate } from '../../../../shared/utils/motion';
 import { speak, speakAsync, speakUi } from '../../../../shared/utils/speech';
 import { playSound } from '../../../../shared/utils/sounds';
+import {
+  playLetterSound,
+  preloadLetterSounds,
+  releaseLetterSounds,
+  startHoldSound,
+  stopHoldSound,
+} from '../../../../shared/utils/letterAudio';
 
 const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -70,6 +78,7 @@ export default function SpellingBoard({ item, picture, active = true, onCelebrat
 
   useEffect(() => {
     alive.current = true;
+    preloadLetterSounds(letters.map((l) => l.char)); // the clips are ready before the first touch
     // The word is said after the opening line, unless the child already grabbed a letter (then it would
     // talk over the letter's sound).
     speakUi("Let's spell this word!", null, {
@@ -81,8 +90,15 @@ export default function SpellingBoard({ item, picture, active = true, onCelebrat
     return () => {
       alive.current = false;
       timers.current.forEach(clearTimeout);
+      stopHoldSound();
+      releaseLetterSounds(letters.map((l) => l.char)); // free this word's clips
     };
   }, []);
+
+  // The screen is not in front any more: no letter sound may go on.
+  useEffect(() => {
+    if (!active) stopHoldSound();
+  }, [active]);
 
   // The finished word's picture sways happily, only while this screen is in front.
   useEffect(() => {
@@ -157,20 +173,18 @@ export default function SpellingBoard({ item, picture, active = true, onCelebrat
     return !Object.values(placedRef.current).includes(slot);
   }
 
-  // MAGNET: is the held letter close to a free placeholder of its OWN letter? (dx, dy = distance from home)
-  // umbrella has two l's: the nearer free one is used. Returns the slot index, or null.
-  function findMagnet(letter, dx, dy) {
+  // MAGNET: the free placeholders of this letter's OWN letter, as distances from its home, with how close
+  // counts as "near" (`reach`). The letter checks them itself while it is dragged (umbrella has two l's:
+  // the nearer free one wins).
+  function magnetTargets(letter) {
     const home = homeOf(letter);
-    const px = home.cx + dx;
-    const py = home.cy + dy;
-    let best = null;
+    const list = [];
     plan.slots.forEach((r, i) => {
-      if (letters[i].char !== letter.char || !slotIsFree(i)) return;
-      const distance = Math.hypot(px - r.cx, py - r.cy);
+      if (letters[i].char !== letter.char || Object.values(placed).includes(i)) return;
       const reach = Math.max(r.height * SPELLING.MAGNET_DISTANCE, SPELLING.MAGNET_MIN);
-      if (distance <= reach && (!best || distance < best.distance)) best = { index: i, distance };
+      list.push({ slot: i, dx: r.cx - home.cx, dy: r.cy - home.cy, reach });
     });
-    return best ? best.index : null;
+    return list;
   }
 
   // Was the letter let go on top of a free placeholder of ANOTHER letter? (a wrong try)
@@ -198,10 +212,16 @@ export default function SpellingBoard({ item, picture, active = true, onCelebrat
   function handleGrab(letter) {
     introPending.current = false;
     setDragging(letter.id);
-    speak(letter.soundSpeech);
+    startHoldSound(letter.char, {
+      gapMs: SPELLING.HOLD_GAP_MS,
+      repeatVolume: SPELLING.HOLD_REPEAT_VOLUME,
+      maxRepeats: SPELLING.HOLD_MAX_REPEATS,
+      repeat: SPELLING.HOLD_REPEAT_ENABLED,
+    });
   }
 
   function handleDrop(letter, dx, dy, magnetSlot) {
+    stopHoldSound(); // the child let go: the sound stops at once
     setDragging(null);
     setNear(null);
     if (magnetSlot !== null) place(letter, magnetSlot);
@@ -219,7 +239,8 @@ export default function SpellingBoard({ item, picture, active = true, onCelebrat
       if (!alive.current) return;
       if (letterRefs.current[letter.id]) letterRefs.current[letter.id].hop(null, SPELLING.LAND_HOP);
       setBursts((b) => ({ ...b, [slot]: (b[slot] || 0) + 1 }));
-      speak(letter.nameSpeech);
+      if (SPELLING_DROP_AUDIO === 'sound') playLetterSound(letter.char);
+      else speak(letter.nameSpeech);
       if (Object.keys(placedRef.current).length === count) later(finish, SPELLING.FINISH_DELAY);
     };
     playSound('sparkle');
@@ -340,9 +361,8 @@ export default function SpellingBoard({ item, picture, active = true, onCelebrat
                     disabled={isPlaced || busy || (dragging !== null && dragging !== letter.id)}
                     eyes
                     active={active}
-                    findMagnet={(dx, dy) => findMagnet(letter, dx, dy)}
+                    targets={isPlaced ? [] : magnetTargets(letter)}
                     onGrab={() => handleGrab(letter)}
-                    onHoldLong={() => speak(letter.soundSpeech)}
                     onMagnet={setNear}
                     onDrop={(dx, dy, magnetSlot) => handleDrop(letter, dx, dy, magnetSlot)}
                   />
