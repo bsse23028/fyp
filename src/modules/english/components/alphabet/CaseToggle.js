@@ -5,6 +5,7 @@ import React, { useEffect, useRef } from 'react';
 import { Animated, StyleSheet, View } from 'react-native';
 import AnimatedPressable from '../../../../shared/components/AnimatedPressable';
 import { motion } from '../../../../shared/utils/motion';
+import { playSound } from '../../../../shared/utils/sounds';
 import { CALM, CALM_SHADOW, FONTS } from '../../../../shared/theme/theme';
 
 const SIZE = 52;
@@ -48,14 +49,20 @@ export default function CaseToggle({ item, caseMode, onChange }) {
         label={`${item.letter} capital`}
         selected={caseMode !== 'lower'}
         accent={item.accent}
-        onPress={() => onChange('upper')}
+        onPress={() => {
+          playSound('tick');
+          onChange('upper');
+        }}
       />
       <CaseButton
         char={item.lower}
         label={`${item.lower} small`}
         selected={caseMode === 'lower'}
         accent={item.accent}
-        onPress={() => onChange('lower')}
+        onPress={() => {
+          playSound('tick');
+          onChange('lower');
+        }}
       />
     </View>
   );

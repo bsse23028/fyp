@@ -27,6 +27,7 @@ export default function LookPage({ item, active, cardSize, onDone, onCheer, demo
 
   async function perform(byChild) {
     const finished = await sequence.play(async ({ anim, say, sound }) => {
+      playSound('whistleUp');
       await Promise.all([anim(letter.current.bigJump(land)), say(item.nameSpeech)]);
       for (let i = 0; i < SOUND_REPEATS; i++) {
         setSparkle((k) => k + 1);

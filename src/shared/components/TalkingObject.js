@@ -18,6 +18,7 @@ import React, { useEffect, useRef } from 'react';
 import { Animated, Easing, Image, Pressable, StyleSheet, View } from 'react-native';
 import { animationsEnabled, motion } from '../utils/motion';
 import { onTouch } from '../utils/touchPoint';
+import { playSound } from '../utils/sounds';
 import { TALKING_COLORS, TALKING_MOTION, faceFor } from './talkingObjectConfig';
 
 const COLORS = TALKING_COLORS;
@@ -307,6 +308,7 @@ export default function TalkingObject({
   useEffect(() => () => running.current && running.current.stop(), []);
 
   function handlePress() {
+    playSound(dancing.current ? 'whistleUp' : 'xylophone');
     play(dancing.current ? 'jump' : 'dance');
     if (onPress) onPress();
   }

@@ -36,7 +36,7 @@ export default function SpellingWordsScreen({ navigation }) {
   }
 
   return (
-    <Screen scroll mode="child" background={CALM.background}>
+    <Screen scroll mode="child" scene="sunset">
       <View style={styles.body}>
         <SectionHeader title="Spelling" onBack={() => navigation.goBack()} onSound={() => speakUi(GREETING)} />
         <Text style={styles.greeting}>{GREETING}</Text>

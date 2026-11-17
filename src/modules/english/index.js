@@ -35,6 +35,13 @@ import ReadingSummaryScreen from './screens/ReadingSummaryScreen';
 import StruggleWordsScreen from './screens/StruggleWordsScreen';
 import SpellingWordsScreen from './screens/SpellingWordsScreen';
 import SpellingGameScreen from './screens/SpellingGameScreen';
+import TraceListScreen from './screens/TraceListScreen';
+import LetterTraceScreen from './screens/LetterTraceScreen';
+import LetterGamesScreen from './screens/LetterGamesScreen';
+import BubblePopGameScreen from './screens/BubblePopGameScreen';
+import MatchPairsGameScreen from './screens/MatchPairsGameScreen';
+import StoryListScreen from './screens/StoryListScreen';
+import LetterStoryScreen from './screens/LetterStoryScreen';
 
 // The recorded letter sounds (and what the voice says instead when a clip is missing).
 configureLetterAudio(LETTER_AUDIO, (letter) => getLetter(letter.toUpperCase()).soundSpeech);
@@ -56,6 +63,13 @@ export default {
     { name: 'EnglishHub', component: EnglishHubScreen, options: FADE },
     { name: 'AlphabetList', component: AlphabetListScreen, options: FADE },
     { name: 'LetterLesson', component: LetterLessonScreen, options: FADE },
+    { name: 'TraceList', component: TraceListScreen, options: FADE },
+    { name: 'LetterTrace', component: LetterTraceScreen, options: FADE },
+    { name: 'LetterGames', component: LetterGamesScreen, options: FADE },
+    { name: 'BubblePopGame', component: BubblePopGameScreen, options: FADE },
+    { name: 'MatchPairsGame', component: MatchPairsGameScreen, options: FADE },
+    { name: 'StoryList', component: StoryListScreen, options: FADE },
+    { name: 'LetterStory', component: LetterStoryScreen, options: FADE },
     { name: 'WordsHub', component: WordsHubScreen },
     { name: 'ReadingTopics', component: ReadingTopicsScreen },
     { name: 'ReadingLevel', component: ReadingLevelScreen },

@@ -1,5 +1,6 @@
 // MAKE SOUNDS - generates the soft placeholder sound effects into assets/sounds/ (16-bit mono WAV).
-// Run once from the project folder:   node scripts/makeSounds.js
+// Run from the project folder:   node scripts/makeSounds.js         (only writes sounds that are missing)
+//                                 node scripts/makeSounds.js --all   (writes every sound again)
 // Every sound is short (< 1 s), quiet and rounded (no harsh noise). Replace the files later with real
 // recordings of the same name; the list of names lives in src/shared/utils/sounds.js.
 
@@ -118,8 +119,63 @@ const SOUNDS = {
     ]),
   // one warm bell
   'cheer-bell': () => mix(seconds(0.85), [{ samples: note(880, 0.85, 4) }, { samples: note(1320, 0.6, 5), at: 0.02, gain: 0.3 }]),
+
+  // ---------- cartoon pack (added later) ----------
+  // a soft water "plop" (bubble pop): a quick rising blip and a tiny echo
+  bubble: () =>
+    mix(seconds(0.3), [
+      { samples: tone(seconds(0.12), (p) => 320 + 900 * p, { attack: 0.003, decay: 7 }) },
+      { samples: tone(seconds(0.08), (p) => 600 + 700 * p, { attack: 0.003, decay: 7 }), at: 0.1, gain: 0.35 },
+    ]),
+  // a toy squeak (light): two quick upward chirps
+  squeak: () =>
+    mix(seconds(0.3), [
+      { samples: tone(seconds(0.09), (p) => 950 + 650 * p, { attack: 0.004, decay: 4 }) },
+      { samples: tone(seconds(0.1), (p) => 1050 + 700 * p, { attack: 0.004, decay: 4 }), at: 0.12 },
+    ]),
+  // a little giggle ("hee-hee-hee"): four short wobbly chirps
+  giggle: () =>
+    mix(seconds(0.5), [0, 1, 2, 3].map((i) => ({
+      samples: tone(seconds(0.08), (p) => 1150 - i * 70 + 180 * Math.sin(2 * Math.PI * p), { attack: 0.004, decay: 5 }),
+      at: i * 0.1,
+      gain: 1 - i * 0.12,
+    }))),
+  // a slide whistle going up (a jump) and down (a fall)
+  'whistle-up': () => tone(seconds(0.45), (p) => 480 + 950 * p * p + 12 * Math.sin(2 * Math.PI * 14 * p), { attack: 0.02, decay: 2 }),
+  'whistle-down': () => tone(seconds(0.45), (p) => 1430 - 950 * p + 12 * Math.sin(2 * Math.PI * 14 * p), { attack: 0.02, decay: 2.5 }),
+  // a happy xylophone run up the scale (a dance)
+  xylophone: () =>
+    mix(seconds(0.75), [523, 587, 659, 698, 784, 880, 988, 1047].map((f, i) => ({
+      samples: note(f, 0.25, 8, [[1, 1], [4, 0.25]]),
+      at: i * 0.055,
+      gain: 0.8,
+    }))),
+  // a soft twinkle of high stars (light)
+  twinkle: () =>
+    mix(seconds(0.7), [2093, 2637, 3136, 2637, 3520].map((f, i) => ({ samples: note(f, 0.25, 7), at: i * 0.09, gain: 0.5 }))),
+  // a soft, heavy landing (a big friend lands): a low round thump
+  thump: () =>
+    mix(seconds(0.3), [
+      { samples: tone(seconds(0.25), (p) => 120 - 60 * p, { attack: 0.003, decay: 6, harmonics: [[1, 1], [2, 0.25]] }) },
+      { samples: softNoise(seconds(0.08), () => 0.04, (p) => 1 - p), gain: 0.15 },
+    ]),
+  // a tiny light tick (a toggle, a small tap)
+  tick: () => tone(seconds(0.05), () => 1800, { attack: 0.002, decay: 8 }),
+  // a two-note "ding-ding" (a stroke or step finished)
+  chime: () =>
+    mix(seconds(0.6), [
+      { samples: note(1047, 0.35, 5) },
+      { samples: note(1568, 0.45, 5), at: 0.12 },
+    ]),
 };
 
+// Peak loudness of each sound (0 - 1). Everything is soft on purpose.
+const PEAKS = { whoosh: 0.2, tick: 0.22, thump: 0.42, twinkle: 0.28, default: 0.35 };
+
 fs.mkdirSync(OUT, { recursive: true });
-console.log(`Writing sounds to ${OUT}`);
-Object.entries(SOUNDS).forEach(([name, make]) => writeWav(name, make(), name === 'whoosh' ? 0.2 : 0.35));
+const writeAll = process.argv.includes('--all');
+console.log(`Writing sounds to ${OUT}${writeAll ? ' (all)' : ' (only missing ones)'}`);
+Object.entries(SOUNDS).forEach(([name, make]) => {
+  if (!writeAll && fs.existsSync(path.join(OUT, `${name}.wav`))) return;
+  writeWav(name, make(), PEAKS[name] || PEAKS.default);
+});

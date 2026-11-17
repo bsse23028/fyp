@@ -1,8 +1,8 @@
-// ENGLISH HUB SCREEN - the English section: Alphabets · Words (WordsHub: Read Along, Spelling ...) · Sentences.
+// ENGLISH HUB SCREEN - the English section: Alphabets · Trace letters · Letter games · Letter stories · Words (WordsHub: Read Along, Spelling ...) · Sentences.
 // Sentences opens the existing Read Along flow (ReadingTopics) unchanged. Opened from Child Home.
 
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { Animated, StyleSheet, View } from 'react-native';
 import Text from '../../../shared/components/AppText';
 import Screen from '../../../shared/components/Screen';
 import FadeInView from '../../../shared/components/FadeInView';
@@ -11,12 +11,26 @@ import BuddyCharacter from '../../../shared/components/BuddyCharacter';
 import ComingSoonModal from '../../../shared/components/ComingSoonModal';
 import SectionHeader from '../components/SectionHeader';
 import { speakUi, stopSpeaking } from '../../../shared/utils/speech';
+import { useIdleBob } from '../../../shared/utils/motion';
 import { CALM, CALM_ACCENTS, CALM_RADIUS, CALM_SHADOW, FONTS } from '../../../shared/theme/theme';
 
 const GREETING = 'What do you want to learn?';
 
+// The tile icon bobs gently a few times (each tile a little later), then rests.
+function BobbingIcon({ icon, index }) {
+  const bob = useIdleBob({ height: 5, duration: 1400, cycles: 4, delay: 500 + index * 250 });
+  return (
+    <View style={styles.iconBox}>
+      <Animated.Text style={[styles.icon, bob]}>{icon}</Animated.Text>
+    </View>
+  );
+}
+
 const SECTIONS = [
   { title: 'Alphabets', subtitle: 'Letters and their sounds', icon: '🔤', screen: 'AlphabetList', accent: CALM_ACCENTS[0] },
+  { title: 'Trace letters', subtitle: 'Draw letters with your finger', icon: '✏️', screen: 'TraceList', accent: CALM_ACCENTS[2] },
+  { title: 'Letter games', subtitle: 'Bubble pop and matching', icon: '🎮', screen: 'LetterGames', accent: CALM_ACCENTS[5] },
+  { title: 'Letter stories', subtitle: 'Watch a letter come alive', icon: '🎬', screen: 'StoryList', accent: CALM_ACCENTS[3] },
   { title: 'Words', subtitle: 'Read and match words', icon: '🧩', screen: 'WordsHub', accent: CALM_ACCENTS[3] },
   { title: 'Sentences', subtitle: 'Read Along stories', icon: '📖', screen: 'ReadingTopics', accent: CALM_ACCENTS[1] },
 ];
@@ -35,7 +49,7 @@ export default function EnglishHubScreen({ navigation }) {
   }
 
   return (
-    <Screen scroll mode="child" background={CALM.background}>
+    <Screen scroll mode="child" scene="day">
       <View style={styles.body}>
         <SectionHeader title="English" onBack={() => navigation.goBack()} onSound={() => speakUi(GREETING)} />
 
@@ -50,9 +64,7 @@ export default function EnglishHubScreen({ navigation }) {
               accessibilityLabel={section.title}
               style={[styles.tile, CALM_SHADOW.soft, { backgroundColor: section.accent.pale }]}
             >
-              <View style={styles.iconBox}>
-                <Text style={styles.icon}>{section.icon}</Text>
-              </View>
+              <BobbingIcon icon={section.icon} index={i} />
               <View style={styles.text}>
                 <Text style={styles.title}>{section.title}</Text>
                 <Text style={styles.subtitle}>{section.subtitle}</Text>

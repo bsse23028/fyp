@@ -37,7 +37,7 @@ export default function LessonLayout({
   children,
 }) {
   return (
-    <Screen mode="child" background={CALM.background}>
+    <Screen mode="child" scene="lesson">
       <View style={styles.body} onTouchStart={(e) => reportTouch(e.nativeEvent.pageX, e.nativeEvent.pageY)}>
         <SectionHeader onBack={onBack} right={right} />
         <View style={styles.progress}>{progress}</View>

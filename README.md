@@ -255,6 +255,31 @@ send only its folder (e.g. `src/modules/numbers`) - its README lists what it may
 - **Packages:** `expo-blur` and `expo-linear-gradient` (both inside Expo Go). Glass colours are the `GLASS` tokens in
   `shared/theme/theme.js`.
 
+## 5l. English upgrade: tracing, games, letter stories, kid backgrounds, voices
+The English hub now has: **Alphabets** · **Trace letters** · **Letter games** · **Letter stories** · Words · Sentences.
+- **Trace letters** (`TraceList` -> `LetterTrace`): trace the capital, then the small letter, on a "road" with numbered start
+  dots, dashed arrows and a 👆 helper hand; the line only grows along the road (never "wrong"). Strokes of all 52 letters:
+  `src/modules/english/data/traceStrokes.js` (grid 100 x 115, change the numbers to change a stroke). Every other number:
+  `components/trace/traceConfig.js`. Uses `react-native-svg`.
+- **Letter games** (`LetterGames`): **Bubble Pop** (letter bubbles float up slowly; pop the named letter; wrong = a wobble) and
+  **Match Pairs** (memory cards, A goes with a; faces peek first). Numbers: `components/games/gamesConfig.js`.
+- **Letter stories** (`StoryList` -> `LetterStory`): short videos made with **Remotion** in the separate `video/` folder,
+  played with `expo-video`. A letter without a video shows "Coming soon". To make the videos (on your computer):
+  ```
+  cd video
+  npm install            (once)
+  npm run dev            preview and edit in Remotion Studio (http://localhost:3000)
+  npm run render:all     render every letter into assets/videos and update data/letterVideos.js
+  npm run render:all -- B C    only some letters (already made ones are skipped; add --again to redo)
+  ```
+  The video's timings and colours are in `video/src/storyConfig.js`. The app's Metro bundler ignores `video/` (`metro.config.js`).
+- **Kid backgrounds**: `<Screen scene="day">` (or `lesson`, `spelling`, `sunset`) draws the animated sky, sun, clouds and hills
+  (`shared/components/KidScene.js`, colours and speeds in `kidSceneConfig.js`). It pauses when the screen is not in front.
+- **Character voices**: `shared/utils/voiceConfig.js` (pitch + speed per character: bunny, bear, wolf, panda, tiny, big, human,
+  cartoon). Letter names and sounds always use the clear teacher voice.
+- **Cartoon sounds**: `node scripts/makeSounds.js` makes the soft effects in `assets/sounds/` (only the missing ones; `--all`
+  makes all again). Their names are listed in `shared/utils/sounds.js`. Replace a file with a real recording of the same name.
+
 ## 6. How English / Urdu works (beginner guide)
 1. Every `<Text>` in the app is `import Text from '.../components/AppText'`. It looks the English text up in **`src/shared/i18n/ur.json`** (and the module lists) and shows the Urdu when اردو is selected. Text that is not in the file simply stays English.
 2. **Add a new text:** write it in English in your screen, then add one line to `ur.json` (shared, or the module's own):

@@ -66,7 +66,7 @@ export default function SpellingGameScreen({ navigation, route }) {
   }
 
   return (
-    <Screen mode="child" background={CALM.background}>
+    <Screen mode="child" scene="spelling">
       <View style={styles.body}>
         <SectionHeader title="Spelling" onBack={() => navigation.goBack()} onSound={() => speak(item.sayAs)} />
 

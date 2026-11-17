@@ -111,7 +111,7 @@ export default function PopBubblesRound({ item, instruction, voice, buddy, onDon
       setBubbles((list) => list.map((b) => (b.id === bubble.id ? { ...b, wobbleKey: b.wobbleKey + 1 } : b)));
       return;
     }
-    playSound('pop');
+    playSound('bubble');
     const next = bubbles.map((b) => (b.id === bubble.id ? { ...b, popped: true } : b));
     setBubbles(next);
     const allPopped = next.filter((b) => b.correct && b.popped).length === TARGET_COUNT;

@@ -39,7 +39,7 @@ export default function ReadingYourTurnScreen({ navigation, route }) {
   }
 
   return (
-    <Screen scroll mode="child">
+    <Screen scroll mode="child" scene="lesson">
       <View style={styles.body}>
         <ChildHeader title="Your turn" onBack={() => navigation.goBack()} speakText="Your turn" />
 

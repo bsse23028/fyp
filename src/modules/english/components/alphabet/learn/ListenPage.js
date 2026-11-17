@@ -14,7 +14,7 @@ import { LessonLetter } from '../LetterCase';
 import { motion } from '../../../../../shared/utils/motion';
 import { cheer, speak } from '../../../../../shared/utils/speech';
 import { playLetterSound } from '../../../../../shared/utils/letterAudio';
-import { playSound } from '../../../../../shared/utils/sounds';
+import { pictureVoice } from '../../../../../shared/utils/voiceConfig';
 import { CALM_RADIUS, CALM_SHADOW, FONTS } from '../../../../../shared/theme/theme';
 
 const INTRO_DELAY = 350; // ms after the slide-in before the hello wave + voice
@@ -49,7 +49,7 @@ export default function ListenPage({ item, exampleIndex, active, voice, contentW
         voice.remember(line);
         playMood('wave');
         setSpeaking(true);
-        await say(line);
+        await say(line, pictureVoice(example.emoji)); // the picture friend's own voice
       })
       .then((finished) => {
         if (!finished) return; // cancelled by a tap: the tap sequence owns the mouth now
@@ -66,8 +66,7 @@ export default function ListenPage({ item, exampleIndex, active, voice, contentW
     }
     const first = !tapped.current;
     tapped.current = true;
-    setPopKey((k) => k + 1);
-    playSound('pop');
+    setPopKey((k) => k + 1); // (the TalkingObject plays its own xylophone on the tap)
     const before = `${item.letter} says`;
     const after = `like ${word}.`;
     // The speaker button repeats the three parts (it stops by itself when the page is left).

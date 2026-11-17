@@ -52,7 +52,7 @@ export default function ReadingSummaryScreen({ navigation }) {
   }, []);
 
   return (
-    <Screen mode="child">
+    <Screen mode="child" scene="lesson">
       <View style={styles.body}>
         <View style={styles.center}>
           <Mascot size={150} />

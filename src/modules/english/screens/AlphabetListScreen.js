@@ -33,7 +33,7 @@ export default function AlphabetListScreen({ navigation }) {
   }, [navigation]);
 
   return (
-    <Screen scroll mode="child" background={CALM.background}>
+    <Screen scroll mode="child" scene="day">
       <View style={styles.body}>
         <SectionHeader title="Alphabets" onBack={() => navigation.goBack()} onSound={() => speakUi(GREETING)} />
 

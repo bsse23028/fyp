@@ -4,11 +4,14 @@
 // Props: { navigation }
 
 import React from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { Animated, StyleSheet, View } from 'react-native';
 import Text from '../../../shared/components/AppText';
 import Screen from '../../../shared/components/Screen';
 import ChildHeader from '../../../shared/components/ChildHeader';
 import ChildInstruction from '../../../shared/components/ChildInstruction';
+import AnimatedPressable from '../../../shared/components/AnimatedPressable';
+import FadeInView from '../../../shared/components/FadeInView';
+import { useIdleBob } from '../../../shared/utils/motion';
 import { showComingSoon } from '../../../shared/utils/alerts';
 import { usePreview } from '../../../app/store/usePreview';
 import { COLORS, FONTS } from '../../../shared/theme/theme';
@@ -21,6 +24,12 @@ const ITEMS = [
   { title: 'Writing', icon: '✏️', tint: COLORS.orangePale, screen: null },
 ];
 
+// The tile icon bobs gently a few times (each tile a little later), then rests.
+function BobbingIcon({ icon, index }) {
+  const bob = useIdleBob({ height: 5, duration: 1400, cycles: 4, delay: 400 + index * 200 });
+  return <Animated.Text style={[styles.tileIcon, bob]}>{icon}</Animated.Text>;
+}
+
 export default function WordsHubScreen({ navigation }) {
   const { isPreview } = usePreview();
   function openItem(item) {
@@ -29,7 +38,7 @@ export default function WordsHubScreen({ navigation }) {
   }
 
   return (
-    <Screen scroll mode="child">
+    <Screen scroll mode="child" scene="day">
       <View style={styles.body}>
         <ChildHeader title="English" onBack={() => navigation.goBack()}/>
 
@@ -38,21 +47,22 @@ export default function WordsHubScreen({ navigation }) {
         </View>
 
         <View style={styles.grid}>
-          {ITEMS.map((item) => (
-            <Pressable
-              key={item.title}
+          {ITEMS.map((item, i) => (
+            <FadeInView key={item.title} index={i} style={styles.tileWrap}>
+            <AnimatedPressable
               onPress={() => openItem(item)}
-              accessibilityRole="button"
+              accessibilityLabel={item.title}
               style={[styles.tile, { backgroundColor: item.tint }]}
             >
-              <Text style={styles.tileIcon}>{item.icon}</Text>
+              <BobbingIcon icon={item.icon} index={i} />
               <Text style={styles.tileTitle}>{item.title}</Text>
               {isPreview && !item.screen && (
                 <View style={styles.soonTag}>
                   <Text style={styles.soonText}>Coming soon</Text>
                 </View>
               )}
-            </Pressable>
+            </AnimatedPressable>
+            </FadeInView>
           ))}
         </View>
       </View>
@@ -73,10 +83,12 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     justifyContent: 'space-between',
   },
-  tile: {
+  tileWrap: {
     width: '48%',
-    minHeight: 144,
     marginBottom: 13,
+  },
+  tile: {
+    minHeight: 144,
     padding: 12,
     borderRadius: 24,
     borderWidth: 2,

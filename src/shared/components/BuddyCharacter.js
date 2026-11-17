@@ -28,6 +28,8 @@ import { getAvatar } from '../theme/avatars';
 import { hop, motion, useIdleSway, wiggle, wiggleRotate } from '../utils/motion';
 import { onTouch } from '../utils/touchPoint';
 import { speakUi } from '../utils/speech';
+import { playSound } from '../utils/sounds';
+import { buddyVoice } from '../utils/voiceConfig';
 import { CALM, CALM_RADIUS, CALM_SHADOW, FONTS } from '../theme/theme';
 
 const FIRST_LINE = 'Hey! I am your buddy!';
@@ -172,7 +174,7 @@ const BuddyCharacter = forwardRef(function BuddyCharacter(
   function say(text, silent) {
     clearTimeout(hideTimer.current);
     setBubble({ text, key: Date.now() });
-    if (!silent) speakUi(text);
+    if (!silent) speakUi(text, undefined, buddyVoice(chosen.id)); // each avatar has its own voice (voiceConfig.js)
     hideTimer.current = setTimeout(() => setBubble(null), BUBBLE_TIME);
   }
 
@@ -243,6 +245,7 @@ const BuddyCharacter = forwardRef(function BuddyCharacter(
       walkAnimation.current = null;
       walking.current = false;
       facing.setValue(1);
+      if (finished && distance > 20) playSound('thump');
       if (finished && onArrive) onArrive();
     });
   }
@@ -326,6 +329,7 @@ const BuddyCharacter = forwardRef(function BuddyCharacter(
   }, [message, messageKey]);
 
   function handleTap() {
+    playSound('giggle');
     hop(lift, squash, 22).start();
     say(taps.current === 0 ? FIRST_LINE : FRIENDLY_LINES[Math.floor(Math.random() * FRIENDLY_LINES.length)]);
     taps.current += 1;

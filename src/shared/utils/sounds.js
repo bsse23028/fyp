@@ -15,9 +15,20 @@ export const SOUND_FILES = {
   sparkle: require('../../../assets/sounds/sparkle.wav'),
   tada: require('../../../assets/sounds/tada.wav'),
   cheerBell: require('../../../assets/sounds/cheer-bell.wav'),
+  // cartoon pack
+  bubble: require('../../../assets/sounds/bubble.wav'), // a bubble pops (Play: pop the letter)
+  squeak: require('../../../assets/sounds/squeak.wav'), // a toy squeak (light)
+  giggle: require('../../../assets/sounds/giggle.wav'), // the buddy giggles when tapped
+  whistleUp: require('../../../assets/sounds/whistle-up.wav'), // a jump starts (Look letter, picture jump)
+  whistleDown: require('../../../assets/sounds/whistle-down.wav'), // something slides down
+  xylophone: require('../../../assets/sounds/xylophone.wav'), // a picture friend dances
+  twinkle: require('../../../assets/sounds/twinkle.wav'), // the pointing hand shows the way (tracing)
+  thump: require('../../../assets/sounds/thump.wav'), // a soft heavy landing (the buddy arrives)
+  tick: require('../../../assets/sounds/tick.wav'), // a tiny tap (the A / a toggle)
+  chime: require('../../../assets/sounds/chime.wav'), // a tracing stroke is finished
 };
 
-const VOLUME = { whoosh: 0.35, default: 0.6 };
+const VOLUME = { whoosh: 0.35, tick: 0.45, thump: 0.5, twinkle: 0.45, default: 0.6 };
 
 let enabled = SOUND_ENABLED;
 let modeReady = false;
