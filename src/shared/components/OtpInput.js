@@ -68,7 +68,7 @@ const styles = StyleSheet.create({
   },
   boxActive: {
     borderColor: COLORS.primary,
-    backgroundColor: 'rgba(79, 70, 229, 0.06)',
+    backgroundColor: 'rgba(138, 51, 207, 0.06)',
   },
   digit: {
     fontFamily: FONTS.interBold,

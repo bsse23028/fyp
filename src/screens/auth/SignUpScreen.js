@@ -62,7 +62,7 @@ export default function SignUpScreen({ navigation }) {
   }
 
   return (
-    <Screen scroll footerMascot>
+    <Screen scroll>
       <View style={styles.body}>
         <AuthHeading title="Create your account" subtitle="Start with parent details. You’ll add your child next." />
 

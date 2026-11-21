@@ -403,7 +403,7 @@ const styles = StyleSheet.create({
   heading: {
     fontFamily: FONTS.interBold,
     fontSize: 22,
-    color: COLORS.text,
+    color: COLORS.heading,
   },
   intro: {
     marginTop: 4,
@@ -505,7 +505,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     borderWidth: 1,
     borderColor: COLORS.border,
-    backgroundColor: '#FBFAFE',
+    backgroundColor: COLORS.white,
   },
   relationGap: {
     marginTop: 16,

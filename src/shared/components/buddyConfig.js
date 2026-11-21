@@ -7,58 +7,42 @@
 //   To move the waving hand of the bear a little higher: bear.hand.y 0.46 -> 0.42.
 //
 // The waving arm is a small arm + a round mitten drawn ON TOP of the picture. It turns around the
-// shoulder and points to `hand` when it starts. Where the picture already has a raised arm (rabbit,
-// bear), `hand` sits right over that paw so it looks like the paw itself is waving.
+// shoulder and points to `hand` when it starts. All the new (2026-11-20) mascots already have their
+// right arm raised, so `hand` sits right over that paw and it looks like the paw itself is waving.
+//
+// The new mascots are all drawn the same way (same canvas, the paw in the same place), so they share
+// ONE shape below and only their fur colour is different. To fine-tune one buddy, give it its own
+// numbers, for example:  fox: { ...shape(900, '#F08A4B'), hand: { x: 0.78, y: 0.68 } },
+
+// The paw is at the same spot on a 900-wide picture; a wider picture (the elephant, 1140) has the
+// same buddy in the middle, so the x numbers are moved to keep the paw in place.
+function shape(pictureWidth, furColor) {
+  const toX = (x900) => (x900 + (pictureWidth - 900) / 2) / pictureWidth; // a spot on the 900 picture -> a fraction
+  return {
+    shoulder: { x: toX(600), y: 0.73 }, // where the waving arm starts
+    hand: { x: toX(695), y: 0.694 }, // where the waving hand is at the start (over the drawn raised paw)
+    handSize: 0.13, // size of the round mitten (a part of the buddy's height)
+    armThickness: 0.06, // thickness of the arm segment
+    handColor: furColor, // the colour of the mitten (= the paw)
+    armColor: furColor,
+    feet: { show: false, color: furColor, y: 0.96, gap: 0.3, width: 0.15, height: 0.05 }, // the pictures have feet
+    shadowWidth: (500 / pictureWidth) * 1.1, // floor shadow width compared to the picture width
+    flipWhenWalkingLeft: true, // mirror the picture when walking to the left
+  };
+}
 
 export const BUDDY_CONFIG = {
-  // full body, lavender; the right arm is already raised (paw near the motion lines)
-  rabbit: {
-    shoulder: { x: 0.66, y: 0.74 }, // where the waving arm starts
-    hand: { x: 0.78, y: 0.67 }, // where the waving hand is at the start (over the drawn raised paw)
-    handSize: 0.13, // size of the round mitten
-    armThickness: 0.06, // thickness of the arm segment
-    handColor: '#CFCBF4', // the rabbit's lavender fur
-    armColor: '#CFCBF4',
-    feet: { show: false, color: '#CFCBF4', y: 0.96, gap: 0.35, width: 0.16, height: 0.06 }, // the picture has feet
-    shadowWidth: 0.8, // floor shadow width compared to the picture width
-    flipWhenWalkingLeft: true, // mirror the picture when walking to the left (looks natural for this one)
-  },
-  // full body, grey head, dark suit; both arms hang down with white paws
-  wolf: {
-    shoulder: { x: 0.72, y: 0.66 },
-    hand: { x: 0.86, y: 0.54 },
-    handSize: 0.1,
-    armThickness: 0.07,
-    handColor: '#F4F4F6', // white paw
-    armColor: '#3B3E47', // the dark suit sleeve
-    feet: { show: false, color: '#F4F4F6', y: 0.95, gap: 0.3, width: 0.14, height: 0.05 },
-    shadowWidth: 0.75,
-    flipWhenWalkingLeft: true,
-  },
-  // full body, tan; the right arm is already raised and waving (lots of empty space around the bear)
-  bear: {
-    shoulder: { x: 0.7, y: 0.52 },
-    hand: { x: 0.79, y: 0.46 },
-    handSize: 0.09,
-    armThickness: 0.05,
-    handColor: '#E9B57A', // the bear's tan fur
-    armColor: '#E9B57A',
-    feet: { show: false, color: '#E9B57A', y: 0.9, gap: 0.2, width: 0.1, height: 0.04 },
-    shadowWidth: 0.5,
-    flipWhenWalkingLeft: true,
-  },
-  // full body, black arms holding the backpack straps
-  panda: {
-    shoulder: { x: 0.8, y: 0.5 },
-    hand: { x: 0.92, y: 0.4 },
-    handSize: 0.1,
-    armThickness: 0.08,
-    handColor: '#34343C', // black paw
-    armColor: '#34343C',
-    feet: { show: false, color: '#34343C', y: 0.97, gap: 0.3, width: 0.15, height: 0.05 },
-    shadowWidth: 0.75,
-    flipWhenWalkingLeft: true,
-  },
+  rabbit: shape(900, '#9E8BD9'), // lavender
+  bear: shape(900, '#9ED9CF'), // mint
+  panda: shape(900, '#3D1F5C'), // dark purple paws
+  dino: shape(900, '#A9DB8E'), // green
+  elephant: shape(1140, '#F7B9C0'), // pink, wider picture (big ears)
+  fox: shape(900, '#F08A4B'), // orange
+  kitty: shape(900, '#F7C744'), // yellow
+  koala: shape(900, '#A9BCD6'), // grey-blue
+  lion: shape(900, '#F7C744'), // yellow body (the mane is orange)
+  penguin: shape(900, '#3D1F5C'), // dark purple flippers
+  puppy: shape(900, '#8EC1EC'), // blue
 };
 
 // ---------- how the buddy moves (same for every avatar) ----------

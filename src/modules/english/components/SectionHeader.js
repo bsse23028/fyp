@@ -66,7 +66,7 @@ const styles = StyleSheet.create({
   title: {
     fontFamily: FONTS.nunitoBlack,
     fontSize: 26,
-    color: CALM.text,
+    color: CALM.heading,
   },
   spacer: {
     width: CALM_SIZES.tap,

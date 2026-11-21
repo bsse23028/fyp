@@ -18,9 +18,9 @@ import { arrowPath, arrowsAlong, pathData, resample, strokeCue } from './traceMa
 import { TRACE } from './traceConfig';
 import { CALM, FONTS } from '../../../../shared/theme/theme';
 
-const ROAD_EDGE = '#D9D3CB';
+const ROAD_EDGE = '#DDD0F5';
 const ROAD = '#FFFFFF';
-const GUIDE = '#A99F95';
+const GUIDE = '#A38FBF';
 
 function Badge({ number, x, y, color, current, active }) {
   const pulse = usePulse(current && active, { duration: 700 });

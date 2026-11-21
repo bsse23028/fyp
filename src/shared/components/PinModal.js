@@ -178,7 +178,7 @@ const styles = StyleSheet.create({
   backdrop: {
     flex: 1,
     justifyContent: 'flex-end',
-    backgroundColor: 'rgba(61, 43, 31, 0.34)',
+    backgroundColor: 'rgba(61, 31, 92, 0.34)',
   },
   sheet: {
     paddingHorizontal: 28,

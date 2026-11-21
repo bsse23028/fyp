@@ -16,6 +16,8 @@ import React, { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import Text from '../../shared/components/AppText';
 import Screen from '../../shared/components/Screen';
+import SoftShapes from '../../shared/components/SoftShapes';
+import { PALETTE } from '../../shared/theme/theme';
 import BackButton from '../../shared/components/BackButton';
 import AuthHeading from '../../shared/components/AuthHeading';
 import TextField from '../../shared/components/TextField';
@@ -53,7 +55,9 @@ export default function ForgotPasswordScreen({ navigation }) {
   }
 
   return (
-    <Screen scroll footerMascot>
+    <Screen scroll>
+      {/* the same soft floating bubbles as the Welcome and Log In screens */}
+      <SoftShapes />
       <View style={styles.body}>
         <View style={styles.back}>
           <BackButton onPress={() => navigation.goBack()} />
@@ -82,7 +86,7 @@ export default function ForgotPasswordScreen({ navigation }) {
 
         <FormError message={formError} style={styles.formError} />
 
-        <Button title="Send Code" onPress={handleSendCode} loading={loading} style={styles.button} />
+        <Button title="Send Code" onPress={handleSendCode} loading={loading} style={[styles.button, styles.deepPurple]} />
 
         <Text style={[globalStyles.link, styles.backToLogin]} onPress={() => goToLogIn(navigation)}>
           Back to log in
@@ -106,6 +110,11 @@ const styles = StyleSheet.create({
   },
   formError: {
     marginTop: 14,
+  },
+  // the main button is deep purple, like Log In and Get Started
+  deepPurple: {
+    backgroundColor: PALETTE.deepPurple,
+    borderColor: PALETTE.deepPurple,
   },
   button: {
     marginTop: 20,

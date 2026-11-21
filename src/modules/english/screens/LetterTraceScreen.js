@@ -319,7 +319,7 @@ const styles = StyleSheet.create({
   canvasCard: {
     padding: 10,
     borderRadius: 28,
-    backgroundColor: 'rgba(255, 253, 248, 0.96)',
+    backgroundColor: 'rgba(250, 245, 253, 0.96)',
   },
   bottom: {
     height: 120,

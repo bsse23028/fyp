@@ -468,7 +468,7 @@ const styles = StyleSheet.create({
     bottom: -4,
     height: 10,
     borderRadius: 5,
-    backgroundColor: 'rgba(61, 43, 31, 0.14)',
+    backgroundColor: 'rgba(61, 31, 92, 0.14)',
   },
   foot: {
     position: 'absolute',

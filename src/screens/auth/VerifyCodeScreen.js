@@ -17,6 +17,7 @@ import React, { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import Text from '../../shared/components/AppText';
 import Screen from '../../shared/components/Screen';
+import SoftShapes from '../../shared/components/SoftShapes';
 import BackButton from '../../shared/components/BackButton';
 import AuthHeading from '../../shared/components/AuthHeading';
 import OtpInput from '../../shared/components/OtpInput';
@@ -24,7 +25,7 @@ import Button from '../../shared/components/Button';
 import FormError from '../../shared/components/FormError';
 import { useAuth } from '../../app/context/AuthContext';
 import { globalStyles } from '../../shared/theme/globalStyles';
-import { COLORS, FONTS } from '../../shared/theme/theme';
+import { PALETTE, COLORS, FONTS } from '../../shared/theme/theme';
 
 export default function VerifyCodeScreen({ subtitle, buttonLabel, email, onBack, onVerify }) {
   const { resendCode } = useAuth();
@@ -64,7 +65,9 @@ export default function VerifyCodeScreen({ subtitle, buttonLabel, email, onBack,
   }
 
   return (
-    <Screen scroll footerMascot>
+    <Screen scroll>
+      {/* the same soft floating bubbles as the Welcome and Log In screens */}
+      <SoftShapes />
       <View style={styles.body}>
         <View style={styles.back}>
           <BackButton onPress={onBack} />
@@ -79,7 +82,7 @@ export default function VerifyCodeScreen({ subtitle, buttonLabel, email, onBack,
         <FormError message={error} style={styles.message} />
         {notice && !error ? <Text style={[styles.notice, styles.message]}>{notice}</Text> : null}
 
-        <Button title={buttonLabel} onPress={handleVerify} loading={loading} style={styles.button} />
+        <Button title={buttonLabel} onPress={handleVerify} loading={loading} style={[styles.button, styles.deepPurple]} />
 
         <Text style={[globalStyles.centerText, styles.resend]}>
           Didn’t receive it?{' '}
@@ -112,6 +115,11 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: COLORS.success,
     textAlign: 'center',
+  },
+  // the main button is deep purple, like Log In and Get Started
+  deepPurple: {
+    backgroundColor: PALETTE.deepPurple,
+    borderColor: PALETTE.deepPurple,
   },
   button: {
     marginTop: 20,

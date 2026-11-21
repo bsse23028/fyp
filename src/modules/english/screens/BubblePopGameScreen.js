@@ -275,7 +275,7 @@ const styles = StyleSheet.create({
     backgroundColor: CALM.line,
   },
   countDotOn: {
-    backgroundColor: '#7FC6E8',
+    backgroundColor: '#8A33CF',
   },
   sky: {
     flex: 1,

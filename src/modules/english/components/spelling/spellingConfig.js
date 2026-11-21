@@ -20,9 +20,9 @@ export const SPELLING = {
   MAX_LETTER_SCALE: 0.42, // biggest size of a letter picture (1 = 512 points). Long words get smaller by themselves
   WORD_CENTER: 0.5, // where the word sits between top (0) and bottom (1) of the game area
   WORD_MAX_HEIGHT: 0.36, // the word is never taller than this part of the game area (matters on a wide, low screen)
-  PLACEHOLDER_TINT: '#B8AA9A', // pale warm grey of an empty placeholder letter
+  PLACEHOLDER_TINT: '#C7B8DA', // pale lilac grey of an empty placeholder letter
   PLACEHOLDER_OPACITY: 0.4, // how see-through an empty placeholder is
-  HINT_TINT: '#F3CF6B', // soft yellow glow of the placeholder that is the hint
+  HINT_TINT: '#F7C744', // soft yellow glow of the placeholder that is the hint
   MAGNET_GLOW: 0.85, // how strong a placeholder glows (in its letter's light colour) while its letter is near
 
   // ----- the loose letters (scattered above and below the word) -----
@@ -33,7 +33,7 @@ export const SPELLING = {
   MIN_TOUCH: 56, // ...and never smaller than this
   SHADOW_WIDTH: 0.8, // the soft shadow under a letter: its width as a part of the letter's width
   SHADOW_HEIGHT: 0.1, // ...and its height as a part of the letter's height
-  SHADOW_COLOR: 'rgba(70, 50, 30, 0.2)', // shadow colour (soft warm brown)
+  SHADOW_COLOR: 'rgba(61, 31, 92, 0.2)', // shadow colour (soft plum)
 
   // ----- picking up and holding a letter (it feels like soft jelly) -----
   HOLD_SCALE: 1.3, // the letter pops to this size when picked up
@@ -85,7 +85,7 @@ export const SPELLING = {
   PICTURE_SIZE: 150, // the word's picture when it pops OUT of the finished word (its big size)
   PICTURE_SMALL: 0.45, // afterwards it shrinks to this part of its size and sits on top of the word
   PICTURE_PERCH: 0.2, // how much the small picture overlaps the top of the word (a part of its small size)
-  WORD_SOLID_COLOR: '#36489F', // the ONE colour the finished word turns into (navy from the letter palette)
+  WORD_SOLID_COLOR: '#8A33CF', // the ONE colour the finished word turns into (KidBuddy Purple)
   SOLID_TIME: 380, // how long the letters take to turn into that colour
   PICTURE_DANCE_ANGLE: 5, // the picture sways by this much
   FINISH_DELAY: 500, // after the last letter lands, before the word is read

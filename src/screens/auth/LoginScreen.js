@@ -1,4 +1,5 @@
-// LOGIN SCREEN - "Welcome back".
+// LOGIN SCREEN - "Hey there, you're back!" (inspo look: the Welcome screen's lavender page + soft bubbles,
+// the buddy at the top, white rounded boxes, a deep purple Log In button).
 //
 // What it holds:
 //   - heading + subtitle
@@ -14,7 +15,7 @@
 //       3. wrong details -> show "Incorrect email or password."
 //       4. right details -> Child Home (or Create Child Profile for a new parent)
 //   - "Create account" link -> SignUp screen
-//   - info box + small Buddy at the bottom
+//   - info box at the bottom (the buddy now peeks in at the top, see AuthHeading)
 //
 // Props: { navigation }
 
@@ -22,6 +23,7 @@ import React, { useRef, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import Text from '../../shared/components/AppText';
 import Screen from '../../shared/components/Screen';
+import SoftShapes from '../../shared/components/SoftShapes';
 import AuthHeading from '../../shared/components/AuthHeading';
 import TextField from '../../shared/components/TextField';
 import Button from '../../shared/components/Button';
@@ -32,7 +34,7 @@ import { useDevice } from '../../app/context/DeviceContext';
 import { getParentStartScreen, goToStart } from '../../app/navigation/helpers';
 import { emailError } from '../../shared/utils/validation';
 import { globalStyles } from '../../shared/theme/globalStyles';
-import { COLORS, FONTS, RADIUS } from '../../shared/theme/theme';
+import { COLORS, FONTS, PALETTE, RADIUS } from '../../shared/theme/theme';
 
 export default function LoginScreen({ navigation }) {
   const { logIn } = useAuth();
@@ -72,9 +74,11 @@ export default function LoginScreen({ navigation }) {
   }
 
   return (
-    <Screen scroll footerMascot>
+    <Screen scroll>
+      {/* the same soft floating bubbles as the Welcome screen */}
+      <SoftShapes />
       <View style={styles.body}>
-        <AuthHeading title="Welcome back" subtitle="Log in to manage your child’s home practice." />
+        <AuthHeading title="Hey there, you're back!" subtitle="Log in to manage your child’s home practice." />
 
         <TextField
           label="Email address"
@@ -119,7 +123,7 @@ export default function LoginScreen({ navigation }) {
 
         <FormError message={formError} style={styles.formError} />
 
-        <Button title="Log In" onPress={handleLogIn} loading={loading} style={styles.button} />
+        <Button title="Log In" onPress={handleLogIn} loading={loading} style={[styles.button, styles.deepPurple]} />
 
         <Text style={[globalStyles.centerText, styles.switchText]}>
           New to KidBuddy?{' '}
@@ -158,6 +162,11 @@ const styles = StyleSheet.create({
   button: {
     marginTop: 20,
   },
+  // the Log In button is deep purple, like "Get Started" on Welcome
+  deepPurple: {
+    backgroundColor: PALETTE.deepPurple,
+    borderColor: PALETTE.deepPurple,
+  },
   switchText: {
     marginTop: 20,
   },
@@ -166,7 +175,7 @@ const styles = StyleSheet.create({
     minHeight: 20,
   },
   infoBox: {
-    backgroundColor: COLORS.primaryPale,
+    backgroundColor: COLORS.white,
     borderRadius: RADIUS.box,
     paddingVertical: 12,
     paddingHorizontal: 14,

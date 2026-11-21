@@ -1,13 +1,13 @@
 // BUTTON - the big rounded button used everywhere.
 //
-//   <Button title="Continue" onPress={...} />                      filled indigo
-//   <Button title="Log In" variant="secondary" onPress={...} />    white with indigo outline
+//   <Button title="Continue" onPress={...} />                      filled coral (BUTTON in theme.js)
+//   <Button title="Log In" variant="secondary" onPress={...} />    white with a purple outline
 //   <Button title="Verify" loading={true} />                       shows a spinner
 
 import React from 'react';
 import { ActivityIndicator, Pressable, StyleSheet } from 'react-native';
 import Text from './AppText';
-import { COLORS, FONTS, FONT_SIZES, RADIUS, SIZES } from '../theme/theme';
+import { BUTTON, COLORS, FONTS, FONT_SIZES, RADIUS, SIZES } from '../theme/theme';
 
 export default function Button({ title, onPress, variant = 'primary', loading = false, style }) {
   const isPrimary = variant === 'primary';
@@ -21,7 +21,7 @@ export default function Button({ title, onPress, variant = 'primary', loading = 
       style={({ pressed }) => [
         styles.base,
         isPrimary ? styles.primary : styles.secondary,
-        pressed && styles.pressed,
+        pressed && (isPrimary ? styles.primaryPressed : styles.pressed),
         style,
       ]}
     >
@@ -46,8 +46,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
   },
   primary: {
-    backgroundColor: COLORS.primary,
-    borderColor: COLORS.primary,
+    backgroundColor: BUTTON.fill,
+    borderColor: BUTTON.fill,
+  },
+  primaryPressed: {
+    backgroundColor: BUTTON.pressed,
+    borderColor: BUTTON.pressed,
   },
   secondary: {
     backgroundColor: COLORS.white,
@@ -61,7 +65,7 @@ const styles = StyleSheet.create({
     fontSize: FONT_SIZES.button,
   },
   primaryText: {
-    color: COLORS.white,
+    color: BUTTON.text,
   },
   secondaryText: {
     color: COLORS.primary,

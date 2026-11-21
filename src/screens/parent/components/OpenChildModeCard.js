@@ -9,7 +9,7 @@ import SoftButton from '../../../shared/components/SoftButton';
 import { getAvatar } from '../../../shared/theme/avatars';
 import { useIdleBob } from '../../../shared/utils/motion';
 import { ageText, lastActiveText, streakDays } from '../../../shared/utils/progress';
-import { CALM, CALM_RADIUS, CALM_SHADOW, FONTS } from '../../../shared/theme/theme';
+import { CALM, CALM_RADIUS, CALM_SHADOW, FONTS, PALETTE } from '../../../shared/theme/theme';
 
 export default function OpenChildModeCard({ child, onOpen }) {
   const avatar = getAvatar(child.avatar);
@@ -55,7 +55,7 @@ export default function OpenChildModeCard({ child, onOpen }) {
         </View>
       )}
 
-      <SoftButton title="Open Child Mode" icon="🌈" onPress={onOpen} style={styles.button} />
+      <SoftButton title="Open Child Mode" onPress={onOpen} style={styles.button} />
     </View>
   );
 }
@@ -104,7 +104,7 @@ const styles = StyleSheet.create({
     paddingVertical: 3,
     paddingHorizontal: 10,
     borderRadius: CALM_RADIUS.pill,
-    backgroundColor: CALM.coralPale,
+    backgroundColor: PALETTE.blushPeach,
   },
   streakText: {
     fontFamily: FONTS.nunitoExtraBold,

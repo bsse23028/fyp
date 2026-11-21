@@ -50,7 +50,7 @@ export const TALKING_COLORS = {
   arm: CALM.coral,
   hand: CALM.coral,
   foot: CALM.coral,
-  shadow: '#3D2B1F',
+  shadow: '#3D1F5C',
 };
 
 // ---------- motion ----------

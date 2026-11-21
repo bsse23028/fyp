@@ -18,7 +18,7 @@ import Text from '../../shared/components/AppText';
 import Screen from '../../shared/components/Screen';
 import Mascot from '../../shared/components/Mascot';
 import Button from '../../shared/components/Button';
-import { COLORS, FONTS, RADIUS, SPACING } from '../../shared/theme/theme';
+import { COLORS, FONTS, PALETTE, RADIUS, SPACING } from '../../shared/theme/theme';
 
 // Text, emoji and card colour for each card (from Figma).
 const CARDS = [
@@ -26,19 +26,19 @@ const CARDS = [
     title: 'Your therapist’s plan, practised at home',
     copy: 'Keep familiar goals going between visits with short activities the whole family can support.',
     icon: '📋',
-    cardColor: COLORS.cardBlue,
+    cardColor: PALETTE.pastelLilac,
   },
   {
     title: 'Fun activities that adapt to your child',
     copy: 'Reading, speech, feelings, numbers and routines—paced around your child’s needs.',
     icon: '🧩',
-    cardColor: COLORS.cardYellow,
+    cardColor: PALETTE.pastelYellow,
   },
   {
     title: 'A safe, ad-free space, you stay in control',
     copy: 'Parents choose activities, permissions and profiles. Children never need an account.',
     icon: '🛡️',
-    cardColor: COLORS.cardGreen,
+    cardColor: PALETTE.pastelMint,
   },
 ];
 
@@ -155,7 +155,7 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.nunitoBlack,
     fontSize: 27,
     lineHeight: 32,
-    color: COLORS.warmText,
+    color: COLORS.heading,
   },
   copy: {
     marginTop: 12,

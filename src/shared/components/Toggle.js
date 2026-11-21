@@ -31,7 +31,7 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.primary,
   },
   trackOff: {
-    backgroundColor: '#CBD5E1',
+    backgroundColor: COLORS.border,
   },
   knob: {
     width: 20,

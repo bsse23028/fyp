@@ -42,8 +42,3 @@ export function getParentStartScreen(childProfiles, permissions) {
   if (childProfiles.length > 0) return 'ParentHome';
   return permissions.asked ? 'CreateChildProfile' : 'Permissions';
 }
-
-// Parent Progress for one child (opened from a child card on Parent Home).
-export function goToProgress(navigation, childId) {
-  navigation.navigate('ParentProgress', { childId });
-}

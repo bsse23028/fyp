@@ -1,12 +1,8 @@
-// APP NAVIGATOR - the list of every screen in the app.
-//
-// ADD A NEW SCREEN IN 2 STEPS:
-//   1. create the file in src/screens/...
-//   2. import it here and add a <Stack.Screen name="..." component={...} />
-// Then open it from any screen with:  navigation.navigate('ScreenName')
-//
-// SCREENS OF A LEARNING MODULE (English, Numbers ...) are NOT listed here. Each module lists
-// its own screens in src/modules/<module>/index.js and they are added below automatically.
+// APP NAVIGATOR - registers every screen of the app. It does NOT list screens itself:
+//   - each app AREA lists its own screens in src/screens/<area>/index.js (collected in src/screens/index.js)
+//   - each learning MODULE lists its own screens in src/modules/<module>/index.js (src/modules/index.js)
+// ADD A NEW SCREEN: add it to its area's (or module's) index.js. Nothing here has to change.
+// Then open it with:  navigation.navigate('ScreenName')
 //
 // WHERE THE APP STARTS (decided once, when the app opens):
 //   logged in + has a child profile   -> Parent Home (the app ALWAYS opens in Parent Mode;
@@ -18,6 +14,7 @@
 import React from 'react';
 import { ActivityIndicator, View } from 'react-native';
 import FixedHeader from '../../shared/components/FixedHeader';
+import ParentTabBar from '../../shared/components/ParentTabBar';
 import LoadError from '../../shared/components/LoadError';
 import { DEMO_MODE } from '../../shared/config';
 import { useDirection } from '../../shared/utils/direction';
@@ -28,31 +25,9 @@ import { useDevice } from '../context/DeviceContext';
 import { getParentStartScreen } from './helpers';
 import { MODULE_SCREENS } from '../../modules';
 import { COLORS } from '../../shared/theme/theme';
+import { screenColorsFor } from '../../shared/theme/screenColors';
 
-import SplashScreen from '../../screens/onboarding/SplashScreen';
-import { WelcomeScreen, WelcomeAltScreen } from '../../screens/onboarding/WelcomeScreen';
-import OnboardingScreen from '../../screens/onboarding/OnboardingScreen';
-import LoginScreen from '../../screens/auth/LoginScreen';
-import SignUpScreen from '../../screens/auth/SignUpScreen';
-import EmailVerificationScreen from '../../screens/auth/EmailVerificationScreen';
-import ForgotPasswordScreen from '../../screens/auth/ForgotPasswordScreen';
-import PasswordOtpScreen from '../../screens/auth/PasswordOtpScreen';
-import ResetPasswordScreen from '../../screens/auth/ResetPasswordScreen';
-import PermissionsScreen from '../../screens/permissions/PermissionsScreen';
-import CreateChildProfileScreen from '../../screens/child/CreateChildProfileScreen';
-import ChildHomeScreen from '../../screens/home/ChildHomeScreen';
-import EditProfileScreen from '../../screens/profile/EditProfileScreen';
-import EditChildSectionScreen from '../../screens/profile/EditChildSectionScreen';
-import PersonalizeStoriesScreen from '../../screens/profile/PersonalizeStoriesScreen';
-import ParentProfileScreen from '../../screens/account/ParentProfileScreen';
-import ChangePasswordScreen from '../../screens/account/ChangePasswordScreen';
-import UpdatePinScreen from '../../screens/account/UpdatePinScreen';
-import ParentHomeScreen from '../../screens/parent/ParentHomeScreen';
-import ParentPlanScreen from '../../screens/parent/ParentPlanScreen';
-import ParentProgressScreen from '../../screens/parent/ParentProgressScreen';
-import ParentSettingsScreen from '../../screens/parent/ParentSettingsScreen';
-import ProfilePickerScreen from '../../screens/child/ProfilePickerScreen';
-import EditAvatarScreen from '../../screens/child/EditAvatarScreen';
+import { APP_SCREENS } from '../../screens';
 
 const Stack = createNativeStackNavigator();
 
@@ -94,7 +69,7 @@ export default function AppNavigator() {
   // Wait until everything saved on the phone (and the first answers of the server) has arrived.
   if (authLoading || childLoading || deviceLoading || optionsLoading) {
     return (
-      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: COLORS.white }}>
+      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: COLORS.background }}>
         <ActivityIndicator color={COLORS.primary} />
       </View>
     );
@@ -106,56 +81,26 @@ export default function AppNavigator() {
 
   // The header sits ABOVE the navigator: it never slides or changes. Only the screens below it move.
   return (
-    <View style={{ flex: 1, backgroundColor: COLORS.white }}>
+    <View style={{ flex: 1, backgroundColor: COLORS.background }}>
     <FixedHeader />
     <Stack.Navigator
       initialRouteName={startScreen}
-      screenOptions={{
+      screenOptions={({ route }) => ({
         headerShown: false, // every screen draws its own header (see Screen.js)
         animation: isRTL ? 'slide_from_left' : 'slide_from_right', // follows the reading direction
-        contentStyle: { backgroundColor: COLORS.white, ...directionStyle },
+        contentStyle: { backgroundColor: screenColorsFor(route.name).page, ...directionStyle },
         // Keep the phone's status bar (time, battery ...) visible on every screen:
-        // dark icons on a white bar.
+        // dark icons on a bar of the same colour as the top bar (theme/screenColors.js).
         statusBarStyle: 'dark',
-        statusBarBackgroundColor: COLORS.white,
+        statusBarBackgroundColor: screenColorsFor(route.name).header,
         statusBarTranslucent: false,
         statusBarHidden: false,
-      }}
+      })}
     >
-      {/* Welcome flow */}
-      <Stack.Screen name="Splash" component={SplashScreen} />
-      <Stack.Screen name="Welcome" component={WelcomeScreen} />
-      <Stack.Screen name="WelcomeAlt" component={WelcomeAltScreen} />
-      <Stack.Screen name="Onboarding" component={OnboardingScreen} />
-
-      {/* Log in / sign up / forgot password */}
-      <Stack.Screen name="LogIn" component={LoginScreen} />
-      <Stack.Screen name="SignUp" component={SignUpScreen} />
-      <Stack.Screen name="EmailVerification" component={EmailVerificationScreen} />
-      <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
-      <Stack.Screen name="PasswordOtp" component={PasswordOtpScreen} />
-      <Stack.Screen name="ResetPassword" component={ResetPasswordScreen} />
-
-      {/* After the account is created: permissions (once), then the child profile */}
-      <Stack.Screen name="Permissions" component={PermissionsScreen} />
-      <Stack.Screen name="CreateChildProfile" component={CreateChildProfileScreen} />
-
-      {/* PARENT MODE (everything is reached from Parent Home; 🏠 in the header returns) */}
-      <Stack.Screen name="ParentHome" component={ParentHomeScreen} />
-      <Stack.Screen name="ParentPlan" component={ParentPlanScreen} />
-      <Stack.Screen name="ParentProgress" component={ParentProgressScreen} />
-      <Stack.Screen name="ParentSettings" component={ParentSettingsScreen} />
-      <Stack.Screen name="EditProfile" component={EditProfileScreen} />
-      <Stack.Screen name="EditChildSection" component={EditChildSectionScreen} />
-      <Stack.Screen name="PersonalizeStories" component={PersonalizeStoriesScreen} />
-      <Stack.Screen name="ParentProfile" component={ParentProfileScreen} />
-      <Stack.Screen name="ChangePassword" component={ChangePasswordScreen} />
-      <Stack.Screen name="UpdatePin" component={UpdatePinScreen} />
-
-      {/* CHILD MODE (🏠 and 🔒 Parent in the header) */}
-      <Stack.Screen name="ProfilePicker" component={ProfilePickerScreen} />
-      <Stack.Screen name="ChildHome" component={ChildHomeScreen} />
-      <Stack.Screen name="EditAvatar" component={EditAvatarScreen} />
+      {/* APP AREAS (onboarding, auth, permissions, child, parent, profile, account, home): src/screens/index.js */}
+      {APP_SCREENS.map((screen) => (
+        <Stack.Screen key={screen.name} name={screen.name} component={screen.component} options={screen.options} />
+      ))}
 
       {/* LEARNING MODULES (English, later Numbers, Feelings ...).
           Their screens are listed by each module, see src/modules/index.js */}
@@ -163,6 +108,8 @@ export default function AppNavigator() {
         <Stack.Screen key={screen.name} name={screen.name} component={screen.component} options={screen.options} />
       ))}
     </Stack.Navigator>
+    {/* Parent Mode's bottom bar (only on Home / Plan / Progress / Me, see parentTabs.js) */}
+    <ParentTabBar />
     </View>
   );
 }

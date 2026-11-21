@@ -33,9 +33,9 @@ export default function HomeBackground({ active, children }) {
     <View style={styles.fill}>
       <Backdrop ref={target} style={StyleSheet.absoluteFill} pointerEvents="none">
         <LinearGradient colors={GLASS.gradient} style={StyleSheet.absoluteFill} />
-        {HOME_SHAPES.map((shape, i) => (
-          <Shape key={i} shape={shape} index={i} active={active} />
-        ))}
+        {HOME.SHOW_SHAPES
+          ? HOME_SHAPES.map((shape, i) => <Shape key={i} shape={shape} index={i} active={active} />)
+          : null}
       </Backdrop>
       <GlassContext.Provider value={HOME.USE_BLUR ? target : null}>{children}</GlassContext.Provider>
     </View>

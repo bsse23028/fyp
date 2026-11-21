@@ -16,6 +16,8 @@
 import React, { useRef, useState } from 'react';
 import { Alert, StyleSheet, View } from 'react-native';
 import Screen from '../../shared/components/Screen';
+import SoftShapes from '../../shared/components/SoftShapes';
+import { PALETTE } from '../../shared/theme/theme';
 import BackButton from '../../shared/components/BackButton';
 import AuthHeading from '../../shared/components/AuthHeading';
 import TextField from '../../shared/components/TextField';
@@ -62,7 +64,9 @@ export default function ResetPasswordScreen({ navigation, route }) {
   }
 
   return (
-    <Screen scroll footerMascot>
+    <Screen scroll>
+      {/* the same soft floating bubbles as the Welcome and Log In screens */}
+      <SoftShapes />
       <View style={styles.body}>
         <View style={styles.back}>
           <BackButton onPress={() => navigation.goBack()} />
@@ -105,7 +109,7 @@ export default function ResetPasswordScreen({ navigation, route }) {
 
         <FormError message={formError} style={styles.formError} />
 
-        <Button title="Reset Password" onPress={handleReset} loading={loading} style={styles.button} />
+        <Button title="Reset Password" onPress={handleReset} loading={loading} style={[styles.button, styles.deepPurple]} />
       </View>
     </Screen>
   );
@@ -128,6 +132,11 @@ const styles = StyleSheet.create({
   },
   formError: {
     marginTop: 14,
+  },
+  // the main button is deep purple, like Log In and Get Started
+  deepPurple: {
+    backgroundColor: PALETTE.deepPurple,
+    borderColor: PALETTE.deepPurple,
   },
   button: {
     marginTop: 18,

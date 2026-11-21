@@ -8,10 +8,12 @@ import { COLORS, FONTS, FONT_SIZES, SPACING } from './theme';
 
 export const globalStyles = StyleSheet.create({
   // The big title on form screens ("Welcome back", "Forgot password?" ...)
+  // Nunito Black: the round, friendly title font of the inspo look
   heading: {
-    fontFamily: FONTS.interBold,
-    fontSize: FONT_SIZES.heading,
-    color: COLORS.text,
+    fontFamily: FONTS.nunitoBlack,
+    fontSize: FONT_SIZES.heading + 3,
+    lineHeight: (FONT_SIZES.heading + 3) * 1.2,
+    color: COLORS.heading,
   },
   // The grey line under the heading
   subheading: {
@@ -28,7 +30,7 @@ export const globalStyles = StyleSheet.create({
     color: COLORS.textMuted,
     textAlign: 'center',
   },
-  // Indigo tappable text ("Create account", "Forgot password?" ...)
+  // Purple tappable text ("Create account", "Forgot password?" ...)
   link: {
     fontFamily: FONTS.interBold,
     fontSize: 13,

@@ -1,5 +1,5 @@
-// MODULE CARD - one big "glass paper" card of Child Home (English, Numbers ...): a large icon on a soft
-// round disc, the module name in big rounded letters, and a soft pastel wash of the module's colour.
+// MODULE CARD - one big pastel tile of Child Home (English, Numbers ...), in the inspo look: the tile has the
+// module's pastel colour (CATEGORY in theme.js), a large icon on a soft white disc and the name in big purple letters.
 // It is a little bit alive:
 //   arrives   the cards come in one after another (CARD_STAGGER apart)
 //   idle      the icon bobs gently with its own timing; it stops when `active` is false (the screen is not
@@ -7,17 +7,18 @@
 //   tap       the card squashes with a spring and the icon hops; ChildHomeScreen then lets the buddy say
 //             the name and opens the module a moment later
 //   wobbleKey changes -> a small shy wobble (a module that is not built yet)
-// The icon is the picture from moduleIcons.js, or the module's emoji drawn very large while there is none.
+// The icon is the picture from moduleIcons.js, or the module's flat icon (iconName, AppIcon) in its category
+// colour while there is none (or its emoji, when it has no iconName).
 // In Preview mode a module that is not built yet also shows a small "Coming soon" label.
 // Props: { module, index, active, isPreview, wobbleKey, onPress(module) }
 
 import React, { useEffect, useRef } from 'react';
 import { Animated, Easing, Image, Pressable, StyleSheet, Text as PlainText, View } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 import Text from '../../../shared/components/AppText';
-import Glass from './Glass';
+import AppIcon from '../../../shared/components/AppIcon';
 import { hop, motion, pressIn, pressOut, useEntrance, wiggle, wiggleRotate } from '../../../shared/utils/motion';
-import { CALM, FONTS, GLASS } from '../../../shared/theme/theme';
+import { CALM, FONTS, PALETTE } from '../../../shared/theme/theme';
+import { DESIGN } from '../../../shared/theme/designConfig';
 import { MODULE_ICONS } from '../moduleIcons';
 import { HOME } from '../homeConfig';
 
@@ -72,21 +73,21 @@ export default function ModuleCard({ module, index, active, isPreview, wobbleKey
         accessibilityLabel={module.label}
       >
         <Animated.View style={{ transform: [{ scale: press }, { rotate: wiggleRotate(shy, HOME.CARD_WOBBLE) }] }}>
-          <Glass style={styles.card} blur={HOME.BLUR_CARDS}>
-            {/* a soft wash of the module's colour, strongest at the top */}
-            <LinearGradient colors={[module.accent.pale, 'rgba(255, 255, 255, 0)']} style={styles.wash} />
+          <View style={[styles.card, { backgroundColor: module.accent.pale }]}>
 
             <Animated.View style={{ transform: [{ translateY: iconMove }, { scale: squash }] }}>
-              <View style={[styles.disc, { backgroundColor: module.accent.pale, borderColor: module.accent.main }]}>
+              <View style={styles.disc}>
                 {icon.image ? (
                   <Image source={icon.image} style={styles.picture} resizeMode="contain" />
+                ) : module.iconName ? (
+                  <AppIcon name={module.iconName} size={HOME.CARD_DISC * 0.52} color={module.accent.deep} />
                 ) : (
                   <PlainText style={styles.emoji}>{module.icon}</PlainText>
                 )}
               </View>
             </Animated.View>
 
-            <Text style={[styles.label, { color: module.accent.deep }]} numberOfLines={1} adjustsFontSizeToFit>
+            <Text style={styles.label} numberOfLines={1} adjustsFontSizeToFit>
               {module.label}
             </Text>
 
@@ -95,7 +96,7 @@ export default function ModuleCard({ module, index, active, isPreview, wobbleKey
                 <Text style={styles.soonText}>Coming soon</Text>
               </View>
             ) : null}
-          </Glass>
+          </View>
         </Animated.View>
       </Pressable>
     </Animated.View>
@@ -109,15 +110,11 @@ const styles = StyleSheet.create({
   },
   card: {
     minHeight: HOME.CARD_HEIGHT,
+    borderRadius: DESIGN.TILE_RADIUS,
     alignItems: 'center',
     justifyContent: 'center',
     paddingVertical: 16,
     paddingHorizontal: 10,
-  },
-  wash: {
-    ...StyleSheet.absoluteFillObject,
-    borderRadius: GLASS.radius,
-    opacity: 0.9,
   },
   disc: {
     width: HOME.CARD_DISC,
@@ -125,7 +122,7 @@ const styles = StyleSheet.create({
     borderRadius: HOME.CARD_DISC / 2,
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 2,
+    backgroundColor: 'rgba(255, 255, 255, 0.7)',
   },
   picture: {
     width: HOME.CARD_DISC * 0.72,
@@ -135,7 +132,7 @@ const styles = StyleSheet.create({
     fontSize: HOME.CARD_DISC * 0.5,
     lineHeight: HOME.CARD_DISC * 0.64,
     textAlign: 'center',
-    textShadowColor: 'rgba(70, 50, 30, 0.22)',
+    textShadowColor: 'rgba(61, 31, 92, 0.22)',
     textShadowOffset: { width: 0, height: 3 },
     textShadowRadius: 6,
   },
@@ -143,6 +140,7 @@ const styles = StyleSheet.create({
     marginTop: 10,
     fontFamily: FONTS.nunitoBlack,
     fontSize: 21,
+    color: PALETTE.purple,
     textAlign: 'center',
   },
   soonTag: {

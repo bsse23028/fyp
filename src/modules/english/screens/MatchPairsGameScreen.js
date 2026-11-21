@@ -233,7 +233,7 @@ const styles = StyleSheet.create({
     backgroundColor: CALM.line,
   },
   countDotOn: {
-    backgroundColor: '#8FCB9B',
+    backgroundColor: '#8A33CF',
   },
   board: {
     flex: 1,

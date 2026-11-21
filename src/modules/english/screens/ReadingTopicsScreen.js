@@ -18,7 +18,7 @@ import ChildHeader from '../../../shared/components/ChildHeader';
 import ChildInstruction from '../../../shared/components/ChildInstruction';
 import { useChild } from '../../../app/store/useChild';
 import { fetchReadingContent, selectAllTopics, selectContentState, topicChosen } from '../store/englishSlice';
-import { COLORS, FONTS } from '../../../shared/theme/theme';
+import { BUTTON, COLORS, FONTS } from '../../../shared/theme/theme';
 
 export default function ReadingTopicsScreen({ navigation }) {
   const dispatch = useDispatch();
@@ -101,7 +101,7 @@ const styles = StyleSheet.create({
     borderRadius: 22,
     backgroundColor: COLORS.white,
     borderWidth: 2,
-    borderColor: 'rgba(61, 43, 31, 0.08)',
+    borderColor: 'rgba(61, 31, 92, 0.08)',
     alignItems: 'center',
   },
   errorTitle: {
@@ -123,7 +123,7 @@ const styles = StyleSheet.create({
     minHeight: 50,
     paddingHorizontal: 28,
     borderRadius: 18,
-    backgroundColor: COLORS.sage,
+    backgroundColor: BUTTON.fill,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -144,7 +144,7 @@ const styles = StyleSheet.create({
     padding: 12,
     borderRadius: 24,
     borderWidth: 2,
-    borderColor: 'rgba(61, 43, 31, 0.05)',
+    borderColor: 'rgba(61, 31, 92, 0.05)',
     alignItems: 'center',
     justifyContent: 'center',
   },

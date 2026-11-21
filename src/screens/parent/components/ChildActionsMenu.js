@@ -1,15 +1,17 @@
-// CHILD ACTIONS MENU - a small bottom sheet for one child: View progress · Edit profile · Delete.
+// CHILD ACTIONS MENU - a small bottom sheet for one child: Edit profile · Delete.
+// (Progress is NOT here: it is the Progress tab, its one way in.)
 // It slides up with a fading backdrop; tap outside to close. The chosen action runs after it closed.
 
 import React, { useEffect, useRef, useState } from 'react';
 import { Animated, Modal, Pressable, StyleSheet, View } from 'react-native';
 import Text from '../../../shared/components/AppText';
+import AppIcon from '../../../shared/components/AppIcon';
 import AnimatedPressable from '../../../shared/components/AnimatedPressable';
 import { useDirection } from '../../../shared/utils/direction';
 import { animateVisibility } from '../../../shared/utils/motion';
-import { CALM, CALM_RADIUS, CALM_SIZES, FONTS } from '../../../shared/theme/theme';
+import { CALM, CALM_RADIUS, CALM_SIZES, FONTS, PALETTE } from '../../../shared/theme/theme';
 
-export default function ChildActionsMenu({ child, onClose, onProgress, onEdit, onDelete }) {
+export default function ChildActionsMenu({ child, onClose, onEdit, onDelete }) {
   const { directionStyle } = useDirection();
   const progress = useRef(new Animated.Value(0)).current;
   const [shown, setShown] = useState(null);
@@ -37,9 +39,8 @@ export default function ChildActionsMenu({ child, onClose, onProgress, onEdit, o
   }
 
   const items = [
-    { icon: '📈', label: 'View progress', action: onProgress },
-    { icon: '✏️', label: 'Edit profile', action: onEdit },
-    { icon: '🗑️', label: 'Delete', action: onDelete, gentleWarning: true },
+    { icon: 'pencil', label: 'Edit profile', action: onEdit },
+    { icon: 'trash-can-outline', label: 'Delete', action: onDelete, gentleWarning: true },
   ];
 
   return (
@@ -65,7 +66,7 @@ export default function ChildActionsMenu({ child, onClose, onProgress, onEdit, o
               onPress={() => choose(item.action)}
               style={[styles.item, item.gentleWarning && styles.itemWarning]}
             >
-              <Text style={styles.itemIcon}>{item.icon}</Text>
+              <AppIcon name={item.icon} size={24} color={item.gentleWarning ? PALETTE.coralText : PALETTE.purple} />
               <Text style={styles.itemText}>{item.label}</Text>
             </AnimatedPressable>
           ))}

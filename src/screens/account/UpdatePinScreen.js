@@ -166,7 +166,7 @@ const styles = StyleSheet.create({
   heading: {
     fontFamily: FONTS.interBold,
     fontSize: 24,
-    color: COLORS.text,
+    color: COLORS.heading,
   },
   firstField: {
     marginTop: 18,

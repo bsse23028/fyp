@@ -9,7 +9,7 @@ export default function StarRow({ filled = 3 }) {
   return (
     <View style={styles.row}>
       {[0, 1, 2].map((index) => (
-        <Text key={index} style={[styles.star, { color: index < filled ? COLORS.yellow : '#E5DDD5' }]}>
+        <Text key={index} style={[styles.star, { color: index < filled ? COLORS.yellow : COLORS.warmBorder }]}>
           ★
         </Text>
       ))}

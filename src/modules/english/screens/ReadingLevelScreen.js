@@ -94,7 +94,7 @@ const styles = StyleSheet.create({
     marginStart: 10,
     fontFamily: FONTS.nunitoBlack,
     fontSize: 22,
-    color: COLORS.warmText,
+    color: COLORS.heading,
   },
   card: {
     flexDirection: 'row',
@@ -104,7 +104,7 @@ const styles = StyleSheet.create({
     minHeight: 96,
     borderRadius: 24,
     borderWidth: 2,
-    borderColor: 'rgba(61, 43, 31, 0.05)',
+    borderColor: 'rgba(61, 31, 92, 0.05)',
   },
   starsBox: {
     minWidth: 76,

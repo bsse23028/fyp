@@ -1,14 +1,14 @@
 // SOFT BUTTON - the big rounded button of the calm design (spring press, 56+ px tall, Nunito).
-//   variant: 'primary' (teal) | 'secondary' (white, teal border) | 'soft' (pale teal) | 'outline-coral'
+//   variant: 'primary' (coral, BUTTON in theme.js) | 'secondary' (white, purple border) | 'soft' (pale lilac) | 'outline-coral'
 
 import React from 'react';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import Text from './AppText';
 import AnimatedPressable from './AnimatedPressable';
-import { CALM, CALM_RADIUS, CALM_SHADOW, CALM_SIZES, FONTS } from '../theme/theme';
+import { BUTTON, CALM, CALM_RADIUS, CALM_SHADOW, CALM_SIZES, FONTS } from '../theme/theme';
 
 const VARIANTS = {
-  primary: { box: { backgroundColor: CALM.primary, borderColor: CALM.primary }, text: { color: CALM.onPrimary } },
+  primary: { box: { backgroundColor: BUTTON.fill, borderColor: BUTTON.fill }, text: { color: BUTTON.text } },
   secondary: { box: { backgroundColor: CALM.surface, borderColor: CALM.primary }, text: { color: CALM.primaryDark } },
   soft: { box: { backgroundColor: CALM.primaryPale, borderColor: CALM.primaryPale }, text: { color: CALM.primaryDark } },
   'outline-coral': { box: { backgroundColor: CALM.coralPale, borderColor: CALM.coral }, text: { color: CALM.text } },

@@ -64,7 +64,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: TALKING_COLORS.eyeWhite,
     borderWidth: 1,
-    borderColor: 'rgba(46, 42, 38, 0.25)',
+    borderColor: 'rgba(61, 31, 92, 0.25)',
   },
   shine: {
     position: 'absolute',

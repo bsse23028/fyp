@@ -29,7 +29,7 @@ import { ensureMicrophone } from '../../../shared/utils/permissions';
 import { useLanguage } from '../../../app/context/LanguageContext';
 import { selectSentences } from '../store/englishSlice';
 import { getSentence } from '../readingData';
-import { COLORS, FONTS } from '../../../shared/theme/theme';
+import { BUTTON, COLORS, FONTS } from '../../../shared/theme/theme';
 
 // HIGHLIGHT TIMING
 // ----------------
@@ -235,7 +235,7 @@ export default function ReadingAlongScreen({ navigation, route }) {
                 key={i}
                 style={[
                   styles.bar,
-                  { height: barHeight, backgroundColor: reading && i >= 3 && i <= 8 ? COLORS.blue : COLORS.warmBorder },
+                  { height: barHeight, backgroundColor: reading && i >= 3 && i <= 8 ? COLORS.primary : COLORS.warmBorder },
                 ]}
               />
             ))}
@@ -278,7 +278,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 12,
     fontFamily: FONTS.nunitoBlack,
     fontSize: 21,
-    color: COLORS.warmText,
+    color: COLORS.heading,
   },
   dots: {
     flexDirection: 'row',
@@ -294,7 +294,7 @@ const styles = StyleSheet.create({
   },
   dotDone: {
     width: 26,
-    backgroundColor: COLORS.blue,
+    backgroundColor: COLORS.primary,
   },
   card: {
     flex: 1,
@@ -330,7 +330,7 @@ const styles = StyleSheet.create({
     color: COLORS.warmText,
   },
   wordLit: {
-    backgroundColor: COLORS.blue,
+    backgroundColor: COLORS.primary,
     color: COLORS.white,
     paddingHorizontal: 10,
   },
@@ -369,10 +369,10 @@ const styles = StyleSheet.create({
     width: 90,
     height: 90,
     borderRadius: 45,
-    backgroundColor: COLORS.coral,
+    backgroundColor: BUTTON.fill,
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: COLORS.coral,
+    shadowColor: BUTTON.fill,
     shadowOpacity: 0.4,
     shadowRadius: 16,
     shadowOffset: { width: 0, height: 6 },

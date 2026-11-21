@@ -16,7 +16,7 @@ import Mascot from '../../shared/components/Mascot';
 import { useChild } from '../../app/store/useChild';
 import { useChildOptions } from '../../app/store/useChildOptions';
 import { getAvatar } from '../../shared/theme/avatars';
-import { COLORS, FONTS } from '../../shared/theme/theme';
+import { BUTTON, COLORS, FONTS } from '../../shared/theme/theme';
 
 export default function EditAvatarScreen({ navigation }) {
   const { activeChild, updateChild } = useChild();
@@ -92,7 +92,7 @@ const styles = StyleSheet.create({
     marginTop: 8,
     fontFamily: FONTS.nunitoBlack,
     fontSize: 20,
-    color: COLORS.warmText,
+    color: COLORS.heading,
   },
   row: {
     flexDirection: 'row',
@@ -109,7 +109,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   choiceOn: {
-    borderColor: COLORS.blue,
+    borderColor: COLORS.primary,
   },
   spacer: {
     flex: 1,
@@ -118,13 +118,13 @@ const styles = StyleSheet.create({
   save: {
     minHeight: 64,
     borderRadius: 20,
-    backgroundColor: COLORS.blue,
+    backgroundColor: BUTTON.fill,
     alignItems: 'center',
     justifyContent: 'center',
   },
   saveText: {
     fontFamily: FONTS.nunitoBlack,
     fontSize: 20,
-    color: COLORS.warmText,
+    color: BUTTON.text,
   },
 });

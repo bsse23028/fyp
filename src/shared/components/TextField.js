@@ -188,8 +188,8 @@ export default function TextField({ label, error, inputRef, onFocus, onBlur, sty
 const styles = StyleSheet.create({
   label: {
     marginBottom: 6,
-    fontFamily: FONTS.interSemiBold,
-    fontSize: 13,
+    fontFamily: FONTS.nunitoExtraBold,
+    fontSize: 14,
     color: COLORS.text,
   },
   // React Native has no CSS "spread" shadow, so the glow is a padded box.
@@ -200,7 +200,7 @@ const styles = StyleSheet.create({
     borderRadius: RADIUS.input + 3,
   },
   ringFocused: {
-    backgroundColor: '#FFFF',
+    backgroundColor: COLORS.white,
   },
   // room on the right so typed text never runs under the Show / Hide button
   inputWithButton: {

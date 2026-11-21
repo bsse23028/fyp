@@ -14,6 +14,7 @@
 //   onHomePress    - optional: shows the 🏠 button
 //   onParentPress  - optional: shows the 🔒 Parent button
 //   onMenuPress    - optional: shows a ☰ menu button before the logo (only Parent Home uses it)
+//   background     - optional: the bar colour (FixedHeader passes the screen's colour from theme/screenColors.js)
 
 import React from 'react';
 import { Pressable, StyleSheet, View, useWindowDimensions } from 'react-native';
@@ -21,13 +22,14 @@ import Text from './AppText';
 import BrandLogo from './BrandLogo';
 import LanguageToggle from './LanguageToggle';
 import { COLORS, FONTS, SPACING } from '../theme/theme';
+import { HEADER_LOGO_MAX_WIDTH } from '../theme/avatars';
 
-export default function AppHeader({ avatar, onLogoPress, onHomePress, onParentPress, onMenuPress }) {
+export default function AppHeader({ avatar, onLogoPress, onHomePress, onParentPress, onMenuPress, background }) {
   const { width } = useWindowDimensions();
   const roomy = width >= 390; // small phones show only the 🔒 icon, big phones also the word "Parent"
 
   return (
-    <View style={styles.bar}>
+    <View style={[styles.bar, background ? { backgroundColor: background } : null]}>
       <View style={styles.left}>
         {onMenuPress ? (
           <Pressable
@@ -43,10 +45,10 @@ export default function AppHeader({ avatar, onLogoPress, onHomePress, onParentPr
 
         {onLogoPress ? (
           <Pressable onPress={onLogoPress} hitSlop={8} accessibilityRole="button" accessibilityLabel="Change my buddy">
-            <BrandLogo height={38} avatar={avatar} />
+            <BrandLogo height={38} avatar={avatar} maxWidth={HEADER_LOGO_MAX_WIDTH} />
           </Pressable>
         ) : (
-          <BrandLogo height={onMenuPress && !roomy ? 32 : 38} avatar={avatar} />
+          <BrandLogo height={onMenuPress && !roomy ? 32 : 38} avatar={avatar} maxWidth={HEADER_LOGO_MAX_WIDTH} />
         )}
       </View>
 
@@ -92,8 +94,8 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.white,
     // the separator: a thin line + a soft shadow
     borderBottomWidth: 1,
-    borderBottomColor: '#E6E0F2',
-    shadowColor: '#2D2563',
+    borderBottomColor: COLORS.border,
+    shadowColor: COLORS.text,
     shadowOpacity: 0.1,
     shadowRadius: 6,
     shadowOffset: { width: 0, height: 3 },
@@ -123,7 +125,7 @@ const styles = StyleSheet.create({
     height: 40,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#E6E0F2',
+    borderColor: COLORS.border,
     backgroundColor: COLORS.white,
     flexDirection: 'row',
     alignItems: 'center',

@@ -15,9 +15,13 @@
 //   ../../../shared/...   components, theme, utils, i18n   (the toolbox)
 //   ../../../app/...      useChild(), useLanguage(), navigation helpers
 // and from nowhere else (never from another module).
+//
+// THE PUBLIC DOOR: the rest of the app only uses what this file exports below (entry, progress,
+// parentTools ...). It NEVER imports a file from inside this folder. So the insides can change freely.
 
 import englishReducer, { fetchReadingContent } from './store/englishSlice';
-import alphabetReducer, { loadAlphabetProgress } from './store/alphabetSlice';
+import alphabetReducer, { loadAlphabetProgress, selectLetterStars } from './store/alphabetSlice';
+import { translate } from '../../shared/i18n/translate';
 import ur from './i18n/ur.json';
 import { configureLetterAudio } from '../../shared/utils/letterAudio';
 import { LETTER_AUDIO } from './data/letterAudio';
@@ -49,8 +53,35 @@ configureLetterAudio(LETTER_AUDIO, (letter) => getLetter(letter.toUpperCase()).s
 // The English section screens fade instead of sliding (calmer, no repeated side swipes).
 const FADE = { animation: 'fade' };
 
+const LETTER_COUNT = 26;
+
 export default {
   name: 'english',
+  // THE ONE SCREEN the rest of the app opens (Child Home's "English" tile). Everything else in English
+  // is reached from this hub.
+  entry: 'EnglishHub',
+  // How far a child is, for Parent Home's child cards and the Progress tab:
+  //   { title, done, total, text }   (no saved progress = 0 of 26)
+  progress: (state, childId) => {
+    const stars = selectLetterStars(state, childId);
+    const done = Object.keys(stars).filter((letter) => stars[letter] > 0).length;
+    return {
+      title: 'Alphabet',
+      done,
+      total: LETTER_COUNT,
+      text: translate('{n} of 26 letters', { n: done }),
+    };
+  },
+  // Cards this module adds to Parent Mode's Plan tab (icon = a flat AppIcon name).
+  parentTools: [
+    {
+      icon: 'alphabetical-variant',
+      title: 'Struggle words',
+      desc: 'Recent words that resurface gently',
+      screen: 'StruggleWords',
+      accent: 'games', // a CATEGORY colour name (theme.js)
+    },
+  ],
   reducer: englishReducer,
   reducers: { englishAlphabet: alphabetReducer }, // best stars per letter (saved on the phone)
   load: loadAlphabetProgress,

@@ -19,6 +19,7 @@ import { useChild } from '../../app/store/useChild';
 import { usePreview } from '../../app/store/usePreview';
 import { goToChildHome, goToParentHome } from '../../app/navigation/helpers';
 import { COLORS } from '../theme/theme';
+import { screenColorsFor } from '../theme/screenColors';
 
 const HOME_ROUTES = ['ChildHome', 'ParentHome'];
 
@@ -58,11 +59,13 @@ export default function FixedHeader() {
   }
 
   const showHome = (isChild || isParent) && !HOME_ROUTES.includes(routeName);
+  const barColor = routeName ? screenColorsFor(routeName).header : COLORS.background; // theme/screenColors.js
 
   return (
-    <View style={{ backgroundColor: COLORS.white, zIndex: 5 }}>
-      <SafeAreaView edges={['top', 'left', 'right']} style={{ backgroundColor: COLORS.white }}>
+    <View style={{ backgroundColor: barColor, zIndex: 5 }}>
+      <SafeAreaView edges={['top', 'left', 'right']} style={{ backgroundColor: barColor }}>
         <AppHeader
+          background={barColor}
           avatar={config.avatar}
           onLogoPress={isChild ? openEditAvatar : undefined}
           onHomePress={showHome ? goHome : undefined}

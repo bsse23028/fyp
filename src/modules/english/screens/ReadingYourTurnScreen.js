@@ -23,7 +23,7 @@ import Mascot from '../../../shared/components/Mascot';
 import { useLanguage } from '../../../app/context/LanguageContext';
 import { selectSentences } from '../store/englishSlice';
 import { getSentence } from '../readingData';
-import { COLORS, FONTS } from '../../../shared/theme/theme';
+import { BUTTON, COLORS, FONTS } from '../../../shared/theme/theme';
 
 export default function ReadingYourTurnScreen({ navigation, route }) {
   const index = route.params && route.params.index ? route.params.index : 0;
@@ -110,7 +110,7 @@ const styles = StyleSheet.create({
     color: COLORS.warmText,
   },
   wordLit: {
-    backgroundColor: COLORS.blue,
+    backgroundColor: COLORS.primary,
     color: COLORS.white,
     paddingHorizontal: 10,
   },
@@ -130,13 +130,13 @@ const styles = StyleSheet.create({
     marginTop: 18,
     minHeight: 68,
     borderRadius: 22,
-    backgroundColor: COLORS.blue,
+    backgroundColor: BUTTON.fill,
     alignItems: 'center',
     justifyContent: 'center',
   },
   buttonText: {
     fontFamily: FONTS.nunitoBlack,
     fontSize: 20,
-    color: COLORS.warmText,
+    color: BUTTON.text,
   },
 });

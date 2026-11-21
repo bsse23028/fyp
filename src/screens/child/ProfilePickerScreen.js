@@ -18,7 +18,7 @@ import PinModal from '../../shared/components/PinModal';
 import { useChild } from '../../app/store/useChild';
 import { goToChildHome, goToParentHome } from '../../app/navigation/helpers';
 import { getAvatar } from '../../shared/theme/avatars';
-import { COLORS, FONTS } from '../../shared/theme/theme';
+import { BUTTON, COLORS, FONTS } from '../../shared/theme/theme';
 
 export default function ProfilePickerScreen({ navigation, route }) {
   const { childProfiles, activeChild, enterChildMode, exitChildMode } = useChild();
@@ -120,7 +120,7 @@ const styles = StyleSheet.create({
   title: {
     fontFamily: FONTS.nunitoBlack,
     fontSize: 27,
-    color: COLORS.warmText,
+    color: COLORS.heading,
   },
   subtitle: {
     marginTop: 4,
@@ -145,7 +145,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   tileSelected: {
-    borderColor: COLORS.blue,
+    borderColor: COLORS.primary,
   },
   tileName: {
     marginTop: 10,
@@ -157,7 +157,7 @@ const styles = StyleSheet.create({
   askTile: {
     borderWidth: 2,
     borderStyle: 'dashed',
-    borderColor: '#D8C9BC',
+    borderColor: COLORS.border,
     backgroundColor: COLORS.white,
   },
   plus: {
@@ -179,7 +179,7 @@ const styles = StyleSheet.create({
   continue: {
     minHeight: 64,
     borderRadius: 20,
-    backgroundColor: COLORS.blue,
+    backgroundColor: BUTTON.fill,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -189,7 +189,7 @@ const styles = StyleSheet.create({
   continueText: {
     fontFamily: FONTS.nunitoBlack,
     fontSize: 20,
-    color: COLORS.warmText,
+    color: BUTTON.text,
   },
   note: {
     marginTop: 12,

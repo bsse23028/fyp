@@ -1,38 +1,44 @@
 // ENGLISH HUB SCREEN - the English section: Alphabets · Trace letters · Letter games · Letter stories · Words (WordsHub: Read Along, Spelling ...) · Sentences.
+// Inspo look: the buddy says the question, then the rounded pale sheet with a 2-column grid of pastel tiles
+// (each tile has its category colour, CATEGORY in theme.js, and an icon that bobs a few times).
 // Sentences opens the existing Read Along flow (ReadingTopics) unchanged. Opened from Child Home.
 
 import React, { useEffect, useState } from 'react';
 import { Animated, StyleSheet, View } from 'react-native';
 import Text from '../../../shared/components/AppText';
+import AppIcon from '../../../shared/components/AppIcon';
 import Screen from '../../../shared/components/Screen';
 import FadeInView from '../../../shared/components/FadeInView';
-import AnimatedPressable from '../../../shared/components/AnimatedPressable';
+import PastelTile from '../../../shared/components/PastelTile';
+import Sheet from '../../../shared/components/Sheet';
 import BuddyCharacter from '../../../shared/components/BuddyCharacter';
 import ComingSoonModal from '../../../shared/components/ComingSoonModal';
 import SectionHeader from '../components/SectionHeader';
 import { speakUi, stopSpeaking } from '../../../shared/utils/speech';
 import { useIdleBob } from '../../../shared/utils/motion';
-import { CALM, CALM_ACCENTS, CALM_RADIUS, CALM_SHADOW, FONTS } from '../../../shared/theme/theme';
+import { CATEGORY, CALM, CALM_RADIUS, FONTS } from '../../../shared/theme/theme';
 
 const GREETING = 'What do you want to learn?';
 
-// The tile icon bobs gently a few times (each tile a little later), then rests.
-function BobbingIcon({ icon, index }) {
+// The tile icon (a flat AppIcon) bobs gently a few times (each tile a little later), then rests.
+function BobbingIcon({ icon, index, color }) {
   const bob = useIdleBob({ height: 5, duration: 1400, cycles: 4, delay: 500 + index * 250 });
   return (
     <View style={styles.iconBox}>
-      <Animated.Text style={[styles.icon, bob]}>{icon}</Animated.Text>
+      <Animated.View style={bob}>
+        <AppIcon name={icon} size={34} color={color} />
+      </Animated.View>
     </View>
   );
 }
 
 const SECTIONS = [
-  { title: 'Alphabets', subtitle: 'Letters and their sounds', icon: '🔤', screen: 'AlphabetList', accent: CALM_ACCENTS[0] },
-  { title: 'Trace letters', subtitle: 'Draw letters with your finger', icon: '✏️', screen: 'TraceList', accent: CALM_ACCENTS[2] },
-  { title: 'Letter games', subtitle: 'Bubble pop and matching', icon: '🎮', screen: 'LetterGames', accent: CALM_ACCENTS[5] },
-  { title: 'Letter stories', subtitle: 'Watch a letter come alive', icon: '🎬', screen: 'StoryList', accent: CALM_ACCENTS[3] },
-  { title: 'Words', subtitle: 'Read and match words', icon: '🧩', screen: 'WordsHub', accent: CALM_ACCENTS[3] },
-  { title: 'Sentences', subtitle: 'Read Along stories', icon: '📖', screen: 'ReadingTopics', accent: CALM_ACCENTS[1] },
+  { title: 'Alphabets', subtitle: 'Letters and their sounds', icon: 'alphabetical-variant', screen: 'AlphabetList', accent: CATEGORY.learning },
+  { title: 'Trace letters', subtitle: 'Draw letters with your finger', icon: 'draw', screen: 'TraceList', accent: CATEGORY.art },
+  { title: 'Letter games', subtitle: 'Bubble pop and matching', icon: 'gamepad-variant', screen: 'LetterGames', accent: CATEGORY.games },
+  { title: 'Letter stories', subtitle: 'Watch a letter come alive', icon: 'movie-open', screen: 'StoryList', accent: CATEGORY.music },
+  { title: 'Words', subtitle: 'Read and match words', icon: 'puzzle', screen: 'WordsHub', accent: CATEGORY.calm },
+  { title: 'Sentences', subtitle: 'Read Along stories', icon: 'book-open-variant', screen: 'ReadingTopics', accent: CATEGORY.reading },
 ];
 
 export default function EnglishHubScreen({ navigation }) {
@@ -49,7 +55,7 @@ export default function EnglishHubScreen({ navigation }) {
   }
 
   return (
-    <Screen scroll mode="child" scene="day">
+    <Screen scroll mode="child">
       <View style={styles.body}>
         <SectionHeader title="English" onBack={() => navigation.goBack()} onSound={() => speakUi(GREETING)} />
 
@@ -57,26 +63,27 @@ export default function EnglishHubScreen({ navigation }) {
           <BuddyCharacter size={84} bubbleSide message={GREETING} messageKey={1} messageSilent />
         </View>
 
-        {SECTIONS.map((section, i) => (
-          <FadeInView key={section.title} index={i + 1} style={styles.tileWrap}>
-            <AnimatedPressable
-              onPress={() => open(section)}
-              accessibilityLabel={section.title}
-              style={[styles.tile, CALM_SHADOW.soft, { backgroundColor: section.accent.pale }]}
-            >
-              <BobbingIcon icon={section.icon} index={i} />
-              <View style={styles.text}>
-                <Text style={styles.title}>{section.title}</Text>
-                <Text style={styles.subtitle}>{section.subtitle}</Text>
+        <Sheet>
+          <FadeInView index={1} style={styles.grid}>
+            {SECTIONS.map((section, i) => (
+              <PastelTile
+                key={section.title}
+                title={section.title}
+                subtitle={section.subtitle}
+                iconNode={<BobbingIcon icon={section.icon} index={i} color={section.accent.deep} />}
+                color={section.accent.pale}
+                minHeight={150}
+                onPress={() => open(section)}
+              >
                 {!section.screen && (
                   <View style={styles.soonTag}>
                     <Text style={styles.soonText}>Coming soon</Text>
                   </View>
                 )}
-              </View>
-            </AnimatedPressable>
+              </PastelTile>
+            ))}
           </FadeInView>
-        ))}
+        </Sheet>
       </View>
 
       <ComingSoonModal
@@ -91,7 +98,6 @@ export default function EnglishHubScreen({ navigation }) {
 const styles = StyleSheet.create({
   body: {
     flex: 1,
-    paddingBottom: 16,
   },
   greeting: {
     marginTop: 18,
@@ -100,45 +106,25 @@ const styles = StyleSheet.create({
     minHeight: 110,
     justifyContent: 'center',
   },
-  tileWrap: {
-    marginTop: 14,
-  },
-  tile: {
-    minHeight: 112,
+  grid: {
     flexDirection: 'row',
-    alignItems: 'center',
-    padding: 16,
-    borderRadius: CALM_RADIUS.xl,
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
   },
   iconBox: {
-    width: 76,
-    height: 76,
+    width: 64,
+    height: 64,
     borderRadius: CALM_RADIUS.large,
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: CALM.surface,
   },
   icon: {
-    fontSize: 40,
-    lineHeight: 50,
-  },
-  text: {
-    flex: 1,
-    marginStart: 16,
-    alignItems: 'flex-start',
-  },
-  title: {
-    fontFamily: FONTS.nunitoBlack,
-    fontSize: 24,
-    color: CALM.text,
-  },
-  subtitle: {
-    marginTop: 2,
-    fontFamily: FONTS.nunitoSemiBold,
-    fontSize: 15,
-    color: CALM.textSoft,
+    fontSize: 36,
+    lineHeight: 46,
   },
   soonTag: {
+    alignSelf: 'flex-start',
     marginTop: 8,
     paddingVertical: 3,
     paddingHorizontal: 10,

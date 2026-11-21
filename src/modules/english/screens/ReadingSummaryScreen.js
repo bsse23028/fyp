@@ -19,7 +19,7 @@ import { STARS_PER_SESSION } from '../readingData';
 import { selectAllTopics } from '../store/englishSlice';
 import { makeUuid } from '../../../shared/utils/uuid';
 import { dayKey } from '../../../shared/utils/progress';
-import { COLORS, FONTS } from '../../../shared/theme/theme';
+import { BUTTON, COLORS, FONTS } from '../../../shared/theme/theme';
 
 export default function ReadingSummaryScreen({ navigation }) {
   const { activeChild, addReadingResult } = useChild();
@@ -83,7 +83,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
     fontFamily: FONTS.nunitoBlack,
     fontSize: 32,
-    color: COLORS.warmText,
+    color: COLORS.heading,
     textAlign: 'center',
   },
   copy: {
@@ -100,7 +100,7 @@ const styles = StyleSheet.create({
   button: {
     minHeight: 70,
     borderRadius: 22,
-    backgroundColor: COLORS.sage,
+    backgroundColor: BUTTON.fill,
     alignItems: 'center',
     justifyContent: 'center',
   },

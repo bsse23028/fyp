@@ -25,5 +25,5 @@ export const MATCH_GAME = {
   HELP_AFTER_MISSES: 3, // after this many misses in a row, one pair glows as a hint
   CARD_GAP: 12, // space between cards
   LETTER_SCALE_PER_POINT: 0.0026, // letter picture size compared to the card width
-  BACK_COLORS: ['#B9D9F2', '#F6C9B7', '#C9E5BE', '#E0D3F5'], // the soft colours of the card backs
+  BACK_COLORS: ['#CFE3F7', '#F9D3D0', '#CDEBB8', '#DDD0F5'], // the soft colours of the card backs
 };

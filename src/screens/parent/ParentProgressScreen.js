@@ -1,25 +1,37 @@
-// PARENT PROGRESS SCREEN - how a child is doing (Parent Mode, from Figma).
+// PARENT PROGRESS SCREEN - how a child is doing (Parent Mode), in the inspo look ("Reading" + "Atomic Habits"):
 //
-//   - choose the child (chips, when there is more than one)
-//   - totals: sessions · stars · streak
-//   - Reading chart: sessions per day (7 days) or per week (4 weeks), from the
-//     history the app saves after every Read Along session
-//   - every other activity that is switched on, "Not started yet" until built
+//   pink top   tag "Progress", the child's buddy, the name, a pill with the age, "Last practised ..."
+//              (+ chips to choose another child, when there is more than one)
+//   sheet      "Highscores": sessions · stars · day streak as three pastel stat tiles
+//              one big ring per learning module (English: letters learned out of 26), from the modules'
+//              public door (selectModuleProgress)
+//              "Read Along": sessions per day (7 days) or per week (4 weeks), Sunny Yellow bars
+//              "Activities": every other switched-on activity as a card, "Not started yet" until built
+//              "Share report with therapist" (coming soon)
 //
 // Route params: { childId }  (optional - the first child by default)
 // Props: { route }
 
 import React, { useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
+import { useSelector } from 'react-redux';
 import Text from '../../shared/components/AppText';
 import Screen from '../../shared/components/Screen';
 import Chip from '../../shared/components/Chip';
 import Button from '../../shared/components/Button';
 import Mascot from '../../shared/components/Mascot';
+import DetailHeader from '../../shared/components/DetailHeader';
+import Sheet from '../../shared/components/Sheet';
+import StatTile from '../../shared/components/StatTile';
+import ProgressRing from '../../shared/components/ProgressRing';
+import ProgressCard from '../../shared/components/ProgressCard';
 import { useChild } from '../../app/store/useChild';
+import { sameProgress, selectModuleProgress } from '../../modules';
 import { showComingSoon } from '../../shared/utils/alerts';
-import { allTimeTotals, lastActiveText, lastDays, streakDays } from '../../shared/utils/progress';
-import { COLORS, FONTS } from '../../shared/theme/theme';
+import { translate } from '../../shared/i18n/translate';
+import { ageText, allTimeTotals, lastActiveText, lastDays, streakDays } from '../../shared/utils/progress';
+import { DESIGN } from '../../shared/theme/designConfig';
+import { CATEGORY, COLORS, FONTS, PALETTE } from '../../shared/theme/theme';
 
 const RANGES = ['7D', '4W'];
 
@@ -45,13 +57,14 @@ export default function ParentProgressScreen({ route }) {
   const [range, setRange] = useState('7D');
 
   const child = childProfiles.find((c) => c.id === selectedId) || childProfiles[0] || null;
+  const moduleProgress = useSelector((state) => selectModuleProgress(state, child ? child.id : null), sameProgress);
 
   if (!child) {
     return (
       <Screen mode="parent">
         <View style={styles.emptyBox}>
           <Mascot size={110} />
-          <Text style={styles.heading}>Progress</Text>
+          <Text style={styles.emptyTitle}>Progress</Text>
           <Text style={styles.empty}>Add a child profile on Home to see progress here.</Text>
         </View>
       </Screen>
@@ -65,11 +78,13 @@ export default function ParentProgressScreen({ route }) {
 
   return (
     <Screen scroll mode="parent">
-      <View style={styles.body}>
-        <Text style={styles.heading}>Progress</Text>
-        <Text style={styles.subheading}>Encouraging patterns, never labels.</Text>
-
-        {/* which child */}
+      <DetailHeader
+        tag="Progress"
+        avatar={child.avatar}
+        title={child.name}
+        pill={ageText(child)}
+        caption={translate('Last practised: {when}', { when: translate(lastActiveText(child)) })}
+      >
         {childProfiles.length > 1 && (
           <View style={styles.chipRow}>
             {childProfiles.map((c) => (
@@ -77,42 +92,45 @@ export default function ParentProgressScreen({ route }) {
             ))}
           </View>
         )}
+      </DetailHeader>
 
-        {/* totals */}
-        <View style={styles.totals}>
-          {[
-            { label: 'Sessions', value: totals.sessions },
-            { label: 'Stars', value: totals.stars },
-            { label: 'Day streak', value: streakDays(child) },
-          ].map((item) => (
-            <View key={item.label} style={styles.total}>
-              <Text style={styles.totalValue}>{item.value}</Text>
-              <Text style={styles.totalLabel}>{item.label}</Text>
-            </View>
-          ))}
+      <Sheet>
+        {/* highscores */}
+        <Text style={styles.sectionTitle}>Highscores</Text>
+        <View style={styles.stats}>
+          <StatTile value={totals.sessions} label="Sessions" iconName="book-open-page-variant" color={PALETTE.pastelMint} />
+          <StatTile value={totals.stars} label="Stars" iconName="star" color={PALETTE.pastelPink} valueColor={PALETTE.coralText} />
+          <StatTile value={streakDays(child)} label="Day streak" iconName="fire" color={PALETTE.pastelYellow} />
         </View>
 
-        {/* Reading chart */}
-        <View style={styles.card}>
-          <View style={styles.cardHead}>
-            <View>
-              <Text style={styles.cardTitle}>📖 Read Along</Text>
-              <Text style={styles.cardSub}>Last practised: {lastActiveText(child)}</Text>
-            </View>
-            <View style={styles.ranges}>
-              {RANGES.map((r) => (
-                <Pressable
-                  key={r}
-                  onPress={() => setRange(r)}
-                  accessibilityRole="button"
-                  style={[styles.range, range === r && styles.rangeOn]}
-                >
-                  <Text style={[styles.rangeText, range === r && styles.rangeTextOn]}>{r}</Text>
-                </Pressable>
-              ))}
+        {/* one ring per learning module (English: the alphabet) */}
+        {moduleProgress.map((item) => (
+          <View key={item.module}>
+            <Text style={styles.sectionTitle}>{item.title}</Text>
+            <View style={styles.card}>
+              <ProgressRing value={item.done / item.total} label="Completed" detail={item.text} />
             </View>
           </View>
+        ))}
 
+        {/* Read Along chart */}
+        <View style={styles.sectionRow}>
+          <Text style={styles.sectionTitle}>Read Along</Text>
+          <View style={styles.ranges}>
+            {RANGES.map((r) => (
+              <Pressable
+                key={r}
+                onPress={() => setRange(r)}
+                accessibilityRole="button"
+                accessibilityState={{ selected: range === r }}
+                style={[styles.range, range === r && styles.rangeOn]}
+              >
+                <Text style={[styles.rangeText, range === r && styles.rangeTextOn]}>{r}</Text>
+              </Pressable>
+            ))}
+          </View>
+        </View>
+        <View style={styles.card}>
           <View style={styles.chart}>
             {bars.map((bar, i) => (
               <View key={i} style={styles.barCol}>
@@ -128,133 +146,93 @@ export default function ParentProgressScreen({ route }) {
         </View>
 
         {/* other activities */}
+        {otherModules.length > 0 && <Text style={styles.sectionTitle}>Activities</Text>}
         {otherModules.map((name) => (
-          <View key={name} style={styles.row}>
-            <Text style={styles.rowTitle}>{name}</Text>
-            <Text style={styles.rowValue}>Not started yet</Text>
-          </View>
+          <ProgressCard key={name} iconName="puzzle" iconColor={CATEGORY.art.pale} iconTint={CATEGORY.art.deep} title={name} subtitle="Not started yet" progress={0} />
         ))}
 
-        <Button
-          title="Share report with therapist →"
-          variant="secondary"
-          onPress={() => showComingSoon('Export report')}
-          style={styles.share}
-        />
-      </View>
+        <Button title="Share report with therapist →" onPress={() => showComingSoon('Export report')} style={styles.share} />
+      </Sheet>
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  body: {
-    flex: 1,
-  },
   emptyBox: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
   },
+  emptyTitle: {
+    marginTop: 10,
+    fontFamily: FONTS.nunitoBlack,
+    fontSize: 26,
+    color: COLORS.heading,
+  },
   empty: {
     marginTop: 8,
     textAlign: 'center',
-    fontFamily: FONTS.interRegular,
+    fontFamily: FONTS.nunitoSemiBold,
     fontSize: 14,
-    color: COLORS.textMuted,
-  },
-  heading: {
-    fontFamily: FONTS.interBold,
-    fontSize: 24,
-    color: COLORS.text,
-  },
-  subheading: {
-    marginTop: 3,
-    fontFamily: FONTS.interRegular,
-    fontSize: 12,
     color: COLORS.textMuted,
   },
   chipRow: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    marginTop: 14,
+    justifyContent: 'center',
+    marginTop: 12,
     gap: 8,
   },
-  totals: {
+  sectionTitle: {
+    marginBottom: 10,
+    fontFamily: FONTS.nunitoBlack,
+    fontSize: 18,
+    color: COLORS.heading,
+  },
+  sectionRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 16,
-  },
-  total: {
-    width: '31.5%',
-    paddingVertical: 14,
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: COLORS.border,
     alignItems: 'center',
+    justifyContent: 'space-between',
   },
-  totalValue: {
-    fontFamily: FONTS.interBold,
-    fontSize: 24,
-    color: COLORS.primary,
-  },
-  totalLabel: {
-    marginTop: 2,
-    fontFamily: FONTS.interRegular,
-    fontSize: 11,
-    color: COLORS.textMuted,
+  stats: {
+    flexDirection: 'row',
+    gap: 10,
+    marginBottom: 18,
   },
   card: {
-    marginTop: 14,
+    marginBottom: 18,
     padding: 16,
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: COLORS.border,
+    borderRadius: DESIGN.CARD_RADIUS,
     backgroundColor: COLORS.white,
-  },
-  cardHead: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-  },
-  cardTitle: {
-    fontFamily: FONTS.interBold,
-    fontSize: 15,
-    color: COLORS.text,
-  },
-  cardSub: {
-    marginTop: 3,
-    fontFamily: FONTS.interRegular,
-    fontSize: 12,
-    color: COLORS.textMuted,
   },
   ranges: {
     flexDirection: 'row',
+    marginBottom: 10,
     padding: 3,
-    borderRadius: 11,
-    borderWidth: 1,
-    borderColor: COLORS.border,
+    borderRadius: 14,
+    backgroundColor: PALETTE.pastelLilac,
   },
   range: {
-    paddingVertical: 5,
-    paddingHorizontal: 10,
-    borderRadius: 8,
+    minHeight: 32,
+    paddingHorizontal: 12,
+    borderRadius: 11,
+    justifyContent: 'center',
   },
   rangeOn: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: COLORS.white,
   },
   rangeText: {
-    fontFamily: FONTS.interSemiBold,
+    fontFamily: FONTS.nunitoExtraBold,
     fontSize: 12,
     color: COLORS.textMuted,
   },
   rangeTextOn: {
-    color: COLORS.white,
+    color: COLORS.primary,
   },
   chart: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     height: 130,
-    marginTop: 16,
   },
   barCol: {
     flex: 1,
@@ -262,7 +240,7 @@ const styles = StyleSheet.create({
   },
   barValue: {
     height: 16,
-    fontFamily: FONTS.interSemiBold,
+    fontFamily: FONTS.nunitoExtraBold,
     fontSize: 11,
     color: COLORS.primary,
   },
@@ -270,50 +248,29 @@ const styles = StyleSheet.create({
     flex: 1,
     width: 18,
     justifyContent: 'flex-end',
-    borderRadius: 6,
-    backgroundColor: COLORS.primaryPale,
+    borderRadius: 9,
+    backgroundColor: PALETTE.pastelYellow,
     overflow: 'hidden',
   },
   bar: {
     width: '100%',
-    borderRadius: 6,
-    backgroundColor: COLORS.primary,
+    borderRadius: 9,
+    backgroundColor: PALETTE.sunny,
   },
   barLabel: {
     marginTop: 5,
-    fontFamily: FONTS.interMedium,
+    fontFamily: FONTS.nunitoSemiBold,
     fontSize: 11,
     color: COLORS.textMuted,
   },
   chartNote: {
     marginTop: 10,
-    fontFamily: FONTS.interRegular,
+    fontFamily: FONTS.nunitoSemiBold,
     fontSize: 11,
     color: COLORS.textMuted,
     textAlign: 'center',
   },
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginTop: 10,
-    paddingVertical: 14,
-    paddingHorizontal: 16,
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: COLORS.border,
-  },
-  rowTitle: {
-    fontFamily: FONTS.interBold,
-    fontSize: 13,
-    color: COLORS.text,
-  },
-  rowValue: {
-    fontFamily: FONTS.interRegular,
-    fontSize: 12,
-    color: COLORS.textMuted,
-  },
   share: {
-    marginTop: 18,
+    marginTop: 8,
   },
 });

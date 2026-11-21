@@ -92,6 +92,50 @@ src/
 ```
 Style rules are unchanged: a comment block at the top of every file, styles at the bottom, colours/fonts from `theme.js`.
 
+### Colours (KidBuddy palette, 2026-11-20)
+- **`shared/theme/theme.js` → `PALETTE`**: every colour of the app with its palette name (Lavender Mist, Blush Peach,
+  KidBuddy Purple, Coral, Mint, Sunny Yellow, the pastel tiles, Deep Plum text ...). All other tokens (`COLORS`, `CALM`,
+  `GLASS`, `CATEGORY`, `BUTTON`) point at it, so change a colour there once and it changes everywhere.
+- **`BUTTON`**: the filled main buttons (Coral Deep with white text, easier to read than the light coral).
+- **`CATEGORY`**: the pastel subject tiles (reading pink, games yellow, art lilac, learning green, calm mint, music blue).
+- **`shared/theme/screenColors.js`**: which background and top-bar colour EVERY screen gets (by screen name).
+  Lavender Mist = main, Blush Peach = log in / welcome back, Soft Pink top bar = detail screens. Backgrounds are never dark.
+- Animated sky colours: `shared/components/kidSceneConfig.js`. Child Home shapes: `screens/home/homeConfig.js`.
+
+### How the app is split (modules, 2026-11-21)
+Every part has ONE job and talks to the rest through ONE small door:
+- **App areas** (`src/screens/<area>/`): onboarding, auth, permissions, child, parent, profile, account, home.
+  Each area lists its own screens in its `index.js` (`SCREENS`); `src/screens/index.js` collects them.
+- **Learning modules** (`src/modules/<module>/`, now only English): each lists its screens, Redux slices,
+  Urdu words and music in its `index.js`, plus its PUBLIC DOOR: `entry` (the one screen Child Home opens),
+  `progress(state, childId)` (for the child cards and the Progress tab) and `parentTools` (cards for the Plan tab).
+  App screens use only `moduleEntry`, `selectModuleProgress` and `MODULE_PARENT_TOOLS` from `src/modules/index.js`,
+  and never import a file from inside a module folder.
+- **The navigator** (`app/navigation/AppNavigator.js`) lists no screens itself: it registers the area lists + the module lists.
+- **The toolbox** (`src/shared/`): components, theme, utils, i18n. Used by everyone; it knows nothing about screens.
+
+### One way into every screen (flows)
+| Screen | Its one way in |
+|---|---|
+| Alphabets, Trace, Letter games, Stories, Words, Sentences | Child Home → English → the tile |
+| Read Along | English → Sentences |
+| Spelling | English → Words → Spelling |
+| Plan / Progress / Me (Settings) | the Parent Mode bottom bar |
+| Edit or delete a child | Parent Home → the child's ⋯ |
+| Parent PIN | Me → Safety |
+| My account (name, password) | Me → your account card |
+| Struggle words | Plan → Struggle words (a card the English module adds) |
+| My Buddy | the logo in Child Mode |
+
+### Screen design (inspo look, 2026-11-21)
+- Every size is in `shared/theme/designConfig.js` (`DESIGN`).
+- Building blocks in `shared/components/`: `PageTitle` (small line + big purple title + buddy), `Sheet` (the rounded
+  pale panel), `PastelTile` (grid tile), `StatTile` (big number), `ProgressCard` (white card + progress bar),
+  `ProgressBar`, `Tag` (small pill), `ProgressRing` (the % ring), `DetailHeader` (pink top of detail screens),
+  `AuthHeading` (buddy + title on form screens), `SegmentedControl` (pill tabs).
+- Parent Mode has a bottom bar (`shared/components/ParentTabBar.js`, tabs listed in `app/navigation/parentTabs.js`).
+  Child Mode has no bottom bar on purpose.
+
 ## 5b. Personalize my child's stories (Edit profile → Personalize stories)
 A 5-step, fully optional form (every step has **Skip**, nothing is required, "Save and close" works at any time):
 People · Favourite things · Hobbies and interests · Everyday world · Special instructions.

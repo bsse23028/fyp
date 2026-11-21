@@ -1,13 +1,11 @@
 // WELCOME SCREEN - "Let's grow together!" with Get Started / Log In, and (at the top) a
 // "Sign up / Log in as Therapist" button that only shows a "Coming soon" pop-up for now.
-// WelcomeScreen (version 1) is used by the app; WelcomeAltScreen (version 2, longer text) is
-// also registered in AppNavigator.js. Both share the same buttons and the calm design.
+// (The old second version, WelcomeAltScreen, was removed: no button ever opened it.)
 
 import React, { useState } from 'react';
 import { Animated, StyleSheet, View, useWindowDimensions } from 'react-native';
 import Text from '../../shared/components/AppText';
 import Screen from '../../shared/components/Screen';
-import MascotSpeech from '../../shared/components/MascotSpeech';
 import Mascot from '../../shared/components/Mascot';
 import SoftButton from '../../shared/components/SoftButton';
 import SoftShapes from '../../shared/components/SoftShapes';
@@ -15,7 +13,8 @@ import FadeInView from '../../shared/components/FadeInView';
 import AnimatedPressable from '../../shared/components/AnimatedPressable';
 import ComingSoonModal from '../../shared/components/ComingSoonModal';
 import { useIdleBob } from '../../shared/utils/motion';
-import { CALM, CALM_RADIUS, CALM_SIZES, FONTS } from '../../shared/theme/theme';
+import { DESIGN } from '../../shared/theme/designConfig';
+import { CALM, CALM_RADIUS, CALM_SIZES, FONTS, PALETTE } from '../../shared/theme/theme';
 
 function TherapistButton() {
   const [open, setOpen] = useState(false);
@@ -44,93 +43,52 @@ function TherapistButton() {
   );
 }
 
-function WelcomeButtons({ navigation }) {
+// startStyle = an optional extra look for the "Get Started" button (it is made deep purple)
+function WelcomeButtons({ navigation, startStyle }) {
   return (
     <View style={styles.buttons}>
-      <SoftButton title="Get Started" onPress={() => navigation.navigate('Onboarding')} />
+      <SoftButton title="Get Started" onPress={() => navigation.navigate('Onboarding')} style={startStyle} />
       <SoftButton title="Log In" variant="secondary" onPress={() => navigation.navigate('LogIn')} />
     </View>
   );
 }
 
-function BobbingSpeech({ size }) {
-  const bob = useIdleBob();
-  return (
-    <Animated.View style={bob}>
-      <MascotSpeech size={size} line1="Let's grow" line2="together!" />
-    </Animated.View>
-  );
-}
-
-// ---------- VERSION 1 ----------
+// ---------- the screen (inspo look, like "Let's get sorted") ----------
+// Soft shapes and the Therapist button at the top; in the middle the buddy on the LEFT with the text on
+// its RIGHT ("Welcome to KidBuddy / Let's grow together! / Small steps, big smiles"); the two buttons at
+// the BOTTOM. "Get Started" is deep purple (PALETTE.deepPurple). In Urdu the row is mirrored by itself.
+// The buddy's size is WELCOME_MASCOT in theme/designConfig.js.
 export function WelcomeScreen({ navigation }) {
   const { height } = useWindowDimensions();
-  const mascotSize = Math.max(100, Math.min(175, height * 0.19));
+  const mascotSize = height * DESIGN.WELCOME_MASCOT;
+  const bob = useIdleBob({ height: 5 });
 
   return (
-    <Screen background={CALM.background}>
+    <Screen>
       <SoftShapes />
       <View style={styles.body}>
         <FadeInView index={0} style={styles.stretch}>
           <TherapistButton />
         </FadeInView>
 
-        <View style={styles.center}>
+        {/* the buddy on the left, the words on its right */}
+        <View style={styles.introRow}>
           <FadeInView index={1}>
-            <BobbingSpeech size={mascotSize} />
+            <Animated.View style={bob}>
+              <Mascot size={mascotSize} />
+            </Animated.View>
           </FadeInView>
-          <FadeInView index={2}>
-            <Text style={[styles.title, { marginTop: height * 0.03 }]}>Welcome to KidBuddy</Text>
-          </FadeInView>
-          <FadeInView index={3}>
-            <Text style={styles.copy}>Small steps, big smiles ;)</Text>
+          <FadeInView index={2} style={styles.introText}>
+            <Text style={styles.eyebrow}>Welcome to KidBuddy</Text>
+            <Text style={styles.bigTitle}>Let's grow together!</Text>
+            <Text style={styles.introCopy}>Small steps, big smiles ;)</Text>
           </FadeInView>
         </View>
 
-        <FadeInView index={4} style={styles.stretch}>
-          <WelcomeButtons navigation={navigation} />
+        {/* the buttons at the bottom */}
+        <FadeInView index={3} style={styles.stretch}>
+          <WelcomeButtons navigation={navigation} startStyle={styles.startButton} />
           <Text style={styles.smallPrint}>Not a replacement for your therapist.</Text>
-        </FadeInView>
-      </View>
-    </Screen>
-  );
-}
-
-// ---------- VERSION 2 ----------
-export function WelcomeAltScreen({ navigation }) {
-  const { height } = useWindowDimensions();
-  const mascotSize = Math.max(100, Math.min(175, height * 0.19));
-  const smallMascot = Math.max(44, Math.min(64, height * 0.075));
-
-  return (
-    <Screen background={CALM.background}>
-      <SoftShapes />
-      <View style={styles.body}>
-        <FadeInView index={0} style={styles.stretch}>
-          <TherapistButton />
-        </FadeInView>
-
-        <View style={styles.center}>
-          <FadeInView index={1}>
-            <BobbingSpeech size={mascotSize} />
-          </FadeInView>
-          <FadeInView index={2}>
-            <Text style={[styles.title, { marginTop: height * 0.03 }]}>Welcome to KidBuddy</Text>
-          </FadeInView>
-          <FadeInView index={3}>
-            <Text style={styles.copy}>
-              <Text style={styles.copyBold}>Made for every kind of learner.</Text> Reading, speech,
-              emotions, routines, and more, all in one place.
-            </Text>
-          </FadeInView>
-        </View>
-
-        <FadeInView index={4} style={styles.stretch}>
-          <WelcomeButtons navigation={navigation} />
-          <Text style={styles.smallPrint}>See your child's wins and streaks in a simple, encouraging way.</Text>
-          <View style={styles.footerMascot}>
-            <Mascot size={smallMascot} />
-          </View>
         </FadeInView>
       </View>
     </Screen>
@@ -159,8 +117,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     borderRadius: CALM_RADIUS.medium,
     borderWidth: 2,
-    borderColor: CALM.lavender,
-    backgroundColor: CALM.lavenderPale,
+    borderColor: CALM.lavenderPale,
+    backgroundColor: CALM.surface,
   },
   therapistIcon: {
     fontSize: 22,
@@ -177,7 +135,7 @@ const styles = StyleSheet.create({
     paddingVertical: 3,
     paddingHorizontal: 10,
     borderRadius: CALM_RADIUS.pill,
-    backgroundColor: CALM.surface,
+    backgroundColor: PALETTE.blushPeach,
   },
   soonText: {
     fontFamily: FONTS.nunitoExtraBold,
@@ -187,7 +145,7 @@ const styles = StyleSheet.create({
   title: {
     fontFamily: FONTS.nunitoBlack,
     fontSize: 27,
-    color: CALM.text,
+    color: CALM.heading,
     textAlign: 'center',
   },
   copy: {
@@ -217,5 +175,40 @@ const styles = StyleSheet.create({
   footerMascot: {
     marginTop: 12,
     alignItems: 'center',
+  },
+  // ----- version 1 (inspo look) -----
+  introRow: {
+    alignSelf: 'stretch',
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 12,
+  },
+  introText: {
+    flex: 1,
+    marginStart: 12,
+  },
+  startButton: {
+    backgroundColor: PALETTE.deepPurple,
+    borderColor: PALETTE.deepPurple,
+  },
+  eyebrow: {
+    fontFamily: FONTS.nunitoExtraBold,
+    fontSize: 17,
+    color: CALM.primary,
+  },
+  bigTitle: {
+    marginTop: 2,
+    fontFamily: FONTS.nunitoBlack,
+    fontSize: 30,
+    lineHeight: 36,
+    color: CALM.heading,
+  },
+  introCopy: {
+    marginTop: 8,
+    fontFamily: FONTS.nunitoSemiBold,
+    fontSize: 16,
+    lineHeight: 23,
+    color: CALM.textSoft,
   },
 });

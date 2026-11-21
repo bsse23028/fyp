@@ -1,25 +1,40 @@
-// PARENT PLAN SCREEN - "Turn guidance into manageable home practice." (from Figma)
+// PARENT PLAN SCREEN - "Turn guidance into manageable home practice.", in the inspo look
+// (like "Psst, What are your goals?"): the big purple title with the buddy, then the pale sheet with
+// a mint "This week" card and the planning tools as white cards.
 //
-// The hub with the planning tools. A card with a `screen` opens that screen; the others
-// say "Coming soon" until their screen exists.
-// ("Struggle words" belongs to the English module: src/modules/english/screens/StruggleWordsScreen.js)
+// A card with a `screen` opens that screen; the others say "Coming soon" until their screen exists.
+// The learning modules add their own cards (MODULE_PARENT_TOOLS, e.g. English's "Struggle words");
+// the cards listed here belong to Parent Mode itself (all "Coming soon" for now).
 //
 // Props: { navigation }
 
 import React from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import Text from '../../shared/components/AppText';
 import Screen from '../../shared/components/Screen';
+import PageTitle from '../../shared/components/PageTitle';
+import Sheet from '../../shared/components/Sheet';
+import ProgressCard from '../../shared/components/ProgressCard';
+import Tag from '../../shared/components/Tag';
 import { showComingSoon } from '../../shared/utils/alerts';
-import { COLORS, FONTS } from '../../shared/theme/theme';
+import { MODULE_PARENT_TOOLS } from '../../modules';
+import { DESIGN } from '../../shared/theme/designConfig';
+import { CATEGORY, COLORS, FONTS, PALETTE } from '../../shared/theme/theme';
 
-// `screen` = the screen the card opens (leave it out for "Coming soon").
+// `screen` = the screen the card opens (leave it out for "Coming soon"). `icon` = a flat AppIcon name,
+// `accent` = its category colours (the square behind the icon + the icon colour).
 const CARDS = [
-  { icon: '◎', title: 'Therapist targets', desc: 'Goals shared by your therapist', tint: COLORS.primaryPale, color: COLORS.primary },
-  { icon: '▤', title: 'Reading material', desc: 'Upload or type familiar text', tint: COLORS.bluePale, color: '#0369A1' },
-  { icon: 'Aa', title: 'Struggle words', screen: 'StruggleWords', desc: 'Recent words that resurface gently', tint: COLORS.yellowPale, color: '#92400E' },
-  { icon: '☀', title: 'Routine builder', desc: 'Morning and after-school routines', tint: '#FEF3C7', color: '#B45309' },
-  { icon: '▦', title: 'AAC symbol editor', desc: 'Update boards and quick phrases', tint: '#D1FAE5', color: COLORS.success },
+  { icon: 'target', title: 'Therapist targets', desc: 'Goals shared by your therapist', accent: CATEGORY.art },
+  { icon: 'book-open-variant', title: 'Reading material', desc: 'Upload or type familiar text', accent: CATEGORY.reading },
+  { icon: 'weather-sunny', title: 'Routine builder', desc: 'Morning and after-school routines', accent: CATEGORY.calm },
+  { icon: 'view-grid', title: 'AAC symbol editor', desc: 'Update boards and quick phrases', accent: CATEGORY.learning },
+];
+
+// Parent Mode's own cards + the cards of every learning module (their `accent` is a CATEGORY name).
+const ALL_CARDS = [
+  ...CARDS.slice(0, 2),
+  ...MODULE_PARENT_TOOLS.map((tool) => ({ ...tool, accent: CATEGORY[tool.accent] || CATEGORY.art })),
+  ...CARDS.slice(2),
 ];
 
 export default function ParentPlanScreen({ navigation }) {
@@ -30,118 +45,67 @@ export default function ParentPlanScreen({ navigation }) {
 
   return (
     <Screen scroll mode="parent">
-      <View style={styles.body}>
-        <Text style={styles.heading}>Plan</Text>
-        <Text style={styles.subheading}>Turn guidance into manageable home practice.</Text>
+      <PageTitle eyebrow="Psst," title="What's the plan this week?" />
 
+      <Sheet>
         <View style={styles.hero}>
-          <Text style={styles.heroLabel}>THIS WEEK</Text>
+          <Tag label="This week" color={PALETTE.cloudWhite} />
           <Text style={styles.heroTitle}>Small steps, repeated gently</Text>
           <Text style={styles.heroCopy}>The therapist gives the plan. KidBuddy helps your family practise it.</Text>
         </View>
 
-        {CARDS.map((card) => (
-          <Pressable
+        <Text style={styles.sectionTitle}>Planning tools</Text>
+        {ALL_CARDS.map((card) => (
+          <ProgressCard
             key={card.title}
+            iconName={card.icon}
+            iconColor={card.accent.pale}
+            iconTint={card.accent.deep}
+            title={card.title}
+            subtitle={card.desc}
             onPress={() => openCard(card)}
-            accessibilityRole="button"
-            style={styles.card}
-          >
-            <View style={[styles.icon, { backgroundColor: card.tint }]}>
-              <Text style={[styles.iconText, { color: card.color }]}>{card.icon}</Text>
-            </View>
-            <View style={styles.cardText}>
-              <Text style={styles.cardTitle}>{card.title}</Text>
-              <Text style={styles.cardDesc}>{card.desc}</Text>
-            </View>
-            <Text style={styles.chevron}>›</Text>
-          </Pressable>
+            right={card.screen ? <Text style={styles.chevron}>›</Text> : <Tag label="Soon" style={styles.soon} />}
+          />
         ))}
-      </View>
+      </Sheet>
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  body: {
-    flex: 1,
-  },
-  heading: {
-    fontFamily: FONTS.interBold,
-    fontSize: 24,
-    color: COLORS.text,
-  },
-  subheading: {
-    marginTop: 3,
-    fontFamily: FONTS.interRegular,
-    fontSize: 13,
-    color: COLORS.textMuted,
-  },
   hero: {
-    marginTop: 16,
-    marginBottom: 14,
+    marginBottom: 18,
     padding: 18,
-    borderRadius: 22,
-    backgroundColor: COLORS.primary,
-  },
-  heroLabel: {
-    fontFamily: FONTS.interSemiBold,
-    fontSize: 12,
-    letterSpacing: 1,
-    color: 'rgba(255,255,255,0.82)',
+    borderRadius: DESIGN.TILE_RADIUS,
+    backgroundColor: PALETTE.pastelMint,
   },
   heroTitle: {
-    marginTop: 7,
-    fontFamily: FONTS.interBold,
+    marginTop: 10,
+    fontFamily: FONTS.nunitoBlack,
     fontSize: 21,
-    color: COLORS.white,
+    lineHeight: 26,
+    color: COLORS.heading,
   },
   heroCopy: {
-    marginTop: 6,
-    fontFamily: FONTS.interRegular,
-    fontSize: 13,
+    marginTop: 4,
+    fontFamily: FONTS.nunitoSemiBold,
+    fontSize: 14,
     lineHeight: 20,
-    color: 'rgba(255,255,255,0.88)',
-  },
-  card: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 12,
-    padding: 17,
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: COLORS.border,
-    backgroundColor: COLORS.white,
-  },
-  icon: {
-    width: 52,
-    height: 52,
-    borderRadius: 15,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  iconText: {
-    fontFamily: FONTS.interBold,
-    fontSize: 22,
-  },
-  cardText: {
-    flex: 1,
-    marginHorizontal: 13,
-  },
-  cardTitle: {
-    fontFamily: FONTS.interBold,
-    fontSize: 15,
     color: COLORS.text,
   },
-  cardDesc: {
-    marginTop: 3,
-    fontFamily: FONTS.interRegular,
-    fontSize: 12,
-    lineHeight: 17,
-    color: COLORS.textMuted,
+  sectionTitle: {
+    marginBottom: 10,
+    fontFamily: FONTS.nunitoBlack,
+    fontSize: 18,
+    color: COLORS.heading,
+  },
+  soon: {
+    alignSelf: 'center',
+    marginEnd: 4,
   },
   chevron: {
-    fontSize: 22,
+    marginHorizontal: 6,
+    fontSize: 24,
     color: COLORS.primary,
   },
 });

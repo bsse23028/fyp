@@ -27,7 +27,7 @@ export const TRACE = {
 
   // ----- numbered start badges (points on screen) -----
   BADGE_SIZE: 34, // the round number badge at the start of each stroke
-  BADGE_COLORS: ['#F0857A', '#F4A54A', '#6FA8E0', '#76BE7E'], // stroke 1, 2, 3, 4 (soft, no harsh red)
+  BADGE_COLORS: ['#E85A64', '#F08A4B', '#8A33CF', '#2F7F73'], // stroke 1, 2, 3, 4 (palette colours, readable with white numbers)
 
   // ----- the pointing-hand helper -----
   HINT_FIRST_MS: 1500, // the hand shows the first stroke this long after the letter appears

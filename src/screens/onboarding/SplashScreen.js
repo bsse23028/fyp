@@ -30,7 +30,7 @@ export default function SplashScreen({ navigation }) {
   }
 
   return (
-    <Screen background={CALM.background}>
+    <Screen>
       <SoftShapes />
       <View style={styles.body}>
         <View style={styles.center}>
@@ -85,7 +85,7 @@ const styles = StyleSheet.create({
   title: {
     fontFamily: FONTS.nunitoBlack,
     fontSize: 34,
-    color: CALM.text,
+    color: CALM.heading,
     textAlign: 'center',
   },
   tagline: {

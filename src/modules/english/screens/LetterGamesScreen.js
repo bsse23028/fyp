@@ -1,30 +1,34 @@
-// LETTER GAMES SCREEN - the games of the Alphabets: Bubble Pop and Match Pairs, as two big tiles over the
-// animated sky. Tiles pop in one after another and their icons bob a few times. Opened from EnglishHub.
+// LETTER GAMES SCREEN - the games of the Alphabets: Bubble Pop and Match Pairs, as two big pastel tiles on the
+// rounded pale sheet (inspo look). Tiles pop in one after another and their icons bob a few times. Opened from EnglishHub.
 
 import React, { useEffect } from 'react';
 import { Animated, StyleSheet, View } from 'react-native';
 import Text from '../../../shared/components/AppText';
+import AppIcon from '../../../shared/components/AppIcon';
 import Screen from '../../../shared/components/Screen';
 import FadeInView from '../../../shared/components/FadeInView';
 import AnimatedPressable from '../../../shared/components/AnimatedPressable';
 import BuddyCharacter from '../../../shared/components/BuddyCharacter';
+import Sheet from '../../../shared/components/Sheet';
 import SectionHeader from '../components/SectionHeader';
 import { useIdleBob } from '../../../shared/utils/motion';
 import { speakUi, stopSpeaking } from '../../../shared/utils/speech';
-import { CALM, CALM_ACCENTS, CALM_RADIUS, CALM_SHADOW, FONTS } from '../../../shared/theme/theme';
+import { CATEGORY, CALM, CALM_RADIUS, CALM_SHADOW, FONTS } from '../../../shared/theme/theme';
 
 const GREETING = "Let's play a letter game!";
 
 const GAMES = [
-  { title: 'Bubble Pop', subtitle: 'Pop the letter bubbles', icon: '🎈', screen: 'BubblePopGame', accent: CALM_ACCENTS[1] },
-  { title: 'Match Pairs', subtitle: 'Find big and small letters', icon: '🧩', screen: 'MatchPairsGame', accent: CALM_ACCENTS[4] },
+  { title: 'Bubble Pop', subtitle: 'Pop the letter bubbles', icon: 'balloon', screen: 'BubblePopGame', accent: CATEGORY.games },
+  { title: 'Match Pairs', subtitle: 'Find big and small letters', icon: 'cards', screen: 'MatchPairsGame', accent: CATEGORY.art },
 ];
 
-function BobbingIcon({ icon, index }) {
+function BobbingIcon({ icon, index, color }) {
   const bob = useIdleBob({ height: 6, duration: 1300, cycles: 4, delay: 500 + index * 300 });
   return (
     <View style={styles.iconBox}>
-      <Animated.Text style={[styles.icon, bob]}>{icon}</Animated.Text>
+      <Animated.View style={bob}>
+        <AppIcon name={icon} size={40} color={color} />
+      </Animated.View>
     </View>
   );
 }
@@ -36,7 +40,7 @@ export default function LetterGamesScreen({ navigation }) {
   }, [navigation]);
 
   return (
-    <Screen scroll mode="child" scene="day">
+    <Screen scroll mode="child">
       <View style={styles.body}>
         <SectionHeader title="Letter games" onBack={() => navigation.goBack()} onSound={() => speakUi(GREETING)} />
 
@@ -44,6 +48,7 @@ export default function LetterGamesScreen({ navigation }) {
           <BuddyCharacter size={84} bubbleSide message={GREETING} messageKey={1} />
         </View>
 
+        <Sheet>
         {GAMES.map((game, i) => (
           <FadeInView key={game.title} index={i + 1} style={styles.tileWrap}>
             <AnimatedPressable
@@ -51,7 +56,7 @@ export default function LetterGamesScreen({ navigation }) {
               accessibilityLabel={game.title}
               style={[styles.tile, CALM_SHADOW.soft, { backgroundColor: game.accent.pale }]}
             >
-              <BobbingIcon icon={game.icon} index={i} />
+              <BobbingIcon icon={game.icon} index={i} color={game.accent.deep} />
               <View style={styles.text}>
                 <Text style={styles.title}>{game.title}</Text>
                 <Text style={styles.subtitle}>{game.subtitle}</Text>
@@ -59,6 +64,7 @@ export default function LetterGamesScreen({ navigation }) {
             </AnimatedPressable>
           </FadeInView>
         ))}
+        </Sheet>
       </View>
     </Screen>
   );
@@ -67,7 +73,6 @@ export default function LetterGamesScreen({ navigation }) {
 const styles = StyleSheet.create({
   body: {
     flex: 1,
-    paddingBottom: 16,
   },
   greeting: {
     marginTop: 18,
@@ -77,7 +82,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   tileWrap: {
-    marginTop: 14,
+    marginBottom: 14,
   },
   tile: {
     minHeight: 120,
@@ -106,7 +111,7 @@ const styles = StyleSheet.create({
   title: {
     fontFamily: FONTS.nunitoBlack,
     fontSize: 24,
-    color: CALM.text,
+    color: CALM.heading,
   },
   subtitle: {
     marginTop: 2,

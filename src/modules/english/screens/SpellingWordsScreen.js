@@ -80,7 +80,7 @@ const styles = StyleSheet.create({
     marginBottom: 4,
     fontFamily: FONTS.nunitoBlack,
     fontSize: 22,
-    color: CALM.text,
+    color: CALM.heading,
     textAlign: 'center',
   },
   cardWrap: {

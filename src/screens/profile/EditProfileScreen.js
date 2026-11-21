@@ -1,4 +1,5 @@
-// EDIT PROFILE SCREEN - the hub for one child (opened from Parent Home / Settings).
+// EDIT PROFILE SCREEN - the hub for one child (opened from Parent Home / Settings), in the inspo detail look:
+// a Soft Pink top (DetailHeader: tag, the buddy, name, age pill) and the pale sheet with one card per part.
 //
 // Each part of the profile is edited on its OWN small screen with its own Save:
 //   Basics            nickname, age band, avatar, language
@@ -14,15 +15,16 @@ import React from 'react';
 import { Alert, Pressable, StyleSheet, View } from 'react-native';
 import Text from '../../shared/components/AppText';
 import Screen from '../../shared/components/Screen';
-import Mascot from '../../shared/components/Mascot';
+import DetailHeader from '../../shared/components/DetailHeader';
+import Sheet from '../../shared/components/Sheet';
+import ProgressCard from '../../shared/components/ProgressCard';
 import Button from '../../shared/components/Button';
 import { useChild } from '../../app/store/useChild';
 import { goToParentHome } from '../../app/navigation/helpers';
-import { getAvatar } from '../../shared/theme/avatars';
 import { translate } from '../../shared/i18n/translate';
 import { ageText } from '../../shared/utils/progress';
 import { countStoryDetails } from '../../shared/utils/storyOptions';
-import { COLORS, FONTS } from '../../shared/theme/theme';
+import { CATEGORY, COLORS, FONTS } from '../../shared/theme/theme';
 
 export default function EditProfileScreen({ navigation, route }) {
   const { childProfiles, deleteChild } = useChild();
@@ -44,25 +46,33 @@ export default function EditProfileScreen({ navigation, route }) {
   const sections = [
     {
       key: 'basics',
-      icon: '🙂',
+      color: CATEGORY.art.pale,
+      tint: CATEGORY.art.deep,
+      icon: 'emoticon-happy-outline',
       title: 'Basics',
       summary: `${child.name} · ${ageText(child)} · ${child.language === 'ur' ? 'اردو' : 'English'}`,
     },
     {
       key: 'support',
-      icon: '🧩',
+      color: CATEGORY.calm.pale,
+      tint: CATEGORY.calm.deep,
+      icon: 'puzzle',
       title: 'Areas of support',
       summary: (child.supports || []).length > 0 ? (child.supports || []).join(', ') : 'None chosen (optional)',
     },
     {
       key: 'modules',
-      icon: '🎯',
+      color: CATEGORY.games.pale,
+      tint: CATEGORY.games.deep,
+      icon: 'target',
       title: 'Activities',
       summary: `${(child.modules || []).length} switched on`,
     },
     {
       key: 'stories',
-      icon: '✨',
+      color: CATEGORY.reading.pale,
+      tint: CATEGORY.reading.deep,
+      icon: 'creation',
       title: 'Personalize stories',
       summary: storyCount > 0 ? `${storyCount} details added` : 'Nothing added yet (optional)',
     },
@@ -88,38 +98,31 @@ export default function EditProfileScreen({ navigation, route }) {
 
   return (
     <Screen scroll mode="parent" avatar={child.avatar}>
-      <View style={styles.body}>
-        <Text style={styles.heading}>Edit profile</Text>
+      <DetailHeader
+        tag="Child profile"
+        avatar={child.avatar}
+        title={child.name}
+        pill={ageText(child)}
+        caption={child.language === 'ur' ? 'اردو' : 'English'}
+      />
 
-        <View style={styles.top}>
-          <View style={[styles.avatarBox, { backgroundColor: getAvatar(child.avatar).color }]}>
-            <Mascot size={64} avatar={child.avatar} />
-          </View>
-          <Text style={styles.name}>{child.name}</Text>
-        </View>
-
+      <Sheet>
+        <Text style={styles.sectionTitle}>Edit profile</Text>
         {sections.map((section) => (
-          <Pressable
+          <ProgressCard
             key={section.key}
+            iconName={section.icon}
+            iconColor={section.color}
+            iconTint={section.tint}
+            title={section.title}
+            subtitle={section.summary}
             onPress={() =>
               section.key === 'stories'
                 ? navigation.navigate('PersonalizeStories', { childId: child.id })
                 : navigation.navigate('EditChildSection', { childId: child.id, section: section.key })
             }
-            accessibilityRole="button"
-            style={styles.row}
-          >
-            <View style={styles.icon}>
-              <Text style={styles.iconText}>{section.icon}</Text>
-            </View>
-            <View style={styles.rowText}>
-              <Text style={styles.rowTitle}>{section.title}</Text>
-              <Text style={styles.rowSummary} numberOfLines={1}>
-                {section.summary}
-              </Text>
-            </View>
-            <Text style={styles.chevron}>›</Text>
-          </Pressable>
+            right={<Text style={styles.chevron}>›</Text>}
+          />
         ))}
 
         <View style={styles.spacer} />
@@ -127,76 +130,26 @@ export default function EditProfileScreen({ navigation, route }) {
         <Pressable onPress={confirmDelete} accessibilityRole="button" style={styles.delete}>
           <Text style={styles.deleteText}>Delete profile</Text>
         </Pressable>
-      </View>
+      </Sheet>
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  body: {
-    flex: 1,
-  },
   heading: {
-    fontFamily: FONTS.interBold,
+    fontFamily: FONTS.nunitoBlack,
     fontSize: 24,
-    color: COLORS.text,
+    color: COLORS.heading,
   },
-  top: {
-    alignItems: 'center',
-    marginTop: 14,
-    marginBottom: 18,
-  },
-  avatarBox: {
-    width: 104,
-    height: 104,
-    borderRadius: 30,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  name: {
-    marginTop: 10,
-    fontFamily: FONTS.interBold,
-    fontSize: 20,
-    color: COLORS.text,
-  },
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 12,
-    padding: 15,
-    borderRadius: 18,
-    borderWidth: 1,
-    borderColor: COLORS.border,
-    backgroundColor: COLORS.white,
-  },
-  icon: {
-    width: 46,
-    height: 46,
-    borderRadius: 14,
-    backgroundColor: COLORS.primaryPale,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  iconText: {
-    fontSize: 21,
-  },
-  rowText: {
-    flex: 1,
-    marginHorizontal: 12,
-  },
-  rowTitle: {
-    fontFamily: FONTS.interBold,
-    fontSize: 15,
-    color: COLORS.text,
-  },
-  rowSummary: {
-    marginTop: 3,
-    fontFamily: FONTS.interRegular,
-    fontSize: 12,
-    color: COLORS.textMuted,
+  sectionTitle: {
+    marginBottom: 10,
+    fontFamily: FONTS.nunitoBlack,
+    fontSize: 18,
+    color: COLORS.heading,
   },
   chevron: {
-    fontSize: 22,
+    marginHorizontal: 6,
+    fontSize: 24,
     color: COLORS.primary,
   },
   spacer: {
@@ -206,11 +159,13 @@ const styles = StyleSheet.create({
   delete: {
     alignSelf: 'center',
     marginTop: 10,
-    padding: 8,
+    minHeight: 48,
+    paddingHorizontal: 16,
+    justifyContent: 'center',
   },
   deleteText: {
-    fontFamily: FONTS.interBold,
-    fontSize: 13,
+    fontFamily: FONTS.nunitoExtraBold,
+    fontSize: 14,
     color: COLORS.error,
   },
 });

@@ -9,7 +9,7 @@
 //                               can scroll when the keyboard is open.
 //   <Screen scroll footerMascot>  -> also puts a small Buddy at the bottom.
 //   <Screen scene="day">     -> an animated sky / clouds / hills background (KidScene); it pauses off screen.
-//   <Screen avatar="wolf">   -> preview an avatar in the header before saving.
+//   <Screen avatar="fox">   -> preview an avatar in the header before saving.
 //
 // MODES (what the screen belongs to):
 //   mode="child"   Child Mode: 🏠 Home and 🔒 Parent buttons in the header, and tapping
@@ -32,6 +32,8 @@ import Mascot from './Mascot';
 import KidScene from './KidScene';
 import { useHeaderConfig } from '../../app/context/HeaderContext';
 import { COLORS, SPACING } from '../theme/theme';
+import { screenColorsFor } from '../theme/screenColors';
+import { isParentTabScreen } from '../../app/navigation/parentTabs';
 
 export default function Screen({
   children,
@@ -41,7 +43,7 @@ export default function Screen({
   avatar,
   contentStyle,
   scrollRef, // optional: lets a screen scroll itself back to the top
-  background, // optional: a background colour (white when not given)
+  background, // optional: a background colour (when not given: this screen's colour in theme/screenColors.js)
   onMenuPress, // optional: shows a ☰ menu button in the header (Parent Home)
   scene, // optional: an animated KidScene background ('day' | 'lesson' | 'spelling' | 'sunset')
 }) {
@@ -49,7 +51,8 @@ export default function Screen({
   const { setConfig, removeConfig, setMenuHandler } = useHeaderConfig();
   const hasMenu = Boolean(onMenuPress);
   const focused = useIsFocused();
-  const bg = scene ? styles.clear : background ? { backgroundColor: background } : null;
+  // the page colour: an animated sky, OR the `background` prop, OR this screen's colour in theme/screenColors.js
+  const bg = scene ? styles.clear : { backgroundColor: background || screenColorsFor(route.name).page };
 
   // The header is NOT drawn here any more: it is one fixed header above the navigator
   // (see FixedHeader.js). This screen only tells it what to show.
@@ -75,8 +78,9 @@ export default function Screen({
           <KidScene scene={scene} active={focused} />
         </View>
       ) : null}
-      {/* edges: no "top" - the fixed header above the navigator already covers the notch */}
-      <SafeAreaView style={[styles.safe, bg]} edges={['bottom', 'left', 'right']}>
+      {/* edges: no "top" - the fixed header above the navigator already covers the notch;
+          no "bottom" on the Parent Mode tab screens - their bottom bar (ParentTabBar) covers it */}
+      <SafeAreaView style={[styles.safe, bg]} edges={isParentTabScreen(route.name) ? ['left', 'right'] : ['bottom', 'left', 'right']}>
         {scroll ? (
           <KeyboardAvoidingView
             style={styles.flex}
@@ -113,11 +117,11 @@ const styles = StyleSheet.create({
   },
   root: {
     flex: 1,
-    backgroundColor: COLORS.white,
+    backgroundColor: COLORS.background,
   },
   safe: {
     flex: 1,
-    backgroundColor: COLORS.white,
+    backgroundColor: COLORS.background,
   },
   flex: {
     flex: 1,

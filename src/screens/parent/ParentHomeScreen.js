@@ -1,9 +1,11 @@
-// PARENT HOME SCREEN - the first screen after login (Parent Mode).
-// Top to bottom: greeting + this week's numbers, the "Open Child Mode" hero card for the chosen
-// child, the compact list of children (tap to choose, ⋯ for View progress / Edit / Delete),
-// "Add another child" and the "Explore KidBuddy" preview card.
-// Plan, Progress, Settings and Log out live in the drawer opened by ☰ in the header.
-// The pieces are in ./components/.
+// PARENT HOME SCREEN - the first screen after login (Parent Mode), in the inspo look:
+//   top     "Good morning, Sarah 👋" + the big purple title "Who is learning today?" + the chosen child's buddy
+//   sheet   (the rounded pale panel) this week's two numbers (pastel stat tiles), the "Open Child Mode"
+//           hero card, the children as white cards with a letters progress bar (tap = choose, ⋯ = View
+//           Edit / Delete; progress is the Progress tab), and two pastel tiles: "Add a child" (mint) and "Explore KidBuddy" (peach).
+// Plan, Progress and Settings ("Me") are in the bottom bar (ParentTabBar); Log out is in Settings.
+// (The old ☰ parent menu was removed on 2026-11-21.)
+// The pieces are in ./components/ and shared/components/ (PageTitle, Sheet, StatTile, PastelTile).
 
 import React, { useCallback, useState } from 'react';
 import { Alert, StyleSheet, View } from 'react-native';
@@ -11,28 +13,30 @@ import { useFocusEffect } from '@react-navigation/native';
 import Text from '../../shared/components/AppText';
 import Screen from '../../shared/components/Screen';
 import FadeInView from '../../shared/components/FadeInView';
-import ParentGreeting from './components/ParentGreeting';
+import PageTitle from '../../shared/components/PageTitle';
+import Sheet from '../../shared/components/Sheet';
+import StatTile from '../../shared/components/StatTile';
+import PastelTile from '../../shared/components/PastelTile';
+import Mascot from '../../shared/components/Mascot';
 import OpenChildModeCard from './components/OpenChildModeCard';
 import ChildList from './components/ChildList';
 import ChildActionsMenu from './components/ChildActionsMenu';
-import ExploreCard from './components/ExploreCard';
-import ParentDrawer from './components/ParentDrawer';
 import { useAuth } from '../../app/context/AuthContext';
 import { useLanguage } from '../../app/context/LanguageContext';
 import { useChild } from '../../app/store/useChild';
 import { usePreview } from '../../app/store/usePreview';
-import { goToChildHome, goToLogIn, goToProfilePicker, goToProgress } from '../../app/navigation/helpers';
+import { goToChildHome, goToProfilePicker } from '../../app/navigation/helpers';
 import { translate } from '../../shared/i18n/translate';
 import { weekTotals } from '../../shared/utils/progress';
-import { CALM, FONTS } from '../../shared/theme/theme';
+import { getGreeting } from '../../shared/utils/greeting';
+import { CALM, FONTS, PALETTE } from '../../shared/theme/theme';
 
 export default function ParentHomeScreen({ navigation }) {
-  const { user, logOut } = useAuth();
+  const { user } = useAuth();
   useLanguage(); // draw again when the language changes (the date is built in code)
   const { childProfiles, activeChild, deleteChild } = useChild();
   const { startPreview, endPreview } = usePreview();
 
-  const [drawerOpen, setDrawerOpen] = useState(false);
   const [menuChild, setMenuChild] = useState(null);
   const [chosenId, setChosenId] = useState(null);
 
@@ -60,8 +64,6 @@ export default function ParentHomeScreen({ navigation }) {
     stars += week.stars;
   });
 
-  const openDrawer = useCallback(() => setDrawerOpen(true), []);
-
   function confirmDelete(child) {
     Alert.alert(
       translate('Delete {name}?', { name: child.name }),
@@ -73,39 +75,34 @@ export default function ParentHomeScreen({ navigation }) {
     );
   }
 
-  function confirmLogOut() {
-    Alert.alert(translate('Log out?'), translate('You can log back in with your email and password.'), [
-      { text: translate('Cancel'), style: 'cancel' },
-      {
-        text: translate('Log out'),
-        style: 'destructive',
-        onPress: async () => {
-          await logOut();
-          goToLogIn(navigation);
-        },
-      },
-    ]);
-  }
-
   function explore() {
     startPreview();
     goToChildHome(navigation);
   }
 
   return (
-    <Screen scroll mode="parent" background={CALM.background} onMenuPress={openDrawer}>
-      <View style={styles.body}>
-        <FadeInView index={0}>
-          <ParentGreeting name={firstName} sessions={sessions} stars={stars} />
+    <Screen scroll mode="parent">
+      <FadeInView index={0}>
+        <PageTitle
+          eyebrow={`${translate(getGreeting().text.replace('!', ''))}, ${firstName} 👋`}
+          title="Who is learning today?"
+          avatar={chosen ? chosen.avatar : undefined}
+        />
+      </FadeInView>
+
+      <Sheet>
+        <FadeInView index={1} style={styles.stats}>
+          <StatTile value={sessions} label="Sessions this week" iconName="book-open-page-variant" color={PALETTE.pastelMint} />
+          <StatTile value={stars} label="Stars this week" iconName="star" color={PALETTE.pastelYellow} />
         </FadeInView>
 
         {chosen && (
-          <FadeInView index={1} style={styles.section}>
+          <FadeInView index={2} style={styles.section}>
             <OpenChildModeCard child={chosen} onOpen={() => goToProfilePicker(navigation, chosen.id)} />
           </FadeInView>
         )}
 
-        <FadeInView index={2} style={styles.section}>
+        <FadeInView index={3} style={styles.section}>
           <Text style={styles.sectionTitle}>Your children</Text>
           {childProfiles.length === 0 ? (
             <Text style={styles.empty}>No child profiles yet. Add one to start learning together.</Text>
@@ -117,48 +114,65 @@ export default function ParentHomeScreen({ navigation }) {
             selectedId={chosen ? chosen.id : null}
             onSelect={setChosenId}
             onMore={setMenuChild}
-            onAdd={() => navigation.navigate('CreateChildProfile')}
           />
         </FadeInView>
 
-        <FadeInView index={3} style={styles.section}>
-          <ExploreCard onPress={explore} />
+        {/* two pastel tiles, like "Add a new hobby" in the inspo */}
+        <FadeInView index={4} style={styles.tiles}>
+          <PastelTile
+            title={childProfiles.length === 0 ? 'Add a child' : 'Add another child'}
+            iconName="account-plus"
+            color={PALETTE.pastelMint}
+            onPress={() => navigation.navigate('CreateChildProfile')}
+          >
+            <View style={styles.tileMascot} pointerEvents="none">
+              <Mascot size={58} avatar="panda" />
+            </View>
+          </PastelTile>
+          <PastelTile
+            title="Explore KidBuddy"
+            subtitle="Try every activity. Nothing is saved."
+            iconName="compass-outline"
+            color={PALETTE.blushPeach}
+            onPress={explore}
+          />
         </FadeInView>
-      </View>
+      </Sheet>
 
       <ChildActionsMenu
         child={menuChild}
         onClose={() => setMenuChild(null)}
-        onProgress={(child) => goToProgress(navigation, child.id)}
         onEdit={(child) => navigation.navigate('EditProfile', { childId: child.id })}
         onDelete={confirmDelete}
       />
 
-      <ParentDrawer
-        visible={drawerOpen}
-        onClose={() => setDrawerOpen(false)}
-        parentName={user ? user.name : ''}
-        onNavigate={(screen) => navigation.navigate(screen)}
-        onLogout={confirmLogOut}
-      />
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  body: {
-    flex: 1,
-    paddingTop: 6,
-    paddingBottom: 12,
+  stats: {
+    flexDirection: 'row',
+    gap: 12,
   },
   section: {
-    marginTop: 20,
+    marginTop: 18,
+  },
+  tiles: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 6,
+  },
+  tileMascot: {
+    position: 'absolute',
+    end: 8,
+    top: 8,
   },
   sectionTitle: {
     marginBottom: 6,
     fontFamily: FONTS.nunitoBlack,
     fontSize: 18,
-    color: CALM.text,
+    color: CALM.heading,
   },
   hint: {
     marginBottom: 10,

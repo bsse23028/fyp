@@ -53,7 +53,9 @@
   because SDK 58 does not bundle it). Lottie: `lottie-react-native` (I added it). Camera/mic: `expo-camera`.
 - Fonts: Nunito (kids' screens), Inter (forms), Noto Nastaliq Urdu.
 - Entry: `index.ts` → `App.js`. `tsconfig.json` exists but the app is JS.
-- Backend address: `API_BASE_URL` in `src/shared/config.js` (the PC's Wi-Fi IP, port 4000). `DEMO_MODE = true`
+- Backend address: `API_BASE_URL` in `src/shared/config.js` is now FOUND AUTOMATICALLY from Expo's
+  `Constants.expoConfig.hostUri` (the PC's IP that Expo Go loads from) + `API_PORT` 4000; `USE_FIXED_ADDRESS` /
+  `FIXED_ADDRESS` = manual override / fallback. Package: `expo-constants ~58.0.16` (added 2026-11-21). `DEMO_MODE = true`
   (the email code is printed in the backend terminal).
 
 ## 4. Folder map
@@ -70,7 +72,7 @@ src/screens/                 onboarding (Splash, Welcome+WelcomeAlt, Onboarding)
 src/modules/                 learning modules; index.js lists them (name, reducer, reducers, load, screens[{name,component,options}], translations)
   english/                   the English module (see section 7); has its own README.md and i18n/ur.json
 src/shared/                  components/, theme/ (theme.js, avatars.js, fonts.js), utils/, i18n/ (ur.json + translate.js), api/client.js, config.js
-assets/images/avatars/       mascot-<rabbit|wolf|bear|panda>.png + logo-*.png
+assets/images/avatars/       mascot-<id>.png + logo-<id>.png for the 11 buddies in shared/theme/avatars.js
 assets/sounds/               6 generated WAVs (pop, whoosh, boing, sparkle, tada, cheer-bell)
 assets/lottie/               README.md only; the user will add Lottie JSON files (none yet)
 scripts/makeSounds.js        generates the WAVs: `node scripts/makeSounds.js`
@@ -81,6 +83,11 @@ scripts/makeSounds.js        generates the WAVs: `node scripts/makeSounds.js`
   `useAuth()`, `useChild()`, `useChildOptions()`, `usePreview()`.
 - **Modules plug in** via `src/modules/index.js`: the store picks up `reducer` (+ optional `reducers` map for extra
   slices, e.g. `englishAlphabet`) and `load`; the navigator picks up `screens` (optional `options`, e.g. `{ animation: 'fade' }`).
+  PUBLIC DOOR (2026-11-21): `entry` (one screen Child Home opens), `progress(state, childId)` -> { title, done, total, text },
+  `parentTools` (Plan cards). App code uses ONLY `moduleEntry` / `selectModuleProgress` (+ `sameProgress` for useSelector) /
+  `MODULE_PARENT_TOOLS` and never imports from inside a module folder (checked: no such import left).
+- **App areas** (2026-11-21): `src/screens/<area>/index.js` lists that area's screens (`SCREENS`); `src/screens/index.js` =
+  `APP_SCREENS`; AppNavigator registers APP_SCREENS + MODULE_SCREENS and imports no screen itself. New screen = one line in its area index.
 - **Header:** ONE `FixedHeader` above the navigator. `<Screen mode="child|parent" onMenuPress background>` tells it what to show.
   Child Mode header: logo (tap = My Buddy), 🏠, 🔒 Parent (PIN). Parent Home has a ☰ (HeaderContext keeps the handler in a ref).
 - **Translations:** `AppText` translates its string children; `translate(text, params)` for non-Text; `{name}` patterns.
@@ -92,9 +99,20 @@ scripts/makeSounds.js        generates the WAVs: `node scripts/makeSounds.js`
   3. the English selectors use the built-in `readingTopics.json`.
   Not persisted; switched off by logout, an expired login, and focusing Parent Home. The yellow `PreviewBanner` has
   "Exit preview" (asks the PIN when the parent has one).
+- **Colours (rebrand 2026-11-20):** `PALETTE` in `theme.js` = the user's KidBuddy palette (Lavender Mist bg, Blush Peach,
+  Soft Pink, KidBuddy Purple #8A33CF, Coral, Mint, Sunny, pastels, Deep Plum text). EVERY other token (`COLORS`, `CALM`,
+  `CALM_ACCENTS`, `CALM_SUCCESS`, `GLASS`, shadows) points at PALETTE. `BUTTON` = filled main buttons (Coral Deep, because white
+  on light coral is hard to read). `COLORS.background` = page bg (Screen.js + AppNavigator); `COLORS.white` = cards/header.
+  RULE from the user: backgrounds are NEVER dark; one background per screen; at most 2-3 pastel tiles in view.
+  Step 2 done: KidScene skies use PALETTE (day/lesson = lavender + mint hills, spelling = blush peach, sunset = soft
+  pink/peach), Child Home shapes mint/peach/yellow, games, spelling, tracing, header lines, toggle. Left on purpose:
+  `storyOptions.js` colour choices (real named colours), letter PNG art, mascot fur in buddyConfig, eye whites.
+  Step 3: `shared/theme/screenColors.js` = ONE list: route name -> { page, header } (Lavender Mist main, Blush Peach
+  log-in/welcome-back/ProfilePicker, Soft Pink top bar on detail screens, scene screens: the bar = the sky top).
+  Screen.js uses `page` unless a `background` prop is given; FixedHeader/AppHeader + the Android status bar use `header`.
+  `COLORS.heading` / `CALM.heading` = purple for big titles (globalStyles.heading uses it). SoftShapes = mint/peach/pink.
 - **Calm design tokens** in `theme.js`: `CALM`, `CALM_RADIUS`, `CALM_SPACING`, `CALM_SIZES`, `CALM_SHADOW`, `CALM_ACCENTS`
-  (letter colours), `CALM_SUCCESS`. The old tokens (`COLORS` …) stay for older screens. Warm off-white background, soft teal,
-  no harsh red, tap targets ≥ 56.
+  (letter colours), `CALM_SUCCESS`. The old tokens (`COLORS` …) stay for older screens. Tap targets ≥ 56.
 - **Motion** `shared/utils/motion.js`: `ANIMATIONS_ENABLED` / `setAnimationsEnabled`; `motion.timing/spring/loop/sequence/parallel/delay/call`
   (off = instant, loops never start); hooks `useEntrance`, `useScaleIn`, `useIdleBob`, `useIdleSway`, `useDrift({active})`,
   `usePulse(active)`, `useFlip(trigger)`; helpers `hop`, `wiggle`, `wiggleRotate`, `pressIn/pressOut`, `animateVisibility`.
@@ -145,10 +163,22 @@ scripts/makeSounds.js        generates the WAVs: `node scripts/makeSounds.js`
   `active` (pauses the idle sway; `useIdleSway({ active })` in motion.js).
 - Packages added: `expo-blur ~58.0.6`, `expo-linear-gradient ~58.0.4` (both in Expo Go).
 
+## 5c. Inspo look (2026-11-21, the user's "Nudge-like" inspo: purple title + buddy, pale sheet, pastel tiles)
+- Sizes in `shared/theme/designConfig.js` (`DESIGN`). Shared pieces in `shared/components/`: `PageTitle` (eyebrow + big
+  purple title + bobbing buddy, optional `tag`), `Sheet` (rounded pale-lilac panel to the phone edges), `PastelTile`
+  (grid tile, half width), `StatTile` (big number), `ProgressCard` (white card + optional `ProgressBar`), `ProgressBar`,
+  `Tag` (pill), `ProgressRing` (svg arc, open at the bottom). `SegmentedControl` = inspo pill tabs (white pill on lilac).
+- The user chose: a bottom tab bar in PARENT MODE ONLY. Child Mode keeps no bar. Built (step 2):
+  `shared/components/ParentTabBar.js` (under the navigator in AppNavigator.js; shows only on the screens in
+  `app/navigation/parentTabs.js`: ParentHome, ParentPlan, ParentProgress, ParentSettings = "Me"). Home = navigate back,
+  tab -> tab = StackActions.replace. Screen.js drops its bottom safe-area edge on those screens. The ☰ drawer was REMOVED (2026-11-21, ParentDrawer.js deleted); Log out is only in Settings.
+- Steps: 1 pieces + Parent Home (done) · 2 parent tab bar + Plan + Settings · 3 detail screens (Progress like "Reading"/
+  "Atomic Habits") · 4 Child Home + English hubs · 5 onboarding + login.
+
 ## 6. Parent side (redesigned)
 - **ParentHome** = greeting + week stats, `OpenChildModeCard` (the hero card → ProfilePicker with the chosen child preselected),
   `ChildList` (tap = choose, ⋯ = `ChildActionsMenu`: progress / edit / delete), "Add another child", `ExploreCard` (starts Preview).
-  ☰ → `ParentDrawer` (Plan, Progress, Settings, Log out at the bottom). Components are in `src/screens/parent/components/`.
+  (The ☰ ParentDrawer was removed 2026-11-21: Plan/Progress/Me are in the bottom bar, Log out in Settings.) Components are in `src/screens/parent/components/`.
 - Splash/Welcome use `SoftShapes` (calm drifting bubbles). Welcome has a "Sign up / Log in as Therapist" button → `ComingSoonModal` (not built yet).
 
 ## 7. English module → Alphabets (the main current work)
@@ -245,8 +275,12 @@ scripts/makeSounds.js        generates the WAVs: `node scripts/makeSounds.js`
   - Idle sway. A tap says "Hey! I am your buddy!" the first time, then friendly lines. Drag → waddles home.
   - Moods: hop, happy, think, cheer, dance, wave, walk. A ref gives `walkTo(x, y, onArrive)`, `walkToCenter`, `wave`.
   - In lessons: walks in from the left + "Hi!", idle "think" after 8s (at most twice), and on Result walks to the centre → cheer → wave.
-  - Mascot notes: rabbit, bear = arm already raised; wolf = suit, paws down; panda = holds backpack straps.
-    The bear PNG has a faint "pngtree" watermark (licence to check).
+  - Mascots (rebrand 2026-11-20, 11 buddies): rabbit (Bunny), bear, panda, dino, elephant, fox, kitty, koala, lion,
+    penguin, puppy. NO wolf any more (old 'wolf' children fall back to the rabbit). All share one template: 900x1260
+    canvas (elephant 1140x1260), right paw raised, feet at the same height; buddyConfig.js uses one `shape(width, fur)`.
+    Logos are 840 tall with different widths: `logoRatio` per avatar; the header caps them at `HEADER_LOGO_MAX_WIDTH`.
+    The server's avatar list (backend seed) still has only panda/rabbit/wolf/bear, so the 8 new ones stay hidden in the
+    picker until the backend adds them (frontend can't). Source art: Downloads\KidBuddy_Mascots (also has *_Head.png).
 
 ## 9. How I work in this repo (practical notes)
 - **Check that it builds** before reporting:
@@ -299,3 +333,26 @@ scripts/makeSounds.js        generates the WAVs: `node scripts/makeSounds.js`
 - 2026-11-16: Alphabet upgrade STEP 3: character voices (voiceConfig.js) + 10 generated cartoon sounds wired to buddy, picture friends, Look, bubbles, toggle, tracing. No packages. Step 4 (games) waits for "continue".
 - 2026-11-16: Alphabet upgrade STEP 4: Letter games (LetterGames, BubblePopGame, MatchPairsGame, RisingBubble, MemoryCard, gamesConfig). No packages. Step 5 (optional Remotion letter videos) waits for "continue".
 - 2026-11-16: Alphabet upgrade STEP 5: Remotion project `video/` (LetterStory), rendered A, `expo-video` installed, StoryList + LetterStory screens, metro.config.js ignores video/, README 5l. All 5 steps of the upgrade done.
+- 2026-11-20: Fix "Unable to resolve react-native-worklets": the copy in node_modules was broken (`src/` had 1 file, `src/index.ts` missing). Deleted `node_modules/react-native-worklets` + `npm install` (same version 0.13.0). No code or package.json changes. If it happens again, do the same.
+- 2026-11-20: Rebrand mascots + logos: 11 new buddies in assets/images/avatars (wolf removed), avatars.js (ratio + logoRatio + colours), BrandLogo per-avatar ratio + header max width, buddyConfig `shape()` template, voices, Urdu names. Needs the backend avatar list updated for the 8 new ids. Untested on a device.
+- 2026-11-20: New colour palette STEP 1: `PALETTE` + `BUTTON` in theme.js, all theme tokens remapped, lavender page background (Screen.js, AppNavigator), Button/SoftButton coral, brown shadows -> plum. Step 2 (hard-coded colours: KidScene skies, games, trace) + step 3 (arrange screens like the user's inspo, e.g. peach login) wait for "continue" / the user's inspo.
+- 2026-11-20: Palette STEP 2: hard-coded colours moved to the palette in ~20 files (kidSceneConfig imports PALETTE; homeConfig, games, spellingConfig, trace, AppHeader, Toggle, OtpInput, TextField, StarRow, ParentPlan cards ...). Step 3 (arrange screens like the inspo) waits for the user's inspo.
+- 2026-11-20: Palette STEP 3, batch A (all screens' backgrounds + onboarding/auth): `screenColors.js` (every route), Screen/FixedHeader/AppHeader/AppNavigator use it, heading tokens, Splash/Welcome/Onboarding/Login tweaks, SoftShapes. Batches B (parent), C (child/profile/account), D (English module) wait for "continue".
+- 2026-11-20: Palette STEP 3 batch B (parent): purple headings on Parent Home/Plan/Progress/Settings, Explore card mint, streak badge peach, Plan hero pastel lilac (no full purple block), Plan icon tiles = category pastels, Progress chart Sunny Yellow bars, white cards. Batches C + D wait for "continue".
+- 2026-11-20: Palette STEP 3 batch C (child/profile/account): new `CATEGORY` tokens in theme.js (reading pink, games yellow, art lilac, learning green, calm mint, music blue); Child Home module cards use them; ProfilePicker/EditAvatar: purple title + selection, coral Continue/Save with white text; purple headings on profile + account screens. Batch D (English module) waits for "continue".
+- 2026-11-20: Palette STEP 3 batch D (English module): EnglishHub + LetterGames tiles use `CATEGORY`, WordsHub tiles = palette pastels, purple titles (SectionHeader, hubs, spelling list, reading screens, Struggle Words), reading highlights/dots/wave purple, reading buttons + mic = `BUTTON` coral. README "Colours" section added. The whole palette task (steps 1-3, all screens) is done; untested on a device.
+- 2026-11-20: "Can't reach the KidBuddy server" on Sign Up: the PC's Wi-Fi IP changed; `API_BASE_URL` in config.js 10.54.198.119 -> 192.168.1.67 (backend /health answers ok). Check `ipconfig` again whenever this message appears.
+- 2026-11-21: Same error at another house ("NoRouteToHostException"): new Wi-Fi IP 192.168.1.21 -> config.js updated; the backend was also NOT running (user must start it: backend/ npm start).
+- 2026-11-21: config.js finds the PC's address by itself (expo-constants hostUri), so changing Wi-Fi no longer needs an edit. Installed `expo-constants` with `npx expo install`. Untested on a device.
+- 2026-11-21: Inspo redesign STEP 1: designConfig.js + PageTitle, Sheet, PastelTile, StatTile, ProgressCard, ProgressBar, Tag, ProgressRing; SegmentedControl restyled as pill tabs; Parent Home rebuilt (title + buddy, sheet, stat tiles, child cards with letters progress bar, "Add a child" mint + "Explore" peach tiles). ParentGreeting.js / ExploreCard.js are now unused (kept). Urdu strings added. Step 2 waits for "continue".
+- 2026-11-21: Inspo STEP 2: parent bottom tab bar (ParentTabBar + parentTabs.js), Plan rebuilt (PageTitle "Psst, What's the plan this week?", mint hero, ProgressCards, "Soon" tags), Settings rebuilt (title + sheet, everything as ProgressCards, pill-tab language). Step 3 (detail screens) waits for "continue".
+- 2026-11-21: Inspo STEP 3: `DetailHeader` (tag + big buddy + title + pill + caption, DESIGN.DETAIL_MASCOT), `PINK_DETAIL` in screenColors (ParentProgress, EditProfile, ParentProfile = whole top Soft Pink). Progress rebuilt (header + child chips, Highscores stat tiles, alphabet ProgressRing = letters learned /26, yellow Read Along chart, activity cards, coral share button). Edit Profile + My Account rebuilt with header + sheet + ProgressCards. Forms (ChangePassword, UpdatePin, EditChildSection, PersonalizeStories, StruggleWords) NOT restructured yet. Step 4 (Child Home + English hubs) waits for "continue".
+- 2026-11-21: Inspo STEP 4: Child Home: `HOME.SHOW_SHAPES` false (no drifting shapes), `HOME.USE_SHEET` (modules on the Sheet, title "What shall we learn?"), ModuleCard = pastel tile (no glass/gradient, white disc, purple name; logic unchanged). EnglishHub = 2-column PastelTile grid on a Sheet; LetterGames + WordsHub tiles on a Sheet; those 3 hubs no longer use scene="day" (screenColors -> MAIN). PastelTile fix: width now on an outer View (+ `iconNode`, `minHeight` props). Lessons/games/tracing keep their animated scenes. Step 5 (onboarding + login) waits for "continue".
+- 2026-11-21: Inspo STEP 5 (last): RADIUS button 20 / input 18, SIZES button 54 / input 52; globalStyles.heading = Nunito Black; TextField label Nunito; `AuthHeading` shows the bobbing buddy on top (`mascot` prop, DESIGN.AUTH_MASCOT) so `footerMascot` was removed from the 5 auth screens; Log In title "Hey there, you're back!"; Welcome v1 = left-aligned "Welcome to KidBuddy / Let's grow together!" + buttons + big buddy peeking up from the bottom (DESIGN.WELCOME_MASCOT*). README "Screen design" section. The whole inspo redesign (steps 1-5) is done; untested on a device.
+- 2026-11-21: Welcome v1 changed on the user's request: buddy on the LEFT (DESIGN.WELCOME_MASCOT 0.22 of the height, bobbing) with the text on its right (title 30), buttons + small print at the BOTTOM, "Get Started" = new `PALETTE.deepPurple` #4A1D96 (only on Welcome; other main buttons stay `BUTTON` coral). WELCOME_MASCOT_HIDDEN removed.
+- 2026-11-21: Log In like Welcome (user's request): screenColors LogIn -> MAIN (lavender, was peach), `<SoftShapes />` added, Log In button = PALETTE.deepPurple. Forgot/reset password screens are still Blush Peach.
+- 2026-11-21: ForgotPassword, PasswordOtp, ResetPassword now match Log In (screenColors MAIN, SoftShapes, deepPurple main button). VerifyCodeScreen is shared, so the sign-up email-code screen (EmailVerification) got the bubbles + purple button too. Blush Peach is now only used by ProfilePicker.
+- 2026-11-21: ALL main buttons deep purple: `BUTTON.fill` = PALETTE.deepPurple (pressed = purple). Flat inspo icons instead of emoji: new `shared/components/AppIcon.js` (MaterialCommunityIcons from @expo/vector-icons, no new package); `iconName` prop on PastelTile / StatTile / ProgressCard (+ `iconTint` on ProgressCard); used on Parent Home, Plan, Settings, My account, Progress, Edit profile, ⋯ menu, ☰ drawer, Child Home module cards (`iconName` in MODULES, ModuleCard falls back to emoji), English hub, Letter games, Words hub. Lesson/picture emoji (🍎 ...) are content and unchanged. Tab bar active colour stays coral.
+- 2026-11-21: Removed the ☰ parent menu (user's request): ParentDrawer.js deleted, Parent Home no longer passes onMenuPress / drawer state / its own log-out. The ☰ support in AppHeader/HeaderContext stays (unused). Log out = Settings only.
+- 2026-11-21: Modular + one-path flows, STEP 1 (flows). The user chose: (1) Child Home has NO quick-start bar (GlassBar.js + QUICK_START + BAR_* deleted), English -> tiles is the only way in; (2) Read Along = English -> Sentences only (removed from WordsHub); (3) child card ⋯ = Edit profile + Delete only, progress = the Progress tab only (goToProgress removed), Settings has no Children list; (4) Parent PIN = Settings -> Safety only (removed from My account). Deleted unreachable/unused: WelcomeAltScreen (+ its route), ExploreCard.js, ParentGreeting.js, BouncyButton.js, MascotSpeech.js. Step 2 (modules: routes file, area screen lists, English public API) waits for 'continue'.
+- 2026-11-21: Modular STEP 2: area screen lists (8 x screens/<area>/index.js + screens/index.js), AppNavigator uses them, English public door (entry, progress, parentTools in modules/english/index.js; moduleEntry / selectModuleProgress / sameProgress / MODULE_PARENT_TOOLS in modules/index.js). Child Home, ChildList, Progress (one ring per module) and Plan (module cards) use the door. 43 screens, no duplicates; README sections 'How the app is split' + 'One way into every screen'. Done; untested on a device.

@@ -95,7 +95,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: -9,
     left: -9,
-    backgroundColor: '#FFE58A',
+    backgroundColor: '#FBEBA5',
   },
   bubble: {
     alignItems: 'center',
