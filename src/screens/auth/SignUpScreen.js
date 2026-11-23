@@ -1,4 +1,7 @@
 // SIGN UP SCREEN - "Create your account" (parent details only).
+// Laid out to fit on ONE phone screen without scrolling: the title + sentence on the left with the rabbit
+// on the right (AuthHeading side), the password rules in two columns (PasswordRules compact), small gaps.
+// (It can still scroll while the keyboard is open, so the Create Account button is always reachable.)
 //
 // What it holds:
 //   - state: name, email, password, `submitted`, formError, loading
@@ -64,7 +67,7 @@ export default function SignUpScreen({ navigation }) {
   return (
     <Screen scroll>
       <View style={styles.body}>
-        <AuthHeading title="Create your account" subtitle="Start with parent details. You’ll add your child next." />
+        <AuthHeading side title="Create your account" subtitle="Start with parent details. You’ll add your child next." />
 
         <TextField
           label="Your name"
@@ -94,7 +97,7 @@ export default function SignUpScreen({ navigation }) {
           returnKeyType="next"
           onSubmitEditing={() => passwordRef.current && passwordRef.current.focus()}
           error={submitted ? emailProblem : ''}
-          style={globalStyles.fieldGap}
+          style={styles.fieldGap}
         />
 
         <TextField
@@ -110,10 +113,10 @@ export default function SignUpScreen({ navigation }) {
           returnKeyType="done"
           onSubmitEditing={handleCreateAccount}
           error={submitted ? passwordProblem : ''}
-          style={globalStyles.fieldGap}
+          style={styles.fieldGap}
         />
 
-        <PasswordRules password={password} style={styles.rules} />
+        <PasswordRules compact password={password} style={styles.rules} />
 
         <Text style={[globalStyles.smallPrint, styles.hint]}>
           By continuing, you agree to the privacy policy and terms.
@@ -143,22 +146,26 @@ const styles = StyleSheet.create({
   body: {
     flex: 1,
   },
+  // the small gaps that let the whole form fit on one screen
   firstField: {
-    marginTop: 20,
-  },
-  rules: {
-    marginTop: 12,
-  },
-  hint: {
-    marginTop: 12,
-  },
-  formError: {
     marginTop: 14,
   },
+  fieldGap: {
+    marginTop: 12,
+  },
+  rules: {
+    marginTop: 10,
+  },
+  hint: {
+    marginTop: 8,
+  },
+  formError: {
+    marginTop: 10,
+  },
   button: {
-    marginTop: 18,
+    marginTop: 12,
   },
   switchText: {
-    marginTop: 18,
+    marginTop: 12,
   },
 });

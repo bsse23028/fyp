@@ -77,7 +77,7 @@ const styles = StyleSheet.create({
   },
   // Same size as the boxes, but invisible.
   hiddenInput: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     opacity: 0,
   },
 });

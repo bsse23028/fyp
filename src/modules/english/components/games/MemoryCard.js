@@ -70,7 +70,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   glow: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     margin: -7,
     backgroundColor: '#FBEBA5',
   },

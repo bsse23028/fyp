@@ -141,7 +141,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   pausedLayer: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: 'rgba(61, 31, 92, 0.25)',

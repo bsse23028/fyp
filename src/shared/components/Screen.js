@@ -46,6 +46,7 @@ export default function Screen({
   background, // optional: a background colour (when not given: this screen's colour in theme/screenColors.js)
   onMenuPress, // optional: shows a ☰ menu button in the header (Parent Home)
   scene, // optional: an animated KidScene background ('day' | 'lesson' | 'spelling' | 'sunset')
+  headerColor, // optional: the top bar's colour for this screen right now (wins over theme/screenColors.js)
 }) {
   const route = useRoute();
   const { setConfig, removeConfig, setMenuHandler } = useHeaderConfig();
@@ -57,8 +58,8 @@ export default function Screen({
   // The header is NOT drawn here any more: it is one fixed header above the navigator
   // (see FixedHeader.js). This screen only tells it what to show.
   useLayoutEffect(() => {
-    setConfig(route.key, { mode, avatar, menu: hasMenu });
-  }, [route.key, mode, avatar, hasMenu]);
+    setConfig(route.key, { mode, avatar, menu: hasMenu, headerColor });
+  }, [route.key, mode, avatar, hasMenu, headerColor]);
 
   useLayoutEffect(() => {
     setMenuHandler(route.key, onMenuPress || null);

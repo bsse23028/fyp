@@ -6,8 +6,9 @@
 //   StarsChip       a small glass chip with the stars earned today
 //   PopCard         the greeting card (tap the speech bubble) and the "Stars today" card (tap the chip).
 //                   Only one card is open at a time; tap anywhere else to close it.
-//   ModuleGrid      "What shall we learn?": six big pastel tiles (ModuleCard), icons from moduleIcons.js.
-//                   This is the ONLY way into a module (English -> its own hub); there is no quick-start bar.
+//   ModuleGrid      "What shall we learn?": the six learning GROUPS of the FYP proposal (learningGroups.js) as big
+//                   pastel tiles (ModuleCard). A tile opens its module hub, or its group page with the proposal
+//                   modules ("Coming soon" until built). The ONLY way into a module; there is no quick-start bar.
 //                   A tap: the buddy says the module's name and the module opens a moment later.
 //                   A module that is not built yet: the card wobbles shyly and the buddy says "Coming soon!".
 //
@@ -33,22 +34,25 @@ import { useChild } from '../../app/store/useChild';
 import { usePreview } from '../../app/store/usePreview';
 import { useLanguage } from '../../app/context/LanguageContext';
 import { getGreeting } from '../../shared/utils/greeting';
-import { moduleEntry } from '../../modules';
-import { CATEGORY, COLORS, FONTS } from '../../shared/theme/theme';
+import { COLORS, FONTS } from '../../shared/theme/theme';
+import { LEARNING_GROUPS, groupIsBuilt, groupTarget } from './learningGroups';
 import { HOME } from './homeConfig';
 
-// The six modules. `id` = its name in moduleIcons.js (and in src/modules), `screen` = the module's ONE entry
-// screen, asked from the module itself (moduleEntry); null = not built yet ("Coming soon"),
-// `iconName` = the flat icon drawn while it has no picture (AppIcon), `icon` = an emoji used if iconName is empty,
-// `accent` = its soft colour family (CATEGORY in theme.js).
-const MODULES = [
-  { id: 'english', label: 'English', accent: CATEGORY.reading, iconName: 'book-open-variant', icon: '📖', screen: moduleEntry('english') },
-  { id: 'numbers', label: 'Numbers', accent: CATEGORY.learning, iconName: 'numeric', icon: '🔢', screen: moduleEntry('numbers') },
-  { id: 'feelings', label: 'Feelings', accent: CATEGORY.calm, iconName: 'heart', icon: '💛', screen: moduleEntry('feelings') },
-  { id: 'talk', label: 'Talk', accent: CATEGORY.art, iconName: 'chat', icon: '💬', screen: moduleEntry('talk') },
-  { id: 'myday', label: 'My Day', accent: CATEGORY.games, iconName: 'weather-sunny', icon: '☀️', screen: moduleEntry('myday') },
-  { id: 'sounds', label: 'Sounds', accent: CATEGORY.music, iconName: 'microphone', icon: '🎤', screen: moduleEntry('sounds') },
-];
+// The six tiles = the six learning GROUPS of the FYP proposal (learningGroups.js), in the proposal's order.
+// Each tile opens ONE screen: its learning module's hub (Reading & Writing -> English, Talk -> the AAC board)
+// or its group page listing its modules ("Coming soon" while they are not built). `soon` = nothing built yet.
+const MODULES = LEARNING_GROUPS.map((group) => {
+  const target = groupTarget(group);
+  return {
+    id: group.id,
+    label: group.label,
+    accent: group.accent,
+    iconName: group.iconName,
+    screen: target.screen,
+    params: target.params,
+    soon: !groupIsBuilt(group),
+  };
+});
 
 export default function ChildHomeScreen({ navigation }) {
   const { activeChild } = useChild();
@@ -95,7 +99,7 @@ export default function ChildHomeScreen({ navigation }) {
     setBuddyLine((line) => ({ text: module.label, key: line.key + 1 }));
     // open it a moment later, so the squash and the hop are seen
     clearTimeout(openTimer.current);
-    openTimer.current = setTimeout(() => navigation.navigate(module.screen), HOME.CARD_NAV_DELAY);
+    openTimer.current = setTimeout(() => navigation.navigate(module.screen, module.params), HOME.CARD_NAV_DELAY);
   }
 
   // "What shall we learn?" + the module tiles (they sit on the pale sheet when HOME.USE_SHEET is true)

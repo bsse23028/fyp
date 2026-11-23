@@ -2,8 +2,8 @@
 // (Read src/modules/index.js to see how modules are plugged in.)
 //
 // Inside this folder:
-//   screens/   EnglishHub (Alphabets · Words · Sentences), AlphabetList, LetterLesson,
-//              WordsHub, ReadingTopics, ReadingLevel, ReadingAlong, ReadingYourTurn,
+//   screens/   EnglishHub (the proposal's Modules 1-5, data/englishSections.js), EnglishActivities (the
+//              activities of Module 3 or 4), AlphabetList, LetterLesson, ReadingTopics, ReadingLevel, ReadingAlong, ReadingYourTurn,
 //              ReadingSummary, StruggleWords, SpellingWords, SpellingGame (drag letters to spell a word)
 //   data/      readingTopics.json (DEMO_MODE fallback only; the real topics are in the
 //              database) · sampleStruggleWords.json
@@ -27,10 +27,10 @@ import { configureLetterAudio } from '../../shared/utils/letterAudio';
 import { LETTER_AUDIO } from './data/letterAudio';
 import { ENGLISH_MUSIC } from './data/englishMusic';
 import { getLetter } from './data/alphabetData';
+import { ENGLISH_PREVIEW_GUIDE } from './data/previewGuide';
 import EnglishHubScreen from './screens/EnglishHubScreen';
 import AlphabetListScreen from './screens/AlphabetListScreen';
 import LetterLessonScreen from './screens/LetterLessonScreen';
-import WordsHubScreen from './screens/WordsHubScreen';
 import ReadingTopicsScreen from './screens/ReadingTopicsScreen';
 import ReadingLevelScreen from './screens/ReadingLevelScreen';
 import ReadingAlongScreen from './screens/ReadingAlongScreen';
@@ -41,7 +41,7 @@ import SpellingWordsScreen from './screens/SpellingWordsScreen';
 import SpellingGameScreen from './screens/SpellingGameScreen';
 import TraceListScreen from './screens/TraceListScreen';
 import LetterTraceScreen from './screens/LetterTraceScreen';
-import LetterGamesScreen from './screens/LetterGamesScreen';
+import EnglishActivitiesScreen from './screens/EnglishActivitiesScreen';
 import BubblePopGameScreen from './screens/BubblePopGameScreen';
 import MatchPairsGameScreen from './screens/MatchPairsGameScreen';
 import StoryListScreen from './screens/StoryListScreen';
@@ -89,6 +89,7 @@ export default {
   // from the database: topics, levels, sentences, Urdu, and the child's custom topics.
   onChildSelected: (childId) => fetchReadingContent({ childId }),
   translations: ur,
+  previewGuide: ENGLISH_PREVIEW_GUIDE, // one sentence per screen for parents, only in the Preview strip
   music: ENGLISH_MUSIC, // the ABC song in the background of the English screens
   screens: [
     { name: 'EnglishHub', component: EnglishHubScreen, options: FADE },
@@ -96,12 +97,11 @@ export default {
     { name: 'LetterLesson', component: LetterLessonScreen, options: FADE },
     { name: 'TraceList', component: TraceListScreen, options: FADE },
     { name: 'LetterTrace', component: LetterTraceScreen, options: FADE },
-    { name: 'LetterGames', component: LetterGamesScreen, options: FADE },
+    { name: 'EnglishActivities', component: EnglishActivitiesScreen, options: FADE }, // the activities of proposal Module 3 or 4
     { name: 'BubblePopGame', component: BubblePopGameScreen, options: FADE },
     { name: 'MatchPairsGame', component: MatchPairsGameScreen, options: FADE },
     { name: 'StoryList', component: StoryListScreen, options: FADE },
     { name: 'LetterStory', component: LetterStoryScreen, options: FADE },
-    { name: 'WordsHub', component: WordsHubScreen },
     { name: 'ReadingTopics', component: ReadingTopicsScreen },
     { name: 'ReadingLevel', component: ReadingLevelScreen },
     { name: 'ReadingAlong', component: ReadingAlongScreen },

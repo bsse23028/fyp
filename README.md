@@ -126,6 +126,92 @@ Every part has ONE job and talks to the rest through ONE small door:
 | My account (name, password) | Me → your account card |
 | Struggle words | Plan → Struggle words (a card the English module adds) |
 | My Buddy | the logo in Child Mode |
+| AAC board (Talk) | Child Home → Talk |
+
+### Talk module: the AAC board (2026-11-23)
+`src/modules/talk/`: the child taps pictures to speak. It follows what speech therapists use worldwide:
+the **36 Universal Core words** (Project Core, UNC) in a **fixed 6 × 6 grid** (words never move), the
+**Modified Fitzgerald Key** colours (people yellow, actions green, describing blue, things orange, little words
+pink, questions purple) in soft KidBuddy pastels, **5 topic pages** (Food, Play, Feelings, People, Places),
+a **sentence strip** with Speak / delete / clear, English + Urdu voice. Pictures: **ARASAAC** pictograms in
+`assets/aac/` (CC BY-NC-SA, credit in Parent Settings; ids in `assets/aac/README.md`). Words + colours:
+`data/aacWords.js`; numbers: `aacConfig.js`.
+
+### The FYP proposal in the app (status of every requirement, 2026-11-23)
+The app follows the proposal *Group#02 · KidBuddy FYP Proposal* (11 modules in Table 1.1, requirements
+FR-01 to FR-53, priorities from the MoSCoW Table 2.3).
+
+**Child Home = 6 groups** (`src/screens/home/learningGroups.js`), each holding its proposal modules:
+
+| Group (Child Home tile) | Proposal modules inside | Status |
+|---|---|---|
+| Reading & Writing | 1 Read-Along · 2 Reading Assist · 3 Words & Phonics · 4 Spelling & Letter Sounds · 5 Handwriting | 1, 3, 4, 5 built (parts) · 2 Coming soon |
+| Speech Sounds | 6 Vowel & Phoneme Trainer (Urdu track) | Coming soon |
+| Feelings & Stories | 7 Emotion Recognition Trainer · 10 Social Stories | Coming soon |
+| Numbers | 8 Number Sense Studio | Coming soon |
+| Talk | 9 AAC Communication Board | Built |
+| My Day | 11 Visual Routines, Life Skills & Attention | Coming soon |
+
+**Built** = works in the app · **Partly** = a first version is in the app, the rest is later ·
+**Coming soon** = shown in the app with a "Coming soon" / "Soon" tag · **Later** = not shown in the app yet.
+
+| FR | Requirement (short) | Priority | Status | Where in the app |
+|---|---|---|---|---|
+| FR-01 | Parent register, log in, create child profile | Must | Built | Welcome → Sign Up / Log In → Create child profile |
+| FR-02 | "About My Child" profile | Must | Built | Home → child ⋯ → Edit profile → Personalize stories |
+| FR-03 | Invite / link / revoke a therapist | Must | Coming soon | Me → Therapist → Invite your therapist |
+| FR-04 | Therapist accounts, role-based access | Must | Coming soon | Welcome → "Sign up / Log in as Therapist" |
+| FR-05 | Closed child space, no ads / web / links | Must | Built | Child Mode (leave only with the Parent PIN) |
+| FR-06 | Safe-content controls: modules on/off, time limits, camera/mic | Must | Partly | Edit profile → Activities · Me → Permissions · Me → Daily time limit (Soon) |
+| FR-07 | English + Urdu, language per child | Must | Built | Edit profile → Basics · the header toggle |
+| FR-08 | Parent progress dashboard | Must | Partly | Progress tab (sessions, stars, streak, alphabet ring, calendar) |
+| FR-09 | Parent enters the therapist's goals | Must | Coming soon | Plan → Therapist targets |
+| FR-10 | Therapist assigns exercises, sees progress | Must | Later | (therapist interface) |
+| FR-11 | Targets re-order the modules' content | Must | Coming soon | Plan → Therapist targets |
+| FR-12 | Export / share a progress summary | Should | Coming soon | Me → Therapist → Share with therapist · Progress → Share report |
+| FR-13 | "Reinforcement tool, not a diagnosis / therapy" | Must | Built | Welcome ("Not a replacement for your therapist") |
+| FR-14 | Shared child model (struggle words, mastery, working memory) | Must | Partly | Struggle words on the server (Plan → Struggle words) · letter stars per child |
+| FR-15 | Personalise content from "About My Child" | Should | Later | (the answers are saved; using them in content comes later) |
+| FR-16 | One reward system + one companion character | Must | Partly | stars + the child's buddy everywhere · Progress → Badges and stickers (Soon) |
+| FR-17 | Adaptive model picks the next activity | Should | Later | — |
+| FR-18 | Immediate, gentle feedback (no bare right/wrong) | Must | Built | lessons, games, spelling, tracing (errorless help, no red ✗) |
+| FR-19 | IDD progress as milestones | Should | Later | (with Module 11) |
+| FR-20 | Follow reading aloud, highlight the current word | Must | Partly | Read-Along: words light up while the app reads (listening to the child later) |
+| FR-21 | Flag mispronounced / skipped words, repeat | Must | Later | ("Your turn" has an "I said it" button; no voice check yet) |
+| FR-22 | Log struggle words, spaced revision | Must | Partly | the list exists (server + Plan → Struggle words); automatic flagging + revision later |
+| FR-23 | Reading Assist: typed / PDF / photo text, dyslexia formatting | Should | Coming soon | Reading & Writing → Reading Assist · Plan → Reading material |
+| FR-24 | Read any text aloud, emphasise struggle words | Must | Coming soon | Reading & Writing → Reading Assist |
+| FR-25 | Staged phonics lists, syllables, vocabulary builder | Must | Partly | Words & Phonics → Alphabets (recorded letter sounds) · Phonics (Coming soon) |
+| FR-26 | Phonics picks from struggle words + targets | Should | Later | — |
+| FR-27 | Spelling: hear a word, pick letters, classify errors | Must | Partly | Spelling & Letter Sounds → Spelling (drag letters; error types later) |
+| FR-28 | Letter-sound game: trace while hearing the sound + picture | Should | Partly | letter lessons + Handwriting (trace, then "A for apple") |
+| FR-29 | Animated stroke order + feedback on wrong strokes | Must | Built | Reading & Writing → Handwriting |
+| FR-30 | CNN scores handwriting, flags reversals | Should | Later | — |
+| FR-31 | Letters drifting off the guide lines | Could | Later | — |
+| FR-32 | Check scanned / photographed handwriting | Won't | Later | (not planned) |
+| FR-33 | Mouth-movement animation for a sound | Must | Coming soon | Speech Sounds → Vowels & Sounds |
+| FR-34 | Score the child's sound against reference audio | Must | Coming soon | Speech Sounds → Vowels & Sounds |
+| FR-35 | Camera lip / jaw tracking | Should | Coming soon | Speech Sounds → Vowels & Sounds |
+| FR-36 | Audio and mouth scores shown separately | Should | Coming soon | Speech Sounds → Vowels & Sounds |
+| FR-37 | Urdu vowel / phoneme track | Should | Coming soon | Speech Sounds → Vowels & Sounds |
+| FR-38 | "Name that emotion" | Must | Coming soon | Feelings & Stories → Feelings Faces |
+| FR-39 | "Mirror the emotion" with the camera | Should | Coming soon | Feelings & Stories → Feelings Faces |
+| FR-40 | Per-emotion mastery for the parent | Should | Coming soon | Feelings & Stories → Feelings Faces |
+| FR-41 | Six number mini-games | Must | Coming soon | Numbers → Number Sense |
+| FR-42 | Count fingers / blocks with the camera | Should | Coming soon | Numbers → Number Sense |
+| FR-43 | One mastery model across the number games | Should | Later | — |
+| FR-44 | Word problems adapt to working memory | Could | Later | — |
+| FR-45 | Check digits for reversals (6/9) | Could | Later | — |
+| FR-46 | AAC board: tap pictures to speak, notify the parent | Must | Partly | Talk (36 core words + 5 topics, sentence strip, speak); gestures + parent alert later |
+| FR-47 | Parents add their own AAC pictures | Should | Coming soon | Plan → Talk board pictures |
+| FR-48 | Interactive social stories | Must | Coming soon | Feelings & Stories → Social Stories |
+| FR-49 | Social-story libraries, personalised | Should | Coming soon | Plan → Social stories |
+| FR-50 | Self-care step-by-step sequences | Must | Coming soon | My Day → Routines & Life Skills · Plan → Routine builder |
+| FR-51 | Visual routine calendar with rewards | Must | Coming soon | My Day → Routines & Life Skills · Plan → Routine builder |
+| FR-52 | Matching / sorting reasoning games | Could | Coming soon | My Day → Routines & Life Skills |
+| FR-53 | Attention games + working-memory signal | Should | Coming soon | My Day → Routines & Life Skills |
+
+**Count:** 7 Built · 10 Partly · 24 Coming soon · 12 Later (of 53).
 
 ### Screen design (inspo look, 2026-11-21)
 - Every size is in `shared/theme/designConfig.js` (`DESIGN`).

@@ -9,67 +9,129 @@
 //   - `scrollX` follows the finger; the dots read it to animate their width
 //
 // FIXED screen (no up/down scrolling): the coloured card shrinks on small phones.
+// Each card's picture is OnboardingArt.js: one of the KidBuddy buddies + three flat icon badges
+// (no emoji), in the card's palette colour.
+// The LAST card ("Try KidBuddy first") lets a parent explore Child Mode as the demo child Buddy BEFORE
+// signing up (Explore KidBuddy = Preview mode, nothing is saved); "Exit preview" brings them back here.
+// Every card also has its OWN page colours (PAGE_COLORS below): the page, the top bar, the phone's status
+// bar, the title, the text and the active dot all switch when the swipe is halfway to the next card.
+// The pages are always light (never dark); the text colours were picked to be easy to read on them.
 //
 // Props: { navigation }
 
-import React, { useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Animated, FlatList, StyleSheet, View, useWindowDimensions } from 'react-native';
 import Text from '../../shared/components/AppText';
 import Screen from '../../shared/components/Screen';
-import Mascot from '../../shared/components/Mascot';
+import OnboardingArt from './OnboardingArt';
 import Button from '../../shared/components/Button';
-import { COLORS, FONTS, PALETTE, RADIUS, SPACING } from '../../shared/theme/theme';
+import { usePreview } from '../../app/store/usePreview';
+import { goToChildHome } from '../../app/navigation/helpers';
+import { KEYS, saveData } from '../../shared/utils/storage';
+import { CATEGORY, COLORS, FONTS, PALETTE, RADIUS, SPACING } from '../../shared/theme/theme';
 
-// Text, emoji and card colour for each card (from Figma).
+// The colours of each card's page (light backgrounds only). title / text = what is easy to read on it,
+// button = the "Create Parent Account" button on that card (white text on it is easy to read).
+const PAGE_COLORS = [
+  { page: PALETTE.lavenderMist, title: PALETTE.purple, text: '#62507A', button: PALETTE.purple }, // lilac card (a slightly darker plum, easy to read)
+  { page: '#FDF6D8', title: PALETTE.coralText, text: '#6E5A2B', button: PALETTE.coralText }, // a pale butter page for the yellow card
+  { page: '#E6F6F1', title: PALETTE.mintDeep, text: '#3F5F59', button: PALETTE.mintDeep }, // a pale mint page for the mint card
+  { page: '#EAF3FC', title: '#2E6A8A', text: '#3E5568', button: '#2E6A8A' }, // a pale sky page for the "Try it first" card
+];
+
+// Text, picture and card colour for each card.
+//   avatar = the buddy in the middle (theme/avatars.js), icons = the 3 floating badges (AppIcon names)
 const CARDS = [
   {
     title: 'Your therapist’s plan, practised at home',
     copy: 'Keep familiar goals going between visits with short activities the whole family can support.',
-    icon: '📋',
     cardColor: PALETTE.pastelLilac,
+    avatar: 'panda',
+    icons: [
+      { name: 'clipboard-check-outline', color: CATEGORY.art.deep },
+      { name: 'home-heart', color: CATEGORY.reading.deep },
+      { name: 'calendar-heart', color: CATEGORY.calm.deep },
+    ],
   },
   {
     title: 'Fun activities that adapt to your child',
     copy: 'Reading, speech, feelings, numbers and routines—paced around your child’s needs.',
-    icon: '🧩',
     cardColor: PALETTE.pastelYellow,
+    avatar: 'fox',
+    icons: [
+      { name: 'book-open-variant', color: CATEGORY.reading.deep },
+      { name: 'puzzle', color: CATEGORY.art.deep },
+      { name: 'music-note', color: CATEGORY.music.deep },
+    ],
   },
   {
     title: 'A safe, ad-free space, you stay in control',
     copy: 'Parents choose activities, permissions and profiles. Children never need an account.',
-    icon: '🛡️',
     cardColor: PALETTE.pastelMint,
+    avatar: 'bear',
+    icons: [
+      { name: 'shield-check', color: CATEGORY.calm.deep },
+      { name: 'lock', color: CATEGORY.art.deep },
+      { name: 'account-heart', color: CATEGORY.reading.deep },
+    ],
+  },
+  {
+    // the last card: look around BEFORE signing up (Explore KidBuddy = Preview mode, nothing is saved)
+    title: 'Try KidBuddy first',
+    copy: 'See exactly what your child will see. Play as Buddy, our demo child. No account needed, nothing is saved.',
+    cardColor: PALETTE.pastelBlue,
+    avatar: 'puppy', // the blue buddy, to match the blue card
+    explore: true,
+    icons: [
+      { name: 'compass-outline', color: CATEGORY.music.deep },
+      { name: 'gesture-tap', color: CATEGORY.art.deep },
+      { name: 'eye-outline', color: CATEGORY.calm.deep },
+    ],
   },
 ];
 
-export default function OnboardingScreen({ navigation }) {
+export default function OnboardingScreen({ navigation, route }) {
   const { width, height } = useWindowDimensions();
-  const cardHeight = Math.max(170, Math.min(300, height * 0.355));
+  const { startPreview } = usePreview();
+  // back from "Explore KidBuddy": open on the last card (route param startAtLast)
+  const startPage = route.params && route.params.startAtLast ? CARDS.length - 1 : 0;
+  const cardHeight = Math.max(180, Math.min(340, height * 0.4));
 
   // scrollX = how far the cards have been swiped, in points (0, width, 2 * width ...)
-  const scrollX = useRef(new Animated.Value(0)).current;
+  const scrollX = useRef(new Animated.Value(startPage * width)).current;
+
+  // The card that is (more than half) in view: its colours are used for the page.
+  const [page, setPage] = useState(startPage);
+  const colors = PAGE_COLORS[page] || PAGE_COLORS[0];
+  function handleScroll(event) {
+    const next = Math.round(event.nativeEvent.contentOffset.x / width);
+    if (next !== page && next >= 0 && next < CARDS.length) setPage(next);
+  }
+
+  // Explore KidBuddy before signing up: Child Mode with the demo child Buddy. Leaving it brings the
+  // parent back here (FixedHeader -> goToIntroAfterPreview).
+  function explore() {
+    saveData(KEYS.explored, true); // Parent Home will not show its "New to KidBuddy?" card again
+    startPreview();
+    goToChildHome(navigation);
+  }
+
+  // the phone's status bar (time, battery) takes the page colour too
+  useEffect(() => {
+    navigation.setOptions({ statusBarBackgroundColor: colors.page });
+  }, [colors.page]);
 
   // One card = one swipeable page, exactly as wide as the screen.
-  function renderCard({ item }) {
+  function renderCard({ item, index }) {
+    const own = PAGE_COLORS[index] || PAGE_COLORS[0];
     return (
       <View style={[styles.page, { width }]}>
         <View style={[styles.card, { height: cardHeight, backgroundColor: item.cardColor }]}>
-          <Text
-            style={{
-              fontSize: cardHeight * 0.35,
-              lineHeight: cardHeight * 0.35 * 1.25,
-              textAlign: 'center',
-            }}
-          >
-            {item.icon}
-          </Text>
-          <View style={styles.cardMascot}>
-            <Mascot size={cardHeight * 0.26} />
-          </View>
+          <OnboardingArt height={cardHeight} avatar={item.avatar} icons={item.icons} />
         </View>
 
-        <Text style={[styles.title, { marginTop: height * 0.04 }]}>{item.title}</Text>
-        <Text style={styles.copy}>{item.copy}</Text>
+        <Text style={[styles.title, { marginTop: height * 0.04, color: own.title }]}>{item.title}</Text>
+        <Text style={[styles.copy, { color: own.text }]}>{item.copy}</Text>
       </View>
     );
   }
@@ -77,7 +139,7 @@ export default function OnboardingScreen({ navigation }) {
   return (
     // paddingHorizontal 0: each card page adds its own side padding,
     // so the cards can slide across the full width of the screen.
-    <Screen contentStyle={styles.noSidePadding}>
+    <Screen contentStyle={styles.noSidePadding} background={colors.page} headerColor={colors.page}>
       <View style={styles.body}>
         <FlatList
           data={CARDS}
@@ -85,11 +147,14 @@ export default function OnboardingScreen({ navigation }) {
           renderItem={renderCard}
           horizontal
           pagingEnabled
+          initialScrollIndex={startPage}
+          getItemLayout={(_, index) => ({ length: width, offset: width * index, index })}
           showsHorizontalScrollIndicator={false}
           style={styles.list}
           scrollEventThrottle={16}
           onScroll={Animated.event([{ nativeEvent: { contentOffset: { x: scrollX } } }], {
             useNativeDriver: false, // we animate width + colour, which the native driver can't do
+            listener: handleScroll, // and switch the page colours halfway through a swipe
           })}
         />
 
@@ -107,7 +172,7 @@ export default function OnboardingScreen({ navigation }) {
             });
             const dotColor = scrollX.interpolate({
               inputRange: range,
-              outputRange: [COLORS.border, COLORS.primary, COLORS.border],
+              outputRange: [COLORS.border, colors.title, COLORS.border],
               extrapolate: 'clamp',
             });
             return (
@@ -120,7 +185,28 @@ export default function OnboardingScreen({ navigation }) {
         </View>
 
         <View style={styles.buttonWrap}>
-          <Button title="Create Parent Account" onPress={() => navigation.navigate('SignUp')} />
+          {CARDS[page] && CARDS[page].explore ? (
+            <>
+              <Button
+                title="Explore KidBuddy"
+                variant="secondary"
+                onPress={explore}
+                style={{ backgroundColor: PALETTE.cloudWhite, borderColor: colors.button }}
+                textColor={colors.button}
+              />
+              <Button
+                title="Create Parent Account"
+                onPress={() => navigation.navigate('SignUp')}
+                style={[styles.second, { backgroundColor: colors.button, borderColor: colors.button }]}
+              />
+            </>
+          ) : (
+            <Button
+              title="Create Parent Account"
+              onPress={() => navigation.navigate('SignUp')}
+              style={{ backgroundColor: colors.button, borderColor: colors.button }}
+            />
+          )}
         </View>
       </View>
     </Screen>
@@ -143,13 +229,7 @@ const styles = StyleSheet.create({
   },
   card: {
     borderRadius: RADIUS.card,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  cardMascot: {
-    position: 'absolute',
-    end: 28,
-    bottom: 22,
+    overflow: 'hidden',
   },
   title: {
     fontFamily: FONTS.nunitoBlack,
@@ -180,5 +260,8 @@ const styles = StyleSheet.create({
   },
   buttonWrap: {
     paddingHorizontal: SPACING.screen,
+  },
+  second: {
+    marginTop: 10,
   },
 });

@@ -22,6 +22,15 @@ export function goToProfilePicker(navigation, childId) {
   navigation.reset({ index: 0, routes: [{ name: 'ProfilePicker', params: childId ? { childId } : undefined }] });
 }
 
+// Leaving "Explore KidBuddy" BEFORE signing up: back to the intro cards, on the last card
+// ("Try KidBuddy first"), with Welcome underneath so Android's back button still makes sense.
+export function goToIntroAfterPreview(navigation) {
+  navigation.reset({
+    index: 1,
+    routes: [{ name: 'Welcome' }, { name: 'Onboarding', params: { startAtLast: true } }],
+  });
+}
+
 // Parent Mode home.
 export function goToParentHome(navigation) {
   goToStart(navigation, 'ParentHome');

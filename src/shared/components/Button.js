@@ -9,7 +9,8 @@ import { ActivityIndicator, Pressable, StyleSheet } from 'react-native';
 import Text from './AppText';
 import { BUTTON, COLORS, FONTS, FONT_SIZES, RADIUS, SIZES } from '../theme/theme';
 
-export default function Button({ title, onPress, variant = 'primary', loading = false, style }) {
+// textColor (optional) = another colour for the words (e.g. an outlined button in the card's colour)
+export default function Button({ title, onPress, variant = 'primary', loading = false, style, textColor }) {
   const isPrimary = variant === 'primary';
 
   return (
@@ -28,7 +29,7 @@ export default function Button({ title, onPress, variant = 'primary', loading = 
       {loading ? (
         <ActivityIndicator color={isPrimary ? COLORS.white : COLORS.primary} />
       ) : (
-        <Text style={[styles.text, isPrimary ? styles.primaryText : styles.secondaryText]}>
+        <Text style={[styles.text, isPrimary ? styles.primaryText : styles.secondaryText, textColor ? { color: textColor } : null]}>
           {title}
         </Text>
       )}

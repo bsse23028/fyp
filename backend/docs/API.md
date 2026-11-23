@@ -209,7 +209,7 @@ modules = every module with `onByDefault` (the same as `defaultModules()` in the
 ### `PATCH /api/children/:childId`
 Send only the fields that change. `supports`, `modules` and `story` **replace** the whole list or story.
 ```json
-{ "avatar": "wolf" }
+{ "avatar": "fox" }
 { "story": { ...the full story... } }
 ```
 → `200 { "child": { ... } }` · `400` (including an empty body) · `404`
@@ -327,7 +327,7 @@ Every choice list the forms need, read from the lookup tables:
 {
   "languages":  [ { "code": "en", "name": "English", "nativeName": "English", "isRtl": false }, ... ],
   "ageBands":   [ { "code": "4-6", "label": "4–6 years", "minAge": 4, "maxAge": 6 }, ... ],
-  "avatars":    [ { "code": "panda", "name": "Panda" }, ... ],
+  "avatars":    [ { "code": "rabbit", "name": "Bunny" }, { "code": "bear", "name": "Bear" }, ... 11 buddies ],
   "supports":   [ { "code": "reading", "name": "Reading" }, ... ],
   "modules":    [ { "code": "read-along", "name": "Read-Along", "sensor": "Mic", "isAvailable": true, "onByDefault": true, "supports": ["Reading"] }, ... ],
   "relations":  [ { "code": "grandmother", "name": "Grandmother" }, ... ],

@@ -32,6 +32,7 @@ import { useChildOptions } from '../../app/store/useChildOptions';
 import { EMPTY_STORY } from '../../shared/utils/storyOptions';
 import { DEFAULT_AVATAR } from '../../shared/theme/avatars';
 import { globalStyles } from '../../shared/theme/globalStyles';
+import { DESIGN } from '../../shared/theme/designConfig';
 import { COLORS, FONTS } from '../../shared/theme/theme';
 
 export default function CreateChildProfileScreen({ navigation }) {
@@ -69,7 +70,12 @@ export default function CreateChildProfileScreen({ navigation }) {
   return (
     <Screen scroll avatar={avatar}>
       <View style={styles.body}>
+        {/* the words on the left, the CHOSEN buddy (whole body) on the right: it changes when another
+            buddy is picked below, so the parent sees the full buddy before saving */}
         <AuthHeading
+          side
+          avatar={avatar}
+          mascotSize={DESIGN.CHILD_PREVIEW_MASCOT}
           title="Create child profile"
           subtitle="Just a few quick details. You can add more later in Edit profile."
         />

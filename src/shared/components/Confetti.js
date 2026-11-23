@@ -110,7 +110,7 @@ export default function Confetti({ burstKey = 0, big = false, count }) {
 
 const styles = StyleSheet.create({
   still: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     alignItems: 'center',
     justifyContent: 'center',
   },

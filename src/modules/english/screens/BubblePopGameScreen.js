@@ -284,7 +284,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   finish: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',

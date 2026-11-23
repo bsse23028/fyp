@@ -17,9 +17,10 @@ import { useAuth } from '../../app/context/AuthContext';
 import { navigationRef, useCurrentRouteKey } from '../../app/navigation/navigationRef';
 import { useChild } from '../../app/store/useChild';
 import { usePreview } from '../../app/store/usePreview';
-import { goToChildHome, goToParentHome } from '../../app/navigation/helpers';
+import { goToChildHome, goToIntroAfterPreview, goToParentHome } from '../../app/navigation/helpers';
 import { COLORS } from '../theme/theme';
 import { screenColorsFor } from '../theme/screenColors';
+import { previewGuideFor } from '../../app/navigation/previewGuides';
 
 const HOME_ROUTES = ['ChildHome', 'ParentHome'];
 
@@ -27,7 +28,7 @@ export default function FixedHeader() {
   const { configs, pressMenu } = useHeaderConfig();
   const routeKey = useCurrentRouteKey();
   const { exitChildMode } = useChild();
-  const { pin } = useAuth();
+  const { pin, user } = useAuth();
   const { isPreview, endPreview } = usePreview();
   const [pinOpen, setPinOpen] = useState(false);
 
@@ -50,16 +51,19 @@ export default function FixedHeader() {
     setPinOpen(false);
     if (isPreview) endPreview();
     exitChildMode();
-    goToParentHome(navigationRef);
+    // A visitor who explored BEFORE signing up has no Parent Home yet: back to the intro cards (sign-up card)
+    if (!user) goToIntroAfterPreview(navigationRef);
+    else goToParentHome(navigationRef);
   }
 
   function handleParentPress() {
-    if (isPreview && !pin) backToParent();
+    if (isPreview && (!pin || !user)) backToParent(); // a preview without a PIN (or before sign-up) leaves at once
     else setPinOpen(true);
   }
 
   const showHome = (isChild || isParent) && !HOME_ROUTES.includes(routeName);
-  const barColor = routeName ? screenColorsFor(routeName).header : COLORS.background; // theme/screenColors.js
+  // the screen's own colour right now (<Screen headerColor>), or its colour in theme/screenColors.js
+  const barColor = config.headerColor || (routeName ? screenColorsFor(routeName).header : COLORS.background);
 
   return (
     <View style={{ backgroundColor: barColor, zIndex: 5 }}>
@@ -72,7 +76,7 @@ export default function FixedHeader() {
           onParentPress={isChild ? handleParentPress : undefined}
           onMenuPress={config.menu ? () => pressMenu(routeKey) : undefined}
         />
-        {isPreview ? <PreviewBanner onExit={handleParentPress} /> : null}
+        {isPreview ? <PreviewBanner onExit={handleParentPress} guide={previewGuideFor(routeName)} /> : null}
       </SafeAreaView>
       <PinModal visible={pinOpen} onClose={() => setPinOpen(false)} onSuccess={backToParent} />
     </View>

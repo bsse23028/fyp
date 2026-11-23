@@ -61,7 +61,7 @@ export default function Sparkles({ burstKey = 0, size = 18, count = 3, style }) 
 
 const styles = StyleSheet.create({
   layer: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
   },
   sparkle: {
     position: 'absolute',

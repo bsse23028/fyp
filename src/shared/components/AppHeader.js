@@ -1,7 +1,8 @@
 // APP HEADER - the top bar of every screen (logo left, buttons right).
 //
 //   every screen:  logo + the English / اردو toggle
-//   Home button:   🏠 goes to the home screen of the current mode
+//   Home button:   a purple flat house icon (AppIcon "home-outline", like the bottom bar) goes to the
+//                  home screen of the current mode
 //   Child Mode:    the logo is tappable (opens "My Buddy") and a 🔒 Parent button
 //                  asks for the Parent PIN
 //
@@ -11,7 +12,7 @@
 // Props:
 //   avatar         - optional avatar id, to preview a choice before it is saved
 //   onLogoPress    - optional: makes the logo tappable
-//   onHomePress    - optional: shows the 🏠 button
+//   onHomePress    - optional: shows the Home (house) button
 //   onParentPress  - optional: shows the 🔒 Parent button
 //   onMenuPress    - optional: shows a ☰ menu button before the logo (only Parent Home uses it)
 //   background     - optional: the bar colour (FixedHeader passes the screen's colour from theme/screenColors.js)
@@ -20,6 +21,7 @@ import React from 'react';
 import { Pressable, StyleSheet, View, useWindowDimensions } from 'react-native';
 import Text from './AppText';
 import BrandLogo from './BrandLogo';
+import AppIcon from './AppIcon';
 import LanguageToggle from './LanguageToggle';
 import { COLORS, FONTS, SPACING } from '../theme/theme';
 import { HEADER_LOGO_MAX_WIDTH } from '../theme/avatars';
@@ -61,7 +63,7 @@ export default function AppHeader({ avatar, onLogoPress, onHomePress, onParentPr
             accessibilityLabel="Home"
             style={[styles.button, styles.gap]}
           >
-            <Text style={styles.icon}>🏠</Text>
+            <AppIcon name="home-outline" size={24} color={COLORS.primary} />
           </Pressable>
         ) : null}
 

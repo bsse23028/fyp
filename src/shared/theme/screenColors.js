@@ -62,6 +62,7 @@ export const SCREEN_COLORS = {
   // ----- child mode -----
   ProfilePicker: WELCOME_BACK, // "who is learning today?" = a welcome back screen
   ChildHome: MAIN,
+  LearningGroup: MAIN, // a Child Home group page (its modules, "Coming soon" when not built)
   EditAvatar: MAIN,
 
   // ----- English module (these have an animated sky) -----
@@ -70,12 +71,11 @@ export const SCREEN_COLORS = {
   LetterLesson: SKY_LESSON,
   TraceList: SKY_DAY,
   LetterTrace: SKY_DAY,
-  LetterGames: MAIN,
+  EnglishActivities: MAIN, // the activities of proposal Module 3 or 4
   BubblePopGame: SKY_DAY,
   MatchPairsGame: SKY_DAY,
   StoryList: SKY_DAY,
   LetterStory: SKY_DAY,
-  WordsHub: MAIN,
   ReadingTopics: SKY_DAY,
   ReadingLevel: SKY_DAY,
   ReadingAlong: SKY_LESSON,
@@ -83,6 +83,9 @@ export const SCREEN_COLORS = {
   ReadingSummary: SKY_LESSON,
   SpellingWords: SKY_SUNSET,
   SpellingGame: SKY_SPELLING,
+
+  // ----- Talk module -----
+  AACBoard: MAIN, // calm, plain page: the pictures must stand out
 };
 
 // The colours of one screen: { page, header }.
