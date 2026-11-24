@@ -9,7 +9,7 @@
 //   wobbleKey changes -> a small shy wobble (a module that is not built yet)
 // The icon is the picture from moduleIcons.js, or the module's flat icon (iconName, AppIcon) in its category
 // colour while there is none (or its emoji, when it has no iconName).
-// In Preview mode a module that is not built yet also shows a small "Coming soon" label.
+// A group with nothing built yet (`module.soon`) shows a small "Coming soon" label (it still opens its group page).
 // Props: { module, index, active, isPreview, wobbleKey, onPress(module) }
 
 import React, { useEffect, useRef } from 'react';
@@ -91,7 +91,7 @@ export default function ModuleCard({ module, index, active, isPreview, wobbleKey
               {module.label}
             </Text>
 
-            {isPreview && !module.screen ? (
+            {module.soon ? (
               <View style={styles.soonTag}>
                 <Text style={styles.soonText}>Coming soon</Text>
               </View>

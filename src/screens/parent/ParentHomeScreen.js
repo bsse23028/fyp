@@ -1,13 +1,15 @@
 // PARENT HOME SCREEN - the first screen after login (Parent Mode), in the inspo look:
 //   top     "Good morning, Sarah 👋" + the big purple title "Who is learning today?" + the chosen child's buddy
 //   sheet   (the rounded pale panel) this week's two numbers (pastel stat tiles), the "Open Child Mode"
-//           hero card, the children as white cards with a letters progress bar (tap = choose, ⋯ = View
-//           Edit / Delete; progress is the Progress tab), and two pastel tiles: "Add a child" (mint) and "Explore KidBuddy" (peach).
+//           hero card, the children as white cards with a letters progress bar (tap = choose, ⋯ = Edit profile /
+//           Delete; progress is the Progress tab), and two pastel tiles: "Add a child" (mint) and "Explore KidBuddy" (peach).
+//   FIRST-TIME parents also see a big blue "New to KidBuddy?" card at the top of the sheet (ExploreWelcomeCard)
+//           until they explore once or tap "Not now" (remembered on the phone, KEYS.explored).
 // Plan, Progress and Settings ("Me") are in the bottom bar (ParentTabBar); Log out is in Settings.
 // (The old ☰ parent menu was removed on 2026-11-21.)
 // The pieces are in ./components/ and shared/components/ (PageTitle, Sheet, StatTile, PastelTile).
 
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Alert, StyleSheet, View } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import Text from '../../shared/components/AppText';
@@ -20,6 +22,8 @@ import PastelTile from '../../shared/components/PastelTile';
 import Mascot from '../../shared/components/Mascot';
 import OpenChildModeCard from './components/OpenChildModeCard';
 import ChildList from './components/ChildList';
+import ExploreWelcomeCard from './components/ExploreWelcomeCard';
+import { KEYS, loadData, saveData } from '../../shared/utils/storage';
 import ChildActionsMenu from './components/ChildActionsMenu';
 import { useAuth } from '../../app/context/AuthContext';
 import { useLanguage } from '../../app/context/LanguageContext';
@@ -39,6 +43,16 @@ export default function ParentHomeScreen({ navigation }) {
 
   const [menuChild, setMenuChild] = useState(null);
   const [chosenId, setChosenId] = useState(null);
+
+  // Has this phone tried Explore KidBuddy (or tapped Not now)? Until then the big welcome card shows on top.
+  const [explored, setExplored] = useState(true); // true while loading, so the card never flashes
+  useEffect(() => {
+    loadData(KEYS.explored, false).then(setExplored);
+  }, []);
+  function hideWelcome() {
+    setExplored(true);
+    saveData(KEYS.explored, true);
+  }
 
   // Parent Home is never part of the preview: switch it off whenever this screen comes into view.
   useFocusEffect(
@@ -76,6 +90,7 @@ export default function ParentHomeScreen({ navigation }) {
   }
 
   function explore() {
+    hideWelcome();
     startPreview();
     goToChildHome(navigation);
   }
@@ -91,6 +106,13 @@ export default function ParentHomeScreen({ navigation }) {
       </FadeInView>
 
       <Sheet>
+        {/* first-time parents: the big invitation to try Child Mode as Buddy (until explored once) */}
+        {!explored ? (
+          <FadeInView index={1}>
+            <ExploreWelcomeCard onExplore={explore} onHide={hideWelcome} />
+          </FadeInView>
+        ) : null}
+
         <FadeInView index={1} style={styles.stats}>
           <StatTile value={sessions} label="Sessions this week" iconName="book-open-page-variant" color={PALETTE.pastelMint} />
           <StatTile value={stars} label="Stars this week" iconName="star" color={PALETTE.pastelYellow} />

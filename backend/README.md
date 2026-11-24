@@ -39,10 +39,13 @@ If the `kidbuddy` database already exists with its tables, **skip this step**.
 > ⚠️ **Warning:** `01_schema.sql` starts with `DROP TABLE IF EXISTS ...`. Importing it again
 > **deletes every table and all data** in `kidbuddy`. Import it only once, on an empty database.
 
-### 2.3 Run the migration (once)
-The backend needs one small extra column (explained in
-[`database/migrations/001_add_relation_text_to_story_answers.sql`](database/migrations/001_add_relation_text_to_story_answers.sql)).
-It only **adds** a column and deletes nothing. Run it after `npm install` (step 3):
+### 2.3 Run the migrations (once, and again whenever a new one is added)
+The backend needs a few small changes on top of the two SQL files:
+- [`001_add_relation_text_to_story_answers.sql`](database/migrations/001_add_relation_text_to_story_answers.sql): one extra column.
+- [`002_rebrand_avatars.sql`](database/migrations/002_rebrand_avatars.sql): the 11 buddies of the app
+  (adds dino, elephant, fox, kitty, koala, lion, penguin, puppy; switches the old wolf off).
+
+They only **add or update** rows and columns and delete nothing. Run them after `npm install` (step 3):
 
 ```bash
 npm run migrate
@@ -109,6 +112,7 @@ Check it in a browser: <http://localhost:4000/health> → `{"status":"ok"}`
 | `Could not connect to MySQL database "kidbuddy"` | Start MySQL in XAMPP. Check `DB_USER` / `DB_PASSWORD` in `.env`. |
 | `Missing setting JWT_SECRET` | You have no `.env` yet, or `JWT_SECRET` is empty. |
 | `Unknown column 'relation_text'` | Run `npm run migrate`. |
+| The app's buddy picker shows only 3 buddies / `"fox" is not an avatar` | Run `npm run migrate` (migration 002 adds the new buddies). |
 | `Migration failed: Duplicate column name 'relation_text'` | The column was added by hand: see the note in 2.3. |
 | `EADDRINUSE :4000` | Another program uses port 4000. Change `PORT` in `.env`. |
 

@@ -11,12 +11,20 @@ import React, { createContext, useCallback, useContext, useMemo, useRef, useStat
 const HeaderContext = createContext(null);
 
 export function HeaderProvider({ children }) {
-  const [configs, setConfigs] = useState({}); // { [routeKey]: { mode, avatar } }
+  const [configs, setConfigs] = useState({}); // { [routeKey]: { mode, avatar, menu, headerColor } }
 
   const setConfig = useCallback((key, config) => {
     setConfigs((old) => {
       const prev = old[key];
-      if (prev && prev.mode === config.mode && prev.avatar === config.avatar && prev.menu === config.menu) return old;
+      if (
+        prev &&
+        prev.mode === config.mode &&
+        prev.avatar === config.avatar &&
+        prev.menu === config.menu &&
+        prev.headerColor === config.headerColor
+      ) {
+        return old;
+      }
       return { ...old, [key]: config };
     });
   }, []);

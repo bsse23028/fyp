@@ -248,7 +248,7 @@ const styles = StyleSheet.create({
     direction: 'ltr',
   },
   finish: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',

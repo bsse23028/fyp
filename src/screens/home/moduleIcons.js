@@ -9,7 +9,7 @@
 // the app from starting (React Native loads every picture by a fixed line, never by a changing path).
 
 export const MODULE_ICONS = {
-  english: { image: null }, // image: require('../../../assets/icons/english.png'),
+  reading: { image: null }, // image: require('../../../assets/icons/reading.png'),
   numbers: { image: null }, // image: require('../../../assets/icons/numbers.png'),
   feelings: { image: null }, // image: require('../../../assets/icons/feelings.png'),
   talk: { image: null }, // image: require('../../../assets/icons/talk.png'),

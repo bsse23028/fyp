@@ -65,7 +65,7 @@ export default function AnswerOption({ option, width, state, index, onPress, act
 
 const styles = StyleSheet.create({
   glow: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     margin: -7,
     borderRadius: CALM_RADIUS.large + 7,
     backgroundColor: CALM_SUCCESS.main,

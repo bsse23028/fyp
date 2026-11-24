@@ -52,7 +52,7 @@ export default DropTarget;
 
 const styles = StyleSheet.create({
   glow: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     margin: -7,
     borderRadius: CALM_RADIUS.large + 7,
     backgroundColor: CALM.yellow,

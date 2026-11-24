@@ -75,7 +75,7 @@ describe('POST /api/children', () => {
     const child = await createChild(parent.token, {
       name: '  Ali ',
       ageBand: '7-9', // the short code works too
-      avatar: 'wolf',
+      avatar: 'fox',
       language: 'ur',
       supports: ['Reading', 'Numbers'],
       modules: ['Read-Along', 'Number Sense'],
@@ -84,7 +84,7 @@ describe('POST /api/children', () => {
     expect(child).toMatchObject({
       name: 'Ali',
       ageBand: '7–9 years',
-      avatar: 'wolf',
+      avatar: 'fox',
       language: 'ur',
       supports: ['Reading', 'Numbers'],
       modules: ['Read-Along', 'Number Sense'],
@@ -118,6 +118,7 @@ describe('POST /api/children', () => {
     [{ name: 'Zara' }, 'age band'],
     [{ name: 'Zara', ageBand: '20-30' }, 'not an age band'],
     [{ name: 'Zara', ageBand: '4-6', avatar: 'dragon' }, 'not an avatar'],
+    [{ name: 'Zara', ageBand: '4-6', avatar: 'wolf' }, 'not an avatar'], // switched off by migration 002
     [{ name: 'Zara', ageBand: '4-6', language: 'fr' }, 'not a language'],
     [{ name: 'Zara', ageBand: '4-6', supports: ['Flying'] }, 'Unknown area of support: Flying'],
     [{ name: 'Zara', ageBand: '4-6', modules: ['Chess'] }, 'Unknown activity: Chess'],

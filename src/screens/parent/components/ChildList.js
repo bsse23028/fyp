@@ -1,25 +1,28 @@
-// CHILD LIST - the children on Parent Home, as white inspo-style cards (ProgressCard): the buddy on
-// the left, the name, one line, and a progress bar of the child's progress in the first learning module
-// (English: letters learned out of 26). The numbers come from the modules' public door (selectModuleProgress).
-// Tap a card to choose that child for the hero card; ⋯ opens the per-child actions menu.
-// ("Add a child" is a pastel tile on Parent Home itself.)
+// CHILD LIST - "Your children" on Parent Home: one white card per child, the SAME card as on the Me page:
+// the buddy, the name, "age · language · {n} activities on" and a ⋯ button (Edit / Delete).
+// Tap a card = choose that child (purple edge). (No letters / progress bar here: progress is on the
+// Progress tab, and only for the activities the child is enrolled in.)
+// Props: { profiles, selectedId, onSelect(id), onMore(child) }
 
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
-import { useSelector } from 'react-redux';
 import Text from '../../../shared/components/AppText';
 import Mascot from '../../../shared/components/Mascot';
 import AnimatedPressable from '../../../shared/components/AnimatedPressable';
 import ProgressCard from '../../../shared/components/ProgressCard';
 import { getAvatar } from '../../../shared/theme/avatars';
+import { translate } from '../../../shared/i18n/translate';
 import { ageText } from '../../../shared/utils/progress';
-import { sameProgress, selectModuleProgress } from '../../../modules';
-import { CALM, CALM_RADIUS, FONTS, PALETTE } from '../../../shared/theme/theme';
+import { CALM, CALM_RADIUS, FONTS } from '../../../shared/theme/theme';
+
+// "Age 7–9 · English · 3 activities on" (also used on the Me page)
+export function childLine(child) {
+  const language = child.language === 'ur' ? 'اردو' : 'English';
+  return `${ageText(child)} · ${language} · ${translate('{n} activities on', { n: (child.modules || []).length })}`;
+}
 
 function ChildRow({ child, selected, onSelect, onMore }) {
   const avatar = getAvatar(child.avatar);
-  const progress = useSelector((state) => selectModuleProgress(state, child.id), sameProgress);
-  const main = progress[0]; // the first module that reports progress (English)
 
   return (
     <ProgressCard
@@ -31,9 +34,7 @@ function ChildRow({ child, selected, onSelect, onMore }) {
         </View>
       }
       title={child.name}
-      subtitle={main ? `${ageText(child)} · ${main.text}` : ageText(child)}
-      progress={main ? main.done / main.total : undefined}
-      barColor={PALETTE.sunny}
+      subtitle={childLine(child)}
       right={
         <AnimatedPressable onPress={onMore} hitSlop={6} accessibilityLabel="More options" style={styles.more}>
           <Text style={styles.moreText}>⋯</Text>

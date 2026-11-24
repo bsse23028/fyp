@@ -15,6 +15,7 @@
 //     entry:        'EnglishHub',        the ONE screen Child Home opens for this module
 //     progress:     (state, childId) => ({ title, done, total, text })   how far a child is (optional)
 //     parentTools:  [ { icon, title, desc, screen, accent } ]   cards for the Plan tab (optional)
+//     previewGuide: { ScreenName: 'one sentence for parents' }   shown only while exploring (optional)
 //   }
 // App screens use the helpers at the bottom of this file (moduleEntry, selectModuleProgress,
 // MODULE_PARENT_TOOLS) and never import a file from inside a module folder.
@@ -27,10 +28,11 @@
 
 import { addTranslations } from '../shared/i18n/translate';
 import english from './english';
+import talk from './talk';
 // import numbers from './numbers';
 // import feelings from './feelings';
 
-export const MODULES = [english /*, numbers, feelings */];
+export const MODULES = [english, talk /*, numbers, feelings */];
 
 // Register the Urdu words of every module (runs once, when the app starts).
 MODULES.forEach((module) => {
@@ -61,6 +63,9 @@ export function selectModuleProgress(state, childId) {
 export function sameProgress(a, b) {
   return a.length === b.length && a.every((item, i) => item.done === b[i].done && item.total === b[i].total && item.text === b[i].text);
 }
+
+// One sentence per screen for parents, shown only in the Preview strip (module index.js: previewGuide).
+export const MODULE_PREVIEW_GUIDE = Object.assign({}, ...MODULES.map((module) => module.previewGuide || {}));
 
 // The Plan-tab cards of every module.
 export const MODULE_PARENT_TOOLS = MODULES.flatMap((module) => module.parentTools || []);

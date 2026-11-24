@@ -6,6 +6,8 @@ import { Animated, StyleSheet, View } from 'react-native';
 import Text from '../../../shared/components/AppText';
 import Mascot from '../../../shared/components/Mascot';
 import SoftButton from '../../../shared/components/SoftButton';
+import AppIcon from '../../../shared/components/AppIcon';
+import { translate } from '../../../shared/i18n/translate';
 import { getAvatar } from '../../../shared/theme/avatars';
 import { useIdleBob } from '../../../shared/utils/motion';
 import { ageText, lastActiveText, streakDays } from '../../../shared/utils/progress';
@@ -35,7 +37,8 @@ export default function OpenChildModeCard({ child, onOpen }) {
             {ageText(child)} · Active {lastActiveText(child).toLowerCase()}
           </Text>
           <View style={styles.streak}>
-            <Text style={styles.streakText}>🔥 {streak}d</Text>
+            <AppIcon name="fire" size={16} color={PALETTE.purple} />
+            <Text style={styles.streakText}>{translate('{n}d', { n: streak })}</Text>
           </View>
         </View>
       </View>
@@ -100,6 +103,8 @@ const styles = StyleSheet.create({
     color: CALM.textSoft,
   },
   streak: {
+    flexDirection: 'row',
+    alignItems: 'center',
     marginTop: 6,
     paddingVertical: 3,
     paddingHorizontal: 10,
@@ -107,6 +112,7 @@ const styles = StyleSheet.create({
     backgroundColor: PALETTE.blushPeach,
   },
   streakText: {
+    marginStart: 4,
     fontFamily: FONTS.nunitoExtraBold,
     fontSize: 13,
     color: CALM.text,

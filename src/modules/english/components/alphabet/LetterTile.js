@@ -51,7 +51,7 @@ export default function LetterTile({ item, index, stars, isNext, size, onPress }
 
 const styles = StyleSheet.create({
   glow: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     margin: -5,
     borderRadius: CALM_RADIUS.large + 5,
   },

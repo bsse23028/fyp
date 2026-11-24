@@ -23,11 +23,13 @@ import { CATEGORY, COLORS, FONTS, PALETTE } from '../../shared/theme/theme';
 
 // `screen` = the screen the card opens (leave it out for "Coming soon"). `icon` = a flat AppIcon name,
 // `accent` = its category colours (the square behind the icon + the icon colour).
+// Each card follows the FYP proposal (the FR number is in the comment). All are "Coming soon" for now.
 const CARDS = [
-  { icon: 'target', title: 'Therapist targets', desc: 'Goals shared by your therapist', accent: CATEGORY.art },
-  { icon: 'book-open-variant', title: 'Reading material', desc: 'Upload or type familiar text', accent: CATEGORY.reading },
-  { icon: 'weather-sunny', title: 'Routine builder', desc: 'Morning and after-school routines', accent: CATEGORY.calm },
-  { icon: 'view-grid', title: 'AAC symbol editor', desc: 'Update boards and quick phrases', accent: CATEGORY.learning },
+  { icon: 'target', title: 'Therapist targets', desc: 'Enter the therapist’s goals: sounds, words, routines', accent: CATEGORY.art }, // FR-09, FR-11
+  { icon: 'book-open-variant', title: 'Reading material', desc: 'Add your own text for Reading Assist', accent: CATEGORY.reading }, // FR-23
+  { icon: 'weather-sunny', title: 'Routine builder', desc: 'Morning and bedtime picture routines', accent: CATEGORY.calm }, // FR-50, FR-51
+  { icon: 'image-plus', title: 'Talk board pictures', desc: 'Add your child’s own people and things to the AAC board', accent: CATEGORY.learning }, // FR-47
+  { icon: 'book-account', title: 'Social stories', desc: 'Stories with your child’s own people and places', accent: CATEGORY.music }, // FR-49
 ];
 
 // Parent Mode's own cards + the cards of every learning module (their `accent` is a CATEGORY name).

@@ -38,7 +38,11 @@ export const MODULES = [
   { name: 'Routines / Attention', sensor: '', supports: ['Attention and routine', 'Daily living'] },
 ];
 
-// Activities switched on for a NEW child: everything except the two camera-heavy ones (as in Figma).
+// A NEW child starts with ALL activities switched OFF (the parent switches them on, e.g. from the
+// recommendations in Areas of support). true = start with the usual ones on (defaultModules below).
+export const NEW_CHILD_ACTIVITIES_ON = false;
+
+// The usual activities (used only when NEW_CHILD_ACTIVITIES_ON is true): everything except the two camera-heavy ones.
 export function defaultModules() {
   return MODULES.filter((m) => m.name !== 'Handwriting' && m.name !== 'Number Sense').map((m) => m.name);
 }

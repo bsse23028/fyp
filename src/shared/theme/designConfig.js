@@ -12,6 +12,8 @@ export const DESIGN = {
 
   // ----- form screens (AuthHeading.js: log in, sign up, codes ...) -----
   AUTH_MASCOT: 110, // height of the buddy peeking in above the title
+  AUTH_MASCOT_SIDE: 96, // height of the buddy when it stands BESIDE the title (Sign Up: <AuthHeading side />)
+  CHILD_PREVIEW_MASCOT: 130, // Create child profile: the chosen buddy beside the title, big enough to see its whole body
 
   // ----- welcome screen -----
   WELCOME_MASCOT: 0.22, // height of the buddy on the left of the Welcome text: a part of the screen height
@@ -43,6 +45,9 @@ export const DESIGN = {
   RING_SIZE: 190, // width of the ring
   RING_STROKE: 16, // thickness of the ring
   RING_SWEEP: 270, // how much of a full circle the ring draws (270 = open at the bottom, like the inspo)
+
+  // ----- practice calendar (PracticeCalendar.js, Progress tab) -----
+  CAL_DAY_SIZE: 34, // size of one day's circle (a practised day is filled purple)
 
   // ----- parent bottom bar (ParentTabBar.js) -----
   TAB_BAR_HEIGHT: 68, // height of the bar (without the phone's own bottom area)

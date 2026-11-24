@@ -1,27 +1,33 @@
-// ENGLISH HUB SCREEN - the English section: Alphabets · Trace letters · Letter games · Letter stories · Words (WordsHub: Read Along, Spelling ...) · Sentences.
-// Inspo look: the buddy says the question, then the rounded pale sheet with a 2-column grid of pastel tiles
-// (each tile has its category colour, CATEGORY in theme.js, and an icon that bobs a few times).
-// Sentences opens the existing Read Along flow (ReadingTopics) unchanged. Opened from Child Home.
+// ENGLISH HUB SCREEN - the "Reading & Writing" group of Child Home, laid out as the FYP proposal's
+// Modules 1-5 (data/englishSections.js):
+//   1 Read-Along · 2 Reading Assist (Coming soon) · 3 Words & Phonics · 4 Spelling & Letter Sounds · 5 Handwriting
+// Only the modules the parent switched on for this child are shown (shared/utils/childActivities.js).
+// A module with one activity opens it straight away (Read Along topics, Trace letters); a module with several
+// opens its activity page (EnglishActivitiesScreen); one that is not built shows "Coming soon" and a tap
+// only says so. Inspo look: the buddy says the question, then the pale sheet with a 2-column tile grid
+// (each tile in its CATEGORY colour, its icon bobs a few times).
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { Animated, StyleSheet, View } from 'react-native';
-import Text from '../../../shared/components/AppText';
 import AppIcon from '../../../shared/components/AppIcon';
 import Screen from '../../../shared/components/Screen';
 import FadeInView from '../../../shared/components/FadeInView';
 import PastelTile from '../../../shared/components/PastelTile';
 import Sheet from '../../../shared/components/Sheet';
+import Tag from '../../../shared/components/Tag';
 import BuddyCharacter from '../../../shared/components/BuddyCharacter';
-import ComingSoonModal from '../../../shared/components/ComingSoonModal';
 import SectionHeader from '../components/SectionHeader';
 import { speakUi, stopSpeaking } from '../../../shared/utils/speech';
 import { useIdleBob } from '../../../shared/utils/motion';
-import { CATEGORY, CALM, CALM_RADIUS, FONTS } from '../../../shared/theme/theme';
+import { ENGLISH_MODULES } from '../data/englishSections';
+import { useChild } from '../../../app/store/useChild';
+import { activityOn } from '../../../shared/utils/childActivities';
+import { CATEGORY, CALM, CALM_RADIUS, PALETTE } from '../../../shared/theme/theme';
 
 const GREETING = 'What do you want to learn?';
 
 // The tile icon (a flat AppIcon) bobs gently a few times (each tile a little later), then rests.
-function BobbingIcon({ icon, index, color }) {
+export function BobbingIcon({ icon, index, color }) {
   const bob = useIdleBob({ height: 5, duration: 1400, cycles: 4, delay: 500 + index * 250 });
   return (
     <View style={styles.iconBox}>
@@ -32,32 +38,26 @@ function BobbingIcon({ icon, index, color }) {
   );
 }
 
-const SECTIONS = [
-  { title: 'Alphabets', subtitle: 'Letters and their sounds', icon: 'alphabetical-variant', screen: 'AlphabetList', accent: CATEGORY.learning },
-  { title: 'Trace letters', subtitle: 'Draw letters with your finger', icon: 'draw', screen: 'TraceList', accent: CATEGORY.art },
-  { title: 'Letter games', subtitle: 'Bubble pop and matching', icon: 'gamepad-variant', screen: 'LetterGames', accent: CATEGORY.games },
-  { title: 'Letter stories', subtitle: 'Watch a letter come alive', icon: 'movie-open', screen: 'StoryList', accent: CATEGORY.music },
-  { title: 'Words', subtitle: 'Read and match words', icon: 'puzzle', screen: 'WordsHub', accent: CATEGORY.calm },
-  { title: 'Sentences', subtitle: 'Read Along stories', icon: 'book-open-variant', screen: 'ReadingTopics', accent: CATEGORY.reading },
-];
-
 export default function EnglishHubScreen({ navigation }) {
-  const [soonOpen, setSoonOpen] = useState(false);
+  const { activeChild } = useChild();
+  // only the modules (1-5) the parent switched on for this child
+  const shown = ENGLISH_MODULES.filter((module) => activityOn(activeChild, module.no));
 
   useEffect(() => {
     const unsubscribe = navigation.addListener('blur', stopSpeaking);
     return unsubscribe;
   }, [navigation]);
 
-  function open(section) {
-    if (section.screen) navigation.navigate(section.screen);
-    else setSoonOpen(true);
+  function open(module) {
+    if (module.screen) navigation.navigate(module.screen);
+    else if (module.activities) navigation.navigate('EnglishActivities', { moduleNo: module.no });
+    else speakUi('Coming soon!');
   }
 
   return (
     <Screen scroll mode="child">
       <View style={styles.body}>
-        <SectionHeader title="English" onBack={() => navigation.goBack()} onSound={() => speakUi(GREETING)} />
+        <SectionHeader title="Reading & Writing" onBack={() => navigation.goBack()} onSound={() => speakUi(GREETING)} />
 
         <View style={styles.greeting}>
           <BuddyCharacter size={84} bubbleSide message={GREETING} messageKey={1} messageSilent />
@@ -65,32 +65,26 @@ export default function EnglishHubScreen({ navigation }) {
 
         <Sheet>
           <FadeInView index={1} style={styles.grid}>
-            {SECTIONS.map((section, i) => (
-              <PastelTile
-                key={section.title}
-                title={section.title}
-                subtitle={section.subtitle}
-                iconNode={<BobbingIcon icon={section.icon} index={i} color={section.accent.deep} />}
-                color={section.accent.pale}
-                minHeight={150}
-                onPress={() => open(section)}
-              >
-                {!section.screen && (
-                  <View style={styles.soonTag}>
-                    <Text style={styles.soonText}>Coming soon</Text>
-                  </View>
-                )}
-              </PastelTile>
-            ))}
+            {shown.map((module, i) => {
+              const accent = CATEGORY[module.accent] || CATEGORY.reading;
+              const built = Boolean(module.screen || module.activities);
+              return (
+                <PastelTile
+                  key={module.no}
+                  title={module.title}
+                  subtitle={module.subtitle}
+                  iconNode={<BobbingIcon icon={module.icon} index={i} color={accent.deep} />}
+                  color={accent.pale}
+                  minHeight={150}
+                  onPress={() => open(module)}
+                >
+                  {!built ? <Tag label="Coming soon" color={PALETTE.cloudWhite} style={styles.soon} /> : null}
+                </PastelTile>
+              );
+            })}
           </FadeInView>
         </Sheet>
       </View>
-
-      <ComingSoonModal
-        visible={soonOpen}
-        onClose={() => setSoonOpen(false)}
-        message="Words is still being built. Check back soon!"
-      />
     </Screen>
   );
 }
@@ -119,21 +113,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: CALM.surface,
   },
-  icon: {
-    fontSize: 36,
-    lineHeight: 46,
-  },
-  soonTag: {
-    alignSelf: 'flex-start',
+  soon: {
     marginTop: 8,
-    paddingVertical: 3,
-    paddingHorizontal: 10,
-    borderRadius: CALM_RADIUS.pill,
-    backgroundColor: CALM.surface,
-  },
-  soonText: {
-    fontFamily: FONTS.nunitoExtraBold,
-    fontSize: 12,
-    color: CALM.textSoft,
   },
 });

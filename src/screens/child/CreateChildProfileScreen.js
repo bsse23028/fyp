@@ -1,11 +1,12 @@
 // CREATE CHILD PROFILE SCREEN - ONE quick step (nickname, age, avatar, language).
 //
-// Everything else (areas of support, activities, story personalisation) is optional and
-// lives in  Parent Home -> Edit -> Edit profile, so creating a profile is as short
-// as possible. A new child starts with the usual activities switched on.
+// Everything else (areas of support, activities, story personalisation) is optional, so creating
+// a profile stays short. A new child starts with ALL activities switched OFF
+// (NEW_CHILD_ACTIVITIES_ON in shared/utils/childOptions.js).
 //
-// "Create profile" saves the child (addChild) and opens Parent Home. The parent then
-// taps "Open Child Mode" to let the child start.
+// "Create profile" saves the child (addChild) and opens ChildSetup: three OPTIONAL extras
+// (areas of support, activities, personalize stories) with "Skip for now". They can also be
+// done later in Parent Home -> ⋯ -> Edit profile.
 //
 // The header logo shows the avatar being chosen, live (see `avatar` on <Screen>).
 // There is NO permission step here: camera / microphone were already asked
@@ -30,8 +31,10 @@ import { useChild } from '../../app/store/useChild';
 import { goToParentHome } from '../../app/navigation/helpers';
 import { useChildOptions } from '../../app/store/useChildOptions';
 import { EMPTY_STORY } from '../../shared/utils/storyOptions';
+import { NEW_CHILD_ACTIVITIES_ON } from '../../shared/utils/childOptions';
 import { DEFAULT_AVATAR } from '../../shared/theme/avatars';
 import { globalStyles } from '../../shared/theme/globalStyles';
+import { DESIGN } from '../../shared/theme/designConfig';
 import { COLORS, FONTS } from '../../shared/theme/theme';
 
 export default function CreateChildProfileScreen({ navigation }) {
@@ -59,19 +62,28 @@ export default function CreateChildProfileScreen({ navigation }) {
       avatar,
       language,
       supports: [],
-      modules: defaultModules(),
+      modules: NEW_CHILD_ACTIVITIES_ON ? defaultModules() : [], // all OFF by default
       story: EMPTY_STORY,
     });
     setSaving(false);
-    if (child) goToParentHome(navigation);
+    if (!child) return;
+    // next: the OPTIONAL extras (areas of support, activities, stories). In Explore mode nothing is
+    // saved (no id), so it goes straight to Parent Home.
+    if (child.id) navigation.replace('ChildSetup', { childId: child.id });
+    else goToParentHome(navigation);
   }
 
   return (
     <Screen scroll avatar={avatar}>
       <View style={styles.body}>
+        {/* the words on the left, the CHOSEN buddy (whole body) on the right: it changes when another
+            buddy is picked below, so the parent sees the full buddy before saving */}
         <AuthHeading
+          side
+          avatar={avatar}
+          mascotSize={DESIGN.CHILD_PREVIEW_MASCOT}
           title="Create child profile"
-          subtitle="Just a few quick details. You can add more later in Edit profile."
+          subtitle="Just a few quick details. Next you can add more if you like (optional)."
         />
 
         <TextField

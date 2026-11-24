@@ -119,7 +119,10 @@ describe('GET /api/options', () => {
     const res = await api().get('/api/options');
     expect(res.status).toBe(200);
     expect(res.body.ageBands.map((a) => a.label)).toEqual(['4–6 years', '7–9 years', '10–12 years']);
-    expect(res.body.avatars.map((a) => a.code)).toEqual(['panda', 'rabbit', 'wolf', 'bear']);
+    // the 11 buddies of the app, in the app's order (migration 002); the old wolf is switched off
+    expect(res.body.avatars.map((a) => a.code)).toEqual([
+      'rabbit', 'bear', 'panda', 'dino', 'elephant', 'fox', 'kitty', 'koala', 'lion', 'penguin', 'puppy',
+    ]);
     expect(res.body.languages).toEqual([
       { code: 'en', name: 'English', nativeName: 'English', isRtl: false },
       { code: 'ur', name: 'Urdu', nativeName: 'اردو', isRtl: true },
