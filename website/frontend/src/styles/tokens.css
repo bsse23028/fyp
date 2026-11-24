@@ -1,0 +1,164 @@
+/* TOKENS - the KidBuddy WEBSITE design system, taken from the Figma ("KidBuddy Web App Extension").
+   Parent palette: indigo #4F46E5 actions on ink #172033 text and a #F7F8FC page; the category colours are
+   the colour-blind-safe set from the Figma (sky, gold, mint, rose). Child palette (--ch-*) for Child Mode.
+   Inter for the parent UI, Nunito for the child, Noto Nastaliq for Urdu. Change a value once here. */
+
+:root {
+  /* ----- core ----- */
+  --ink: #172033;
+  --ink-2: #344054;
+  --ink-3: #667085;
+  --ink-4: #98a2b3;
+  --lilac: #4f46e5;
+  --lilac-hover: #3730a3;
+  --lilac-soft: #eef2ff;
+  --lilac-line: #c7d2fe;
+  --paper: #f7f8fc;
+  --surface: #ffffff;
+  --surface-2: #f9fafb;
+  --line: #e6e9ef;
+  --line-strong: #d5dae3;
+
+  /* ----- crayons (categories) ----- */
+  --sun: #e69f00;
+  --sun-soft: #fff6df;
+  --sun-ink: #986e0d;
+  --leaf: #009e73;
+  --leaf-soft: #e9f7f2;
+  --leaf-ink: #17745a;
+  --sky: #0072b2;
+  --sky-soft: #e6f6fb;
+  --sky-ink: #08709e;
+  --berry: #cc79a7;
+  --berry-soft: #f5edfb;
+  --berry-ink: #8551a4;
+
+  /* ----- feedback ----- */
+  --danger: #b54738;
+  --danger-soft: #fff3f1;
+  --success: #17745a;
+  --success-soft: #e9f7f2;
+  --warning-soft: #fdf3df;
+
+  /* ----- type ----- */
+  --font-display: 'Inter', system-ui, sans-serif;
+  --font-ui: 'Inter', system-ui, sans-serif;
+  --font-kid: 'Nunito', 'Inter', system-ui, sans-serif;
+  --font-urdu: 'Noto Nastaliq Urdu', 'Inter', serif;
+
+  /* type scale (1.25 minor third from 16px) */
+  --t-xs: 12px;
+  --t-sm: 13.5px;
+  --t-base: 16px;
+  --t-md: 18px;
+  --t-lg: 22px;
+  --t-xl: 28px;
+  --t-2xl: 36px;
+  --t-3xl: 48px;
+  --t-hero: clamp(44px, 5.6vw, 76px);
+
+  /* ----- space (4px grid) ----- */
+  --s-1: 4px;
+  --s-2: 8px;
+  --s-3: 12px;
+  --s-4: 16px;
+  --s-5: 20px;
+  --s-6: 24px;
+  --s-8: 32px;
+  --s-10: 40px;
+  --s-12: 48px;
+  --s-16: 64px;
+  --s-24: 96px;
+
+  /* ----- shape: two radii, by hierarchy ----- */
+  --r-control: 12px;
+  --r-panel: 16px;
+  --r-pill: 999px;
+
+  --shadow-pop: 0 16px 45px rgba(27, 36, 54, 0.09);
+  --shadow-raise: 0 2px 8px rgba(25, 34, 61, 0.06);
+  --focus: 0 0 0 3px rgba(79, 70, 229, 0.3);
+
+  /* ----- child palette (Figma) ----- */
+  --ch-purple: #7567d8;
+  --ch-blue: #65aee8;
+  --ch-sun: #f5bd4f;
+  --ch-leaf: #5bbf95;
+  --ch-coral: #ef896d;
+  --ch-cream: #fffaf0;
+
+  --sidebar: 264px;
+  --content: 1180px;
+  --header-h: 72px;
+
+  /* ----- names still used by the child / English pages, mapped onto this system ----- */
+  --white: #ffffff;
+  --text: var(--ink);
+  --text-muted: var(--ink-3);
+  --border: var(--line);
+  --primary: var(--lilac);
+  --primary-pale: var(--lilac-soft);
+  --error: var(--danger);
+  --warm-text: var(--ink);
+  --warm-muted: var(--ink-3);
+  --warm-border: var(--line-strong);
+  --bubble: var(--ink);
+  --bubble-accent: #b8aef5;
+  --blue: var(--sky);
+  --blue-pale: var(--sky-soft);
+  --sage-pale: var(--leaf-soft);
+  --yellow: var(--sun);
+  --yellow-pale: var(--sun-soft);
+  --purple-pale: var(--lilac-soft);
+  --orange-pale: var(--berry-soft);
+  --coral-pale: var(--berry-soft);
+  --calm-bg: var(--paper);
+  --calm-surface: var(--surface);
+  --calm-surface-soft: var(--surface-2);
+  --calm-line: var(--line);
+  --calm-primary: var(--lilac);
+  --calm-primary-dark: var(--lilac-hover);
+  --calm-primary-pale: var(--lilac-soft);
+  --calm-sky: var(--sky);
+  --calm-sky-pale: var(--sky-soft);
+  --calm-coral: var(--berry);
+  --calm-coral-pale: var(--berry-soft);
+  --calm-yellow: var(--sun);
+  --calm-yellow-pale: var(--sun-soft);
+  --calm-sage: var(--leaf);
+  --calm-sage-pale: var(--leaf-soft);
+  --calm-lavender: var(--lilac-line);
+  --calm-lavender-pale: var(--lilac-soft);
+  --calm-text: var(--ink);
+  --calm-text-soft: var(--ink-3);
+  --calm-backdrop: rgba(30, 27, 58, 0.4);
+  --calm-radius-s: var(--r-control);
+  --calm-radius-m: 14px;
+  --calm-radius-l: var(--r-panel);
+  --calm-radius-xl: var(--r-panel);
+  --tap: 56px;
+  --shadow-soft: var(--shadow-raise);
+  --shadow-lifted: var(--shadow-pop);
+  --button-fill: var(--lilac);
+  --cloud-white: #ffffff;
+  --coral-deep: var(--berry);
+  --deep-plum: var(--ink);
+  --muted-plum: var(--ink-3);
+  --mint: var(--leaf);
+  --mint-deep: var(--leaf-ink);
+  --pale-lilac: var(--surface-2);
+  --pastel-blue: var(--sky-soft);
+  --pastel-lilac: var(--lilac-soft);
+  --pastel-mint: var(--leaf-soft);
+  --pastel-yellow: var(--sun-soft);
+  --purple-light: var(--lilac-line);
+  --sunny: var(--sun);
+  --glass-fill: rgba(255, 255, 255, 0.7);
+  --glass-fill-strong: rgba(255, 255, 255, 0.9);
+  --glass-border: rgba(255, 255, 255, 0.9);
+  --glass-star: var(--sun);
+  --radius-card: var(--r-panel);
+  --radius-input: var(--r-control);
+  --radius-button: var(--r-control);
+  --radius-box: var(--r-control);
+}

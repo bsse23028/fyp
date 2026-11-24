@@ -1,0 +1,24 @@
+{
+  "name": "kidbuddy-web-frontend",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "KidBuddy website: the web version of the KidBuddy mobile app (React + Vite, plain JavaScript).",
+  "scripts": {
+    "dev": "vite --configLoader native",
+    "build": "vite build --configLoader native",
+    "preview": "vite preview --configLoader native",
+    "test": "vitest run --configLoader native"
+  },
+  "dependencies": {
+    "@mdi/js": "^7.4.47",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^6.28.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.3.4",
+    "vite": "^6.0.0",
+    "vitest": "^3.0.0"
+  }
+}
