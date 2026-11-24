@@ -40,7 +40,7 @@ export default function SentenceStrip({ words, onSpeak, onDeleteLast, onClear })
               const type = WORD_TYPES[item.type] || WORD_TYPES.people;
               return (
                 <View key={`${item.word}-${i}`} style={[styles.chip, { backgroundColor: type.fill, borderColor: type.edge }]}>
-                  <Image source={symbolFor(item.word)} style={styles.chipSymbol} resizeMode="contain" />
+                  <Image source={symbolFor(item)} style={styles.chipSymbol} resizeMode="contain" />
                   <Text style={styles.chipLabel} numberOfLines={1}>
                     {item.word}
                   </Text>

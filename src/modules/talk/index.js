@@ -4,8 +4,9 @@
 //
 // Inside this folder:
 //   screens/     AACBoardScreen (sentence strip + Core / topic tabs + the picture board)
-//   components/  SentenceStrip, TopicTabs, WordButton
-//   data/        aacWords.js - the 36 Universal Core words (fixed places), 5 topic pages, the word-type
+//   components/  SentenceStrip, QuickWords, WordButton, FolderTile
+//   data/        aacWords.js - 48 core words (Universal Core 36 + toddler words, fixed places), 6 quick words,
+//                13 topic folders x 12 words, the word-type
 //                colours (Modified Fitzgerald Key) and the ARASAAC pictures (assets/aac/*.png)
 //   i18n/        ur.json - the Urdu words of the board
 //   aacConfig.js every number of the board

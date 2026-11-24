@@ -2,7 +2,7 @@
 // log out, in the inspo look: the big purple title with the buddy, then the pale sheet with white cards.
 //
 //   - Account: the logged-in parent (tap -> My account: name, password, PIN)
-//   (Children are edited from their card on Parent Home: ⋯ -> Edit profile. That is the one way in.)
+//   - My children (n): every child as a card (tap = Edit profile, ⋯ = Edit / Delete, like Parent Home) + Add a child
 //   - Language: English / اردو pill tabs (the same choice as the header toggle)
 //   - Parent PIN: first time "Create PIN", afterwards "Update PIN" (old PIN + email code)
 //   - Permissions: shows camera / microphone and opens the phone's settings
@@ -24,6 +24,11 @@ import Tag from '../../shared/components/Tag';
 import SegmentedControl from '../../shared/components/SegmentedControl';
 import PinModal from '../../shared/components/PinModal';
 import Button from '../../shared/components/Button';
+import AnimatedPressable from '../../shared/components/AnimatedPressable';
+import ChildActionsMenu from './components/ChildActionsMenu';
+import { useChild } from '../../app/store/useChild';
+import { getAvatar } from '../../shared/theme/avatars';
+import { ageText } from '../../shared/utils/progress';
 import { useAuth } from '../../app/context/AuthContext';
 import { useDevice } from '../../app/context/DeviceContext';
 import { useLanguage } from '../../app/context/LanguageContext';
@@ -45,6 +50,8 @@ const Soon = () => <Tag label="Soon" style={styles.soon} />;
 export default function ParentSettingsScreen({ navigation }) {
   const { user, logOut, pin } = useAuth();
   const { permissions } = useDevice();
+  const { childProfiles, deleteChild } = useChild();
+  const [menuChild, setMenuChild] = useState(null); // the child whose ⋯ menu is open
   const { language, setLanguage } = useLanguage();
   const [pinOpen, setPinOpen] = useState(false);
 
@@ -57,6 +64,18 @@ export default function ParentSettingsScreen({ navigation }) {
   function handlePinSaved() {
     setPinOpen(false);
     Alert.alert(translate('PIN saved'), translate('Use this PIN to leave Child Mode.'));
+  }
+
+  // the same question as on Parent Home
+  function confirmDelete(child) {
+    Alert.alert(
+      translate('Delete {name}?', { name: child.name }),
+      translate('This deletes the profile and all of its progress from your account. It cannot be undone.'),
+      [
+        { text: translate('Cancel'), style: 'cancel' },
+        { text: translate('Delete'), style: 'destructive', onPress: () => deleteChild(child.id) },
+      ]
+    );
   }
 
   function confirmLogOut() {
@@ -93,6 +112,36 @@ export default function ParentSettingsScreen({ navigation }) {
           title={user ? user.name : 'Parent'}
           subtitle={user ? user.email : ''}
           onPress={() => navigation.navigate('ParentProfile')}
+          right={<Chevron />}
+        />
+
+        {/* my children: how many, and each one's profile (tap = edit, ⋯ = edit / delete) */}
+        <Text style={styles.section}>{translate('My children ({n})', { n: childProfiles.length })}</Text>
+        {childProfiles.map((child) => (
+          <ProgressCard
+            key={child.id}
+            left={
+              <View style={[styles.pic, { backgroundColor: getAvatar(child.avatar).color }]}>
+                <Mascot size={40} avatar={child.avatar} />
+              </View>
+            }
+            title={child.name}
+            subtitle={`${ageText(child)} · ${child.language === 'ur' ? 'اردو' : 'English'} · ${translate('{n} activities on', { n: (child.modules || []).length })}`}
+            onPress={() => navigation.navigate('EditProfile', { childId: child.id })}
+            right={
+              <AnimatedPressable onPress={() => setMenuChild(child)} hitSlop={6} accessibilityLabel="More options" style={styles.more}>
+                <Text style={styles.moreText}>⋯</Text>
+              </AnimatedPressable>
+            }
+          />
+        ))}
+        <ProgressCard
+          iconName="account-plus"
+          iconColor={CATEGORY.calm.pale}
+          iconTint={CATEGORY.calm.deep}
+          title={childProfiles.length === 0 ? 'Add a child' : 'Add another child'}
+          subtitle="Create a new child profile"
+          onPress={() => navigation.navigate('CreateChildProfile')}
           right={<Chevron />}
         />
 
@@ -170,6 +219,13 @@ export default function ParentSettingsScreen({ navigation }) {
         </Text>
       </Sheet>
 
+      <ChildActionsMenu
+        child={menuChild}
+        onClose={() => setMenuChild(null)}
+        onEdit={(child) => navigation.navigate('EditProfile', { childId: child.id })}
+        onDelete={confirmDelete}
+      />
+
       <PinModal visible={pinOpen} onClose={() => setPinOpen(false)} onSuccess={handlePinSaved} forceCreate />
     </Screen>
   );
@@ -194,6 +250,19 @@ const styles = StyleSheet.create({
   soon: {
     alignSelf: 'center',
     marginEnd: 4,
+  },
+  more: {
+    width: 48,
+    height: 48,
+    borderRadius: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  moreText: {
+    fontFamily: FONTS.nunitoBlack,
+    fontSize: 24,
+    lineHeight: 28,
+    color: COLORS.textMuted,
   },
   chevron: {
     marginHorizontal: 6,

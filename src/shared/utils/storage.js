@@ -16,6 +16,7 @@ export const KEYS = {
   authToken: 'kidbuddy_auth_token', // the login token (JWT) from the backend (see shared/api/client.js)
   alphabetCase: 'kidbuddy_alphabet_case', // 'upper' | 'lower' - how letters are drawn in the alphabet lessons
   alphabetProgress: 'kidbuddy_alphabet_progress', // { childId: { A: 3, B: 1 } } best stars per letter (frontend-only for now)
+  aacBig: 'kidbuddy_aac_big', // true = the Talk board shows BIG buttons (3 pages), false = all core words on one page
   explored: 'kidbuddy_explored', // true once "Explore KidBuddy" was tried or "Not now" was tapped (hides Parent Home's welcome card)
   // These two are per parent, so the parent's email is added to the key:
   children: (email) => `kidbuddy_children_${email}`, // list of child profiles

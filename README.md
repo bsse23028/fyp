@@ -128,14 +128,20 @@ Every part has ONE job and talks to the rest through ONE small door:
 | My Buddy | the logo in Child Mode |
 | AAC board (Talk) | Child Home → Talk |
 
-### Talk module: the AAC board (2026-11-23)
-`src/modules/talk/`: the child taps pictures to speak. It follows what speech therapists use worldwide:
-the **36 Universal Core words** (Project Core, UNC) in a **fixed 6 × 6 grid** (words never move), the
-**Modified Fitzgerald Key** colours (people yellow, actions green, describing blue, things orange, little words
-pink, questions purple) in soft KidBuddy pastels, **5 topic pages** (Food, Play, Feelings, People, Places),
-a **sentence strip** with Speak / delete / clear, English + Urdu voice. Pictures: **ARASAAC** pictograms in
-`assets/aac/` (CC BY-NC-SA, credit in Parent Settings; ids in `assets/aac/README.md`). Words + colours:
-`data/aacWords.js`; numbers: `aacConfig.js`.
+### Talk module: the AAC board (2026-11-24)
+`src/modules/talk/`: the child taps pictures to speak. Built like the therapist apps used worldwide (TD Snap Core
+First, Proloquo2Go, TouchChat WordPower):
+- a **sentence strip** (Speak / delete last / clear) and **6 quick words** always on screen (yes, no, please, thank you, wait, toilet)
+- **48 core words** that never move: the 36 **Universal Core** words (Project Core, UNC) + the words toddlers use most
+  (me, my, out, off, eat, drink, play, sleep, come, big, little, again), shown as **Big** buttons (3 pages of 16) or
+  **All** (6 × 8 on one page); the phone remembers the choice
+- **13 topic folders**, up to 12 pictures each: Food & drinks, Play, Feelings, People, Places, My body, Clothes, Animals,
+  Colours, My day, School, Weather, Moving
+- **Modified Fitzgerald Key** colours (people yellow, actions green, describing blue, things orange, little words pink,
+  questions purple) in soft KidBuddy pastels; English + Urdu voice; the board is never mirrored in Urdu
+
+Pictures: **202 ARASAAC** pictograms in `assets/aac/` (CC BY-NC-SA, credit in Parent Settings; ids in
+`assets/aac/README.md`). Words + colours: `data/aacWords.js` · pictures: `data/aacSymbols.js` · numbers: `aacConfig.js`.
 
 ### The FYP proposal in the app (status of every requirement, 2026-11-23)
 The app follows the proposal *Group#02 · KidBuddy FYP Proposal* (11 modules in Table 1.1, requirements
