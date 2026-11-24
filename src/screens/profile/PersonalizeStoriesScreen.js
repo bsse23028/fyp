@@ -1,4 +1,5 @@
-// PERSONALIZE STORIES SCREEN - "Personalize my child's stories" (opened from Edit profile).
+// PERSONALIZE STORIES SCREEN - "Personalize my child's stories" (opened from Edit profile, or from
+// ChildSetup right after a profile is created).
 //
 // A short, OPTIONAL form that collects things a story can really use, so Read Along
 // paragraphs feel familiar and meaningful to the child. It is split into 5 small steps.
@@ -109,7 +110,10 @@ export default function PersonalizeStoriesScreen({ navigation, route }) {
     <Screen scroll mode="parent" scrollRef={scrollRef}>
       <View style={styles.body}>
         <Text style={styles.heading}>Personalize my child’s stories</Text>
-        <Text style={styles.intro}>All optional. Fill in only what you know. You can skip any section.</Text>
+        <Text style={styles.intro}>
+          This helps customise your child’s stories and activities. All optional: fill in only what you know, skip
+          any section, or do it later.
+        </Text>
 
         {/* progress */}
         <View style={styles.progressRow}>

@@ -4,10 +4,11 @@
 //   HomeBackground  a soft gradient with a few slowly drifting shapes
 //   BuddyHero       the child's buddy walks in, waves and greets ("Good morning, Zara!", spoken once per visit)
 //   StarsChip       a small glass chip with the stars earned today
-//   PopCard         the greeting card (tap the speech bubble) and the "Stars today" card (tap the chip).
-//                   Only one card is open at a time; tap anywhere else to close it.
-//   ModuleGrid      "What shall we learn?": the six learning GROUPS of the FYP proposal (learningGroups.js) as big
-//                   pastel tiles (ModuleCard). A tile opens its module hub, or its group page with the proposal
+//   PopCard         the "Stars today" card (tap the chip); tap anywhere else to close it.
+//                   Tapping the speech bubble only reads the greeting aloud (the greeting card was removed).
+//   ModuleGrid      "What shall we learn?": the learning GROUPS of the FYP proposal (learningGroups.js) as big
+//                   pastel tiles (ModuleCard), ONLY those with an activity the parent switched on for this
+//                   child (none on = "No activities yet. Ask a grown-up to switch some on."). A tile opens its module hub, or its group page with the proposal
 //                   modules ("Coming soon" until built). The ONLY way into a module; there is no quick-start bar.
 //                   A tap: the buddy says the module's name and the module opens a moment later.
 //                   A module that is not built yet: the card wobbles shyly and the buddy says "Coming soon!".
@@ -23,43 +24,46 @@ import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useIsFocused } from '@react-navigation/native';
 import Text from '../../shared/components/AppText';
 import Screen from '../../shared/components/Screen';
-import SpeakButton from '../../shared/components/SpeakButton';
+import { speakUi } from '../../shared/utils/speech';
 import HomeBackground from './components/HomeBackground';
 import BuddyHero from './components/BuddyHero';
 import StarsChip from './components/StarsChip';
 import PopCard from './components/PopCard';
 import ModuleGrid from './components/ModuleGrid';
 import Sheet from '../../shared/components/Sheet';
+import AppIcon from '../../shared/components/AppIcon';
 import { useChild } from '../../app/store/useChild';
 import { usePreview } from '../../app/store/usePreview';
-import { useLanguage } from '../../app/context/LanguageContext';
 import { getGreeting } from '../../shared/utils/greeting';
 import { COLORS, FONTS } from '../../shared/theme/theme';
-import { LEARNING_GROUPS, groupIsBuilt, groupTarget } from './learningGroups';
+import { groupIsBuilt, groupTarget, visibleGroups } from './learningGroups';
 import { HOME } from './homeConfig';
 
-// The six tiles = the six learning GROUPS of the FYP proposal (learningGroups.js), in the proposal's order.
+// The tiles = the learning GROUPS of the FYP proposal (learningGroups.js), in the proposal's order, but ONLY
+// the groups with at least one activity the parent switched on for this child (visibleGroups).
 // Each tile opens ONE screen: its learning module's hub (Reading & Writing -> English, Talk -> the AAC board)
 // or its group page listing its modules ("Coming soon" while they are not built). `soon` = nothing built yet.
-const MODULES = LEARNING_GROUPS.map((group) => {
-  const target = groupTarget(group);
-  return {
-    id: group.id,
-    label: group.label,
-    accent: group.accent,
-    iconName: group.iconName,
-    screen: target.screen,
-    params: target.params,
-    soon: !groupIsBuilt(group),
-  };
-});
+function tilesFor(child) {
+  return visibleGroups(child).map((group) => {
+    const target = groupTarget(group);
+    return {
+      id: group.id,
+      label: group.label,
+      accent: group.accent,
+      iconName: group.iconName,
+      screen: target.screen,
+      params: target.params,
+      soon: !groupIsBuilt(group),
+    };
+  });
+}
 
 export default function ChildHomeScreen({ navigation }) {
   const { activeChild } = useChild();
   const { isPreview } = usePreview();
-  const { t } = useLanguage();
   const focused = useIsFocused(); // false while another screen is in front: every loop stops
   const childName = activeChild ? activeChild.name : 'friend';
+  const tiles = tilesFor(activeChild); // only the activities switched on for this child
 
   // Which card is open: null, 'greeting' or 'stars'.
   const [openCard, setOpenCard] = useState(null);
@@ -106,14 +110,23 @@ export default function ChildHomeScreen({ navigation }) {
   const modules = (
     <>
       <Text style={styles.sectionTitle}>What shall we learn?</Text>
-      <ModuleGrid
-        modules={MODULES}
-        active={focused}
-        isPreview={isPreview}
-        wobbleId={wobble.id}
-        wobbleKey={wobble.key}
-        onOpen={openModule}
-      />
+      {tiles.length > 0 ? (
+        <ModuleGrid
+          modules={tiles}
+          active={focused}
+          isPreview={isPreview}
+          wobbleId={wobble.id}
+          wobbleKey={wobble.key}
+          onOpen={openModule}
+        />
+      ) : (
+        // nothing switched on yet: a calm note for the child (the parent switches activities on in Edit profile)
+        <View style={styles.empty}>
+          <AppIcon name="puzzle-outline" size={40} color={COLORS.heading} />
+          <Text style={styles.emptyTitle}>No activities yet</Text>
+          <Text style={styles.emptyText}>Ask a grown-up to switch some on.</Text>
+        </View>
+      )}
     </>
   );
 
@@ -131,28 +144,16 @@ export default function ChildHomeScreen({ navigation }) {
             <BuddyHero
               greetingKey={greetingKey}
               name={childName}
-              onBubblePress={() => toggleCard('greeting')}
+              onBubblePress={() => {
+                setOpenCard(null);
+                speakUi(greetingKey, { name: childName }); // the bubble only reads the greeting aloud (no card)
+              }}
               message={buddyLine.text}
               messageKey={buddyLine.key}
               active={focused}
             >
               <StarsChip count={filledStars} onPress={() => toggleCard('stars')} />
             </BuddyHero>
-
-            {/* greeting card */}
-            {openCard === 'greeting' && (
-              <PopCard key="greeting">
-                <View style={styles.cardRow}>
-                  <View style={styles.cardText}>
-                    <Text style={styles.greetingTitle}>
-                      {greeting.text} {greeting.emoji}
-                    </Text>
-                    <Text style={styles.greetingSub}>Ready to learn, {childName}?</Text>
-                  </View>
-                  <SpeakButton text={`${t(greeting.text)} ${t('Ready to learn, {name}?', { name: childName })}`} />
-                </View>
-              </PopCard>
-            )}
 
             {/* stars today card */}
             {openCard === 'stars' && (
@@ -213,18 +214,6 @@ const styles = StyleSheet.create({
     flex: 1,
     marginEnd: 12,
   },
-  greetingTitle: {
-    fontFamily: FONTS.nunitoBlack,
-    fontSize: 22,
-    lineHeight: 26,
-    color: COLORS.heading,
-  },
-  greetingSub: {
-    marginTop: 3,
-    fontFamily: FONTS.nunitoSemiBold,
-    fontSize: 15,
-    color: COLORS.warmMuted,
-  },
   starsTitle: {
     fontFamily: FONTS.nunitoExtraBold,
     fontSize: 17,
@@ -247,6 +236,26 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.nunitoBlack,
     fontSize: 24,
     color: COLORS.heading,
+  },
+  empty: {
+    alignItems: 'center',
+    paddingVertical: 28,
+    paddingHorizontal: 16,
+    borderRadius: 22,
+    backgroundColor: COLORS.white,
+  },
+  emptyTitle: {
+    marginTop: 8,
+    fontFamily: FONTS.nunitoBlack,
+    fontSize: 20,
+    color: COLORS.heading,
+  },
+  emptyText: {
+    marginTop: 4,
+    fontFamily: FONTS.nunitoSemiBold,
+    fontSize: 15,
+    textAlign: 'center',
+    color: COLORS.warmMuted,
   },
   // the sheet reaches the screen edges and the bottom (this screen has its own side padding)
   sheet: {

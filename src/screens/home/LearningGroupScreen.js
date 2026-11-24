@@ -1,5 +1,6 @@
 // LEARNING GROUP SCREEN - one Child Home group (Speech Sounds, Feelings & Stories, Numbers, My Day ...):
-// the big title with the buddy, then the group's modules from the FYP proposal as pastel tiles.
+// the big title with the buddy, then the group's modules from the FYP proposal as pastel tiles
+// (only the ones the parent switched on for this child).
 // A module that is built opens its screen; one that is not built yet shows a "Coming soon" tag, and a tap
 // only says "Coming soon!" (no pop-up). The groups and their modules are in learningGroups.js.
 //
@@ -19,10 +20,15 @@ import { speakUi } from '../../shared/utils/speech';
 import { useDirection } from '../../shared/utils/direction';
 import { CALM_SHADOW, CALM_SIZES, PALETTE } from '../../shared/theme/theme';
 import { getGroup, moduleScreen } from './learningGroups';
+import { useChild } from '../../app/store/useChild';
+import { activityOn } from '../../shared/utils/childActivities';
 
 export default function LearningGroupScreen({ navigation, route }) {
   const { isRTL } = useDirection();
+  const { activeChild } = useChild();
   const group = getGroup(route.params && route.params.groupId);
+  // only the modules the parent switched on for this child
+  const items = group ? group.modules.filter((item) => activityOn(activeChild, item.no)) : [];
 
   if (!group) return <Screen mode="child" />;
 
@@ -42,7 +48,7 @@ export default function LearningGroupScreen({ navigation, route }) {
 
       <Sheet>
         <View style={styles.grid}>
-          {group.modules.map((item) => {
+          {items.map((item) => {
             const built = Boolean(moduleScreen(item));
             return (
               <PastelTile

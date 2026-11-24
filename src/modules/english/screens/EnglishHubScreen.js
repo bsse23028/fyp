@@ -1,6 +1,7 @@
 // ENGLISH HUB SCREEN - the "Reading & Writing" group of Child Home, laid out as the FYP proposal's
 // Modules 1-5 (data/englishSections.js):
 //   1 Read-Along · 2 Reading Assist (Coming soon) · 3 Words & Phonics · 4 Spelling & Letter Sounds · 5 Handwriting
+// Only the modules the parent switched on for this child are shown (shared/utils/childActivities.js).
 // A module with one activity opens it straight away (Read Along topics, Trace letters); a module with several
 // opens its activity page (EnglishActivitiesScreen); one that is not built shows "Coming soon" and a tap
 // only says so. Inspo look: the buddy says the question, then the pale sheet with a 2-column tile grid
@@ -19,6 +20,8 @@ import SectionHeader from '../components/SectionHeader';
 import { speakUi, stopSpeaking } from '../../../shared/utils/speech';
 import { useIdleBob } from '../../../shared/utils/motion';
 import { ENGLISH_MODULES } from '../data/englishSections';
+import { useChild } from '../../../app/store/useChild';
+import { activityOn } from '../../../shared/utils/childActivities';
 import { CATEGORY, CALM, CALM_RADIUS, PALETTE } from '../../../shared/theme/theme';
 
 const GREETING = 'What do you want to learn?';
@@ -36,6 +39,10 @@ export function BobbingIcon({ icon, index, color }) {
 }
 
 export default function EnglishHubScreen({ navigation }) {
+  const { activeChild } = useChild();
+  // only the modules (1-5) the parent switched on for this child
+  const shown = ENGLISH_MODULES.filter((module) => activityOn(activeChild, module.no));
+
   useEffect(() => {
     const unsubscribe = navigation.addListener('blur', stopSpeaking);
     return unsubscribe;
@@ -58,7 +65,7 @@ export default function EnglishHubScreen({ navigation }) {
 
         <Sheet>
           <FadeInView index={1} style={styles.grid}>
-            {ENGLISH_MODULES.map((module, i) => {
+            {shown.map((module, i) => {
               const accent = CATEGORY[module.accent] || CATEGORY.reading;
               const built = Boolean(module.screen || module.activities);
               return (

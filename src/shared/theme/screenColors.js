@@ -45,6 +45,7 @@ export const SCREEN_COLORS = {
   ResetPassword: MAIN,
   Permissions: MAIN,
   CreateChildProfile: MAIN,
+  ChildSetup: MAIN,
 
   // ----- parent mode -----
   ParentHome: MAIN,

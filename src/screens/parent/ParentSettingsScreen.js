@@ -28,7 +28,7 @@ import AnimatedPressable from '../../shared/components/AnimatedPressable';
 import ChildActionsMenu from './components/ChildActionsMenu';
 import { useChild } from '../../app/store/useChild';
 import { getAvatar } from '../../shared/theme/avatars';
-import { ageText } from '../../shared/utils/progress';
+import { childLine } from './components/ChildList';
 import { useAuth } from '../../app/context/AuthContext';
 import { useDevice } from '../../app/context/DeviceContext';
 import { useLanguage } from '../../app/context/LanguageContext';
@@ -126,7 +126,7 @@ export default function ParentSettingsScreen({ navigation }) {
               </View>
             }
             title={child.name}
-            subtitle={`${ageText(child)} · ${child.language === 'ur' ? 'اردو' : 'English'} · ${translate('{n} activities on', { n: (child.modules || []).length })}`}
+            subtitle={childLine(child)}
             onPress={() => navigation.navigate('EditProfile', { childId: child.id })}
             right={
               <AnimatedPressable onPress={() => setMenuChild(child)} hitSlop={6} accessibilityLabel="More options" style={styles.more}>

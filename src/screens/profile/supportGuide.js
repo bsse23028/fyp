@@ -1,12 +1,17 @@
 // SUPPORT GUIDE - helps a parent choose "Areas of support" and see which activities fit them.
 // Used by EditChildSectionScreen ('support' and 'modules' sections). Only text and lists, no server.
 //
-//   SUPPORT_GROUPS   the areas of support in 3 categories, each area with a short explanation
-//   DIAGNOSES        "If your child has been diagnosed with X, we recommend these areas" (per category)
+//   SUPPORT_GROUPS   the areas of support in 3 categories, each area with a short explanation, and
+//                    the diagnoses of that category: "If your child has been diagnosed with X, we recommend ..."
 //   MODULE_ABOUT     one short line about every activity
 //
-// The area names must match the server's names exactly (Reading, Writing, Numbers, ...).
-// To add a diagnosis: add { name, about, recommend: [area names] } to the right group.
+// THE DIAGNOSES FOLLOW THE FYP PROPOSAL: the 7 conditions of Section 1 (dyslexia, dysgraphia, dyscalculia,
+// IDD, ASD, ADHD, communication disorders) and, in `modules`, exactly the modules of Table 1.1
+// "Proposed KidBuddy modules and the condition domains they serve". `recommend` = the areas of support
+// those modules belong to (so the activities list can recommend them too).
+//
+// The area and activity names must match the server's names exactly (Reading, Read-Along, ...).
+// To add a diagnosis: add { name, about, recommend: [area names], modules: [activity names] } to the right group.
 // `color` is a key of CATEGORY in shared/theme/theme.js.
 
 export const SUPPORT_GROUPS = [
@@ -21,9 +26,24 @@ export const SUPPORT_GROUPS = [
       { name: 'Numbers', about: 'Counting, number sense and simple maths.' },
     ],
     diagnoses: [
-      { name: 'Dyslexia', about: 'Trouble linking letters to sounds.', recommend: ['Reading', 'Writing'] },
-      { name: 'Dysgraphia', about: 'Trouble with handwriting and spelling.', recommend: ['Writing'] },
-      { name: 'Dyscalculia', about: 'Trouble understanding numbers.', recommend: ['Numbers'] },
+      {
+        name: 'Dyslexia',
+        about: 'Difficulty with reading: letter and word reversals, slow reading, spelling errors.',
+        recommend: ['Reading', 'Writing'],
+        modules: ['Read-Along', 'Reading Assist', 'Phonics', 'Spelling', 'Handwriting'],
+      },
+      {
+        name: 'Dysgraphia',
+        about: 'Difficulty with writing: letter formation, spacing and pencil control.',
+        recommend: ['Writing', 'Reading'],
+        modules: ['Handwriting', 'Spelling', 'Phonics', 'Read-Along', 'Reading Assist'],
+      },
+      {
+        name: 'Dyscalculia',
+        about: 'A weak number sense: judging amounts and linking numbers to them.',
+        recommend: ['Numbers'],
+        modules: ['Number Sense'],
+      },
     ],
   },
   {
@@ -38,15 +58,16 @@ export const SUPPORT_GROUPS = [
     diagnoses: [
       {
         name: 'Autism (ASD)',
-        about: 'Differences in communication, social skills and routines.',
+        about: 'Differences in social communication; recognising emotions and expressing needs.',
         recommend: ['Social communication', 'Speech and language', 'Attention and routine'],
+        modules: ['Emotion Trainer', 'AAC Talk Board', 'Social Stories', 'Vowel / Phoneme', 'Routines / Attention'],
       },
       {
-        name: 'Speech or language delay',
-        about: 'Talking later or less clearly than other children.',
-        recommend: ['Speech and language', 'Social communication'],
+        name: 'Communication disorder',
+        about: 'Difficulty with speech sounds, language or fluency (for example stuttering).',
+        recommend: ['Speech and language', 'Reading'],
+        modules: ['Vowel / Phoneme', 'AAC Talk Board', 'Read-Along', 'Reading Assist', 'Phonics', 'Spelling'],
       },
-      { name: 'Non-verbal / minimally verbal', about: 'Uses few or no spoken words.', recommend: ['Speech and language'] },
     ],
   },
   {
@@ -59,16 +80,17 @@ export const SUPPORT_GROUPS = [
       { name: 'Daily living', about: 'Washing, dressing, eating and other daily tasks.' },
     ],
     diagnoses: [
-      { name: 'ADHD', about: 'Trouble with focus, sitting still or waiting.', recommend: ['Attention and routine'] },
       {
-        name: 'Intellectual disability',
-        about: 'Learns new skills more slowly.',
-        recommend: ['Daily living', 'Attention and routine', 'Speech and language'],
+        name: 'ADHD',
+        about: 'Difficulty with attention, working memory, routines and time.',
+        recommend: ['Attention and routine', 'Social communication', 'Speech and language'],
+        modules: ['Routines / Attention', 'Social Stories', 'Emotion Trainer', 'Vowel / Phoneme'],
       },
       {
-        name: 'Global developmental delay',
-        about: 'Reaches several milestones later.',
-        recommend: ['Speech and language', 'Daily living', 'Attention and routine'],
+        name: 'Intellectual developmental disability (IDD)',
+        about: 'Difficulty with reasoning and everyday independence such as self-care.',
+        recommend: ['Daily living', 'Attention and routine', 'Social communication'],
+        modules: ['Routines / Attention', 'AAC Talk Board', 'Social Stories'],
       },
     ],
   },
@@ -89,6 +111,9 @@ export const MODULE_ABOUT = {
   'Routines / Attention': 'Step-by-step daily routines.',
 };
 
+// Every diagnosis of every group, in one list.
+export const ALL_DIAGNOSES = SUPPORT_GROUPS.flatMap((g) => g.diagnoses);
+
 // The areas of support that are not in any group above (a new one from the server) go in "Other".
 export function groupsFor(serverAreas) {
   const known = SUPPORT_GROUPS.flatMap((g) => g.areas.map((a) => a.name));
@@ -105,4 +130,20 @@ export function recommendedFor(modules, supports) {
   return modules
     .map((m) => ({ ...m, because: (m.supports || []).filter((s) => supports.includes(s)) }))
     .filter((m) => m.because.length > 0);
+}
+
+// The activities to offer after saving the areas of support:
+//   - for every diagnosis the parent chose (and whose areas are all still ticked): exactly its proposal modules
+//   - for areas ticked by hand (not from a diagnosis): the activities of those areas
+// `serverModules` = the activity list from the server, so only real activity names come back.
+export function activitiesToOffer(serverModules, supports, chosenDiagnoses) {
+  const names = serverModules.map((m) => m.name);
+  const active = ALL_DIAGNOSES.filter(
+    (d) => chosenDiagnoses.includes(d.name) && d.recommend.every((area) => supports.includes(area))
+  );
+  const fromDiagnoses = active.flatMap((d) => d.modules);
+  const coveredAreas = active.flatMap((d) => d.recommend);
+  const handAreas = supports.filter((area) => !coveredAreas.includes(area));
+  const fromAreas = recommendedFor(serverModules, handAreas).map((m) => m.name);
+  return [...new Set([...fromDiagnoses, ...fromAreas])].filter((name) => names.includes(name));
 }

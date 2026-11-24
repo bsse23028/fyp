@@ -3,10 +3,12 @@
 //   pink top   tag "Progress", the child's buddy, the name, a pill with the age, "Last practised ..."
 //              (+ chips to choose another child, when there is more than one)
 //   sheet      "Highscores": sessions · stars · day streak as three pastel stat tiles
-//              one big ring per learning module (English: letters learned out of 26), from the modules'
-//              public door (selectModuleProgress)
-//              "Read Along": a month calendar, every day the child practised is circled (PracticeCalendar)
+//              ONLY the activities the child is enrolled in (switched on in Edit profile -> Activities):
+//              one big ring per learning module (English: letters learned out of 26, shown when Phonics is on),
+//              from the modules' public door (selectModuleProgress, `activityNo`)
+//              "Read Along": a month calendar (only when Read-Along is on), practised days are circled
 //              "Activities": every other switched-on activity as a card, "Not started yet" until built
+//              nothing on = "No activities yet" + "Choose activities" (-> EditChildSection 'modules')
 //              "Share report with therapist" (coming soon)
 //
 // Route params: { childId }  (optional - the first child by default)
@@ -30,12 +32,13 @@ import PracticeCalendar from '../../shared/components/PracticeCalendar';
 import { useChild } from '../../app/store/useChild';
 import { sameProgress, selectModuleProgress } from '../../modules';
 import { showComingSoon } from '../../shared/utils/alerts';
+import { ACTIVITY_BY_NO, activityOn } from '../../shared/utils/childActivities';
 import { translate } from '../../shared/i18n/translate';
 import { ageText, allTimeTotals, lastActiveText, streakDays } from '../../shared/utils/progress';
 import { DESIGN } from '../../shared/theme/designConfig';
 import { CATEGORY, COLORS, FONTS, PALETTE } from '../../shared/theme/theme';
 
-export default function ParentProgressScreen({ route }) {
+export default function ParentProgressScreen({ navigation, route }) {
   const { childProfiles } = useChild();
   const startId = route.params && route.params.childId ? route.params.childId : null;
 
@@ -57,7 +60,11 @@ export default function ParentProgressScreen({ route }) {
   }
 
   const totals = allTimeTotals(child);
-  const otherModules = (child.modules || []).filter((name) => name !== 'Read-Along');
+  // only what the child is ENROLLED in (switched on in Edit profile -> Activities)
+  const rings = moduleProgress.filter((item) => !item.activityNo || activityOn(child, item.activityNo));
+  const readAlongOn = activityOn(child, 1);
+  const otherModules = (child.modules || []).filter((name) => name !== ACTIVITY_BY_NO[1]);
+  const nothingOn = (child.modules || []).length === 0;
 
   return (
     <Screen scroll mode="parent">
@@ -96,8 +103,24 @@ export default function ParentProgressScreen({ route }) {
           style={styles.rewards}
         />
 
-        {/* one ring per learning module (English: the alphabet) */}
-        {moduleProgress.map((item) => (
+        {/* no activities switched on: say so, with a way to switch some on */}
+        {nothingOn && (
+          <View style={styles.card}>
+            <Text style={styles.noneTitle}>No activities yet</Text>
+            <Text style={styles.noneText}>
+              Switch activities on in Edit profile to see their progress here.
+            </Text>
+            <Button
+              title="Choose activities"
+              variant="secondary"
+              onPress={() => navigation.navigate('EditChildSection', { childId: child.id, section: 'modules' })}
+              style={styles.noneButton}
+            />
+          </View>
+        )}
+
+        {/* one ring per learning module (English: the alphabet), only if its activity is on */}
+        {rings.map((item) => (
           <View key={item.module}>
             <Text style={styles.sectionTitle}>{item.title}</Text>
             <View style={styles.card}>
@@ -107,8 +130,12 @@ export default function ParentProgressScreen({ route }) {
         ))}
 
         {/* Read Along: a calendar of the month, the days the child practised are circled */}
-        <Text style={styles.sectionTitle}>Read Along</Text>
-        <PracticeCalendar activity={child.activity || {}} style={styles.calendar} />
+        {readAlongOn && (
+          <>
+            <Text style={styles.sectionTitle}>Read Along</Text>
+            <PracticeCalendar activity={child.activity || {}} style={styles.calendar} />
+          </>
+        )}
 
         {/* other activities */}
         {otherModules.length > 0 && <Text style={styles.sectionTitle}>Activities</Text>}
@@ -167,6 +194,21 @@ const styles = StyleSheet.create({
   },
   calendar: {
     marginBottom: 18,
+  },
+  noneTitle: {
+    fontFamily: FONTS.nunitoBlack,
+    fontSize: 18,
+    color: COLORS.heading,
+  },
+  noneText: {
+    marginTop: 4,
+    fontFamily: FONTS.nunitoSemiBold,
+    fontSize: 14,
+    lineHeight: 20,
+    color: COLORS.textMuted,
+  },
+  noneButton: {
+    marginTop: 12,
   },
   rewards: {
     marginBottom: 18,

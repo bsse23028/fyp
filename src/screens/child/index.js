@@ -5,11 +5,13 @@
 // ADD A SCREEN TO THIS AREA: create the file in this folder, import it below and add one line to SCREENS.
 
 import CreateChildProfileScreen from './CreateChildProfileScreen';
+import ChildSetupScreen from './ChildSetupScreen';
 import ProfilePickerScreen from './ProfilePickerScreen';
 import EditAvatarScreen from './EditAvatarScreen';
 
 export const SCREENS = [
   { name: 'CreateChildProfile', component: CreateChildProfileScreen },
+  { name: 'ChildSetup', component: ChildSetupScreen }, // optional extras right after creating a profile
   { name: 'ProfilePicker', component: ProfilePickerScreen },
   { name: 'EditAvatar', component: EditAvatarScreen },
 ];

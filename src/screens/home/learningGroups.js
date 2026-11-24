@@ -9,10 +9,12 @@
 //            module = the learning module in src/modules that builds it (leave it out = "Coming soon")
 //
 // A module counts as BUILT when its learning module exists in src/modules (moduleEntry returns a screen).
+// A child only sees the modules the parent switched on in Edit profile -> Activities (visibleGroups below).
 // TO SWITCH A MODULE ON LATER: build it as src/modules/<name>, register it in src/modules/index.js and put
 // `module: '<name>'` on its line below. Nothing else has to change.
 
 import { moduleEntry } from '../../modules';
+import { activityOn } from '../../shared/utils/childActivities';
 import { CATEGORY } from '../../shared/theme/theme';
 
 export const LEARNING_GROUPS = [
@@ -94,4 +96,12 @@ export function groupTarget(group) {
 
 export function getGroup(id) {
   return LEARNING_GROUPS.find((group) => group.id === id) || null;
+}
+
+// The groups THIS child may see: each group keeps only the modules the parent switched on
+// (shared/utils/childActivities.js), and a group with none left is hidden.
+export function visibleGroups(child) {
+  return LEARNING_GROUPS.map((group) => ({ ...group, modules: group.modules.filter((item) => activityOn(child, item.no)) })).filter(
+    (group) => group.modules.length > 0
+  );
 }

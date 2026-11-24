@@ -61,11 +61,14 @@ export default {
   // is reached from this hub.
   entry: 'EnglishHub',
   // How far a child is, for Parent Home's child cards and the Progress tab:
-  //   { title, done, total, text }   (no saved progress = 0 of 26)
+  //   { title, done, total, text, activityNo }   (no saved progress = 0 of 26)
+  //   activityNo = the proposal module it belongs to (3 Words & Phonics: the alphabet lessons live there),
+  //   so Parent Mode only shows it when that activity is switched on for the child.
   progress: (state, childId) => {
     const stars = selectLetterStars(state, childId);
     const done = Object.keys(stars).filter((letter) => stars[letter] > 0).length;
     return {
+      activityNo: 3,
       title: 'Alphabet',
       done,
       total: LETTER_COUNT,
