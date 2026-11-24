@@ -10,12 +10,15 @@ import { Page } from '../../layouts/Layouts';
 import { Badge, PageHeader } from '../../components/ui';
 import { Row } from '../../components/rows';
 
+// The planning tools, worded after the FYP proposal (the same cards as the app's Plan tab). "Struggle words" is built;
+// the others say "Soon". (FR = the proposal's requirement number.)
 const TOOLS = [
-  { icon: 'bullseye-arrow', tone: 'lilac', title: 'Therapist targets', desc: 'Goals shared by your therapist' },
-  { icon: 'file-document-outline', tone: 'sky', title: 'Reading material', desc: 'Upload or type familiar text' },
+  { icon: 'bullseye-arrow', tone: 'lilac', title: 'Therapist targets', desc: 'Enter the therapist’s goals: sounds, words, routines' }, // FR-09, FR-11
+  { icon: 'file-document-outline', tone: 'sky', title: 'Reading material', desc: 'Add your own text for Reading Assist' }, // FR-23
   { icon: 'alphabetical-variant', tone: 'sun', title: 'Struggle words', to: '/parent/struggle-words', desc: 'Recent words that resurface gently' },
-  { icon: 'weather-sunny', tone: 'berry', title: 'Routine builder', desc: 'Morning and after-school routines' },
-  { icon: 'view-grid-outline', tone: 'leaf', title: 'AAC symbol editor', desc: 'Update boards and quick phrases' },
+  { icon: 'weather-sunny', tone: 'berry', title: 'Routine builder', desc: 'Morning and bedtime picture routines' }, // FR-50, FR-51
+  { icon: 'image-plus', tone: 'leaf', title: 'Talk board pictures', desc: 'Add your child’s own people and things to the AAC board' }, // FR-47
+  { icon: 'book-account', tone: 'sky', title: 'Social stories', desc: 'Stories with your child’s own people and places' }, // FR-49
 ];
 
 export default function ParentPlanPage() {

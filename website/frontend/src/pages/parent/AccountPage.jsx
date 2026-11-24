@@ -1,5 +1,5 @@
-// MY ACCOUNT - your name (Save name / Saved), the email (read only), and Security:
-// Change password and Create / Update PIN.
+// MY ACCOUNT - your name (Save name / Saved), the email (read only), and Security: Change password.
+// (The Parent PIN lives only in Settings -> Parent PIN and privacy, as in the app.)
 
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -11,16 +11,14 @@ import { Page } from '../../layouts/Layouts';
 import { Button, PageHeader, TextField } from '../../components/ui';
 import { Row, Section } from '../../components/rows';
 import Icon from '../../components/Icon';
-import PinModal from '../../components/PinModal';
 
 export default function AccountPage() {
-  const { user, pin, updateName } = useAuth();
+  const { user, updateName } = useAuth();
   const { alert } = useUI();
   const navigate = useNavigate();
   const [name, setName] = useState(user ? user.name : '');
   const [saved, setSaved] = useState(false);
   const [submitted, setSubmitted] = useState(false);
-  const [pinOpen, setPinOpen] = useState(false);
   const problem = name.trim().length > 100 ? 'Enter your name (100 characters at most).' : nameError(name);
   const changed = user && name.trim() !== user.name;
 
@@ -54,27 +52,12 @@ export default function AccountPage() {
           </div>
         </form>
       </Section>
-      <Section id="security" title="Security" text="Changing either one needs proof it is you.">
+      <Section id="security" title="Security" text="Changing your password needs proof it is you. The Parent PIN is in Settings → Parent PIN and privacy.">
         <div className="panel list">
           <Row icon="key-outline" title="Change password" copy="Needs your old password and a code sent to your email." to="/parent/account/password" />
-          <Row
-            icon="shield-lock-outline"
-            title={pin ? 'Update PIN' : 'Create PIN'}
-            copy={pin ? 'Needs your old PIN.' : 'A 4-digit PIN keeps Child Mode and Parent Mode apart.'}
-            onClick={() => (pin ? navigate('/parent/pin') : setPinOpen(true))}
-          />
+
         </div>
       </Section>
-      {pinOpen && (
-        <PinModal
-          forceCreate
-          onClose={() => setPinOpen(false)}
-          onSuccess={() => {
-            setPinOpen(false);
-            alert({ title: 'PIN saved', message: 'Use this PIN to leave Child Mode.' });
-          }}
-        />
-      )}
     </Page>
   );
 }

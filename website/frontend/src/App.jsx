@@ -6,7 +6,7 @@
 //   /permissions /children/new                                         logged in
 //   /parent/...            Parent Mode (Home, Plan, Progress, Settings, account, child profiles)
 //   /who                   "Who is learning?" (enter Child Mode)
-//   /child/...             Child Mode (Child Home, My Buddy, the English module)
+//   /child/...             Child Mode (Child Home, a group page, My Buddy, Reading & Writing (English), Talk (AAC board))
 //
 // Guards: a page for logged-in parents sends visitors to Log In; while a child is in Child Mode
 // every Parent Mode page sends them back to /child (the only way out is the 🔒 Parent PIN).
@@ -45,10 +45,13 @@ const EditSectionPage = lazy(() => import('./pages/parent/EditSectionPage'));
 const PersonalizeStoriesPage = lazy(() => import('./pages/parent/PersonalizeStoriesPage'));
 const StruggleWordsPage = lazy(() => import('./pages/parent/StruggleWordsPage'));
 const ChildrenPage = lazy(() => import('./pages/parent/ChildrenPage'));
+const ChildSetupPage = lazy(() => import('./pages/parent/ChildSetupPage'));
 const ProfilePickerPage = lazy(() => import('./pages/child/ProfilePickerPage'));
 const ChildHomePage = lazy(() => import('./pages/child/ChildHomePage'));
 const MyBuddyPage = lazy(() => import('./pages/child/MyBuddyPage'));
 const EnglishRoutes = lazy(() => import('./pages/english/EnglishRoutes'));
+const LearningGroupPage = lazy(() => import('./pages/child/LearningGroupPage'));
+const TalkBoardPage = lazy(() => import('./pages/talk/TalkBoardPage'));
 
 function FullScreenSpinner() {
   return (
@@ -86,10 +89,18 @@ function StartRedirect() {
   return <Navigate to={parentStartPath(childProfiles)} replace />;
 }
 
-function RequireAuth() {
+// allowPreview: Explore KidBuddy works BEFORE signing up (the intro's "Try KidBuddy first"): the demo child needs no account.
+function RequireAuth({ allowPreview = false }) {
   const { user } = useAuth();
-  const { loading, error, loadChildren } = useChild();
+  const { loading, error, loadChildren, isPreview } = useChild();
   const location = useLocation();
+  if (!user && allowPreview && isPreview) {
+    return (
+      <Suspense fallback={<FullScreenSpinner />}>
+        <Outlet />
+      </Suspense>
+    );
+  }
   if (!user) return <Navigate to="/login" replace state={{ from: location.pathname }} />;
   if (error && loading) {
     return (
@@ -159,16 +170,22 @@ export default function App() {
               <Route path="children" element={<ChildrenPage />} />
               <Route path="children/new" element={<CreateChildPage embedded />} />
               <Route path="children/:childId" element={<EditProfilePage />} />
+              <Route path="children/:childId/setup" element={<ChildSetupPage />} />
               <Route path="children/:childId/stories" element={<PersonalizeStoriesPage />} />
               <Route path="children/:childId/:section" element={<EditSectionPage />} />
               <Route path="struggle-words" element={<StruggleWordsPage />} />
             </Route>
           </Route>
+        </Route>
 
+        {/* Child Mode: for a logged-in parent, or for Explore KidBuddy before signing up (allowPreview) */}
+        <Route element={<RequireAuth allowPreview />}>
           <Route element={<ChildOnly />}>
             <Route path="child" element={<ChildLayout />}>
               <Route index element={<ChildHomePage />} />
               <Route path="buddy" element={<MyBuddyPage />} />
+              <Route path="group/:groupId" element={<LearningGroupPage />} />
+              <Route path="talk" element={<TalkBoardPage />} />
               <Route path="english/*" element={<EnglishRoutes />} />
             </Route>
           </Route>

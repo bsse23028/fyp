@@ -1194,3 +1194,62 @@ html[lang='ur'] .reading-words[lang='ur'] {
 .hub-title {
   color: #30384d;
 }
+
+/* ---------- letter lesson: the app's behaviour (pages stay mounted, buddy moods, one-try Star Check) ---------- */
+.lesson-slot { width: 100%; }
+.lesson-slot[hidden] { display: none; }
+.look-letter.inviting .letter-glyph { animation: invite 1.6s ease-in-out infinite; }
+@keyframes invite { 50% { transform: scale(1.06); } }
+.listen-letter { display: grid; place-items: center; min-width: 96px; height: 96px; padding: 0 16px; border-radius: 28px; box-shadow: var(--shadow-soft); }
+.listen-picture.slide-in { animation: slide-in-right 0.5s ease; }
+@keyframes slide-in-right { from { transform: translateX(60%); opacity: 0; } }
+.say-buttons { display: flex; gap: 28px; align-items: center; min-height: 150px; direction: ltr; }
+.say-thumb { animation: pop-in 0.4s ease; }
+.say-beat .letter-glyph { display: inline-block; animation: beat 0.45s ease; }
+@keyframes beat { 40% { transform: scale(1.15); } }
+.drag-caption { min-height: 1.4em; margin: 6px 0 0; font-family: var(--font-kid); font-weight: 900; font-size: 22px; color: var(--deep-plum); text-align: center; }
+.drag-picture { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+.drag-picture.happy .emoji { display: inline-block; animation: hop 0.5s ease 2; }
+.drag-word { font-family: var(--font-kid); font-weight: 800; font-size: 14px; color: var(--deep-plum); }
+.bubble-field.seven { grid-template-columns: repeat(4, auto); }
+@media (max-width: 520px) { .bubble-field.seven { grid-template-columns: repeat(3, auto); } .bubble-field.seven .letter-bubble { width: 84px; height: 84px; font-size: 38px; } }
+.letter-bubble.glow { box-shadow: 0 0 0 8px rgba(247, 199, 68, 0.55); }
+.all-done { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 26px 44px; border-radius: 32px; background: var(--cloud-white); box-shadow: var(--shadow-soft); animation: pop-in 0.4s ease; }
+.all-done .emoji { font-size: 60px; }
+.all-done strong { font-family: var(--font-kid); font-weight: 900; font-size: 26px; color: var(--deep-plum); }
+.check-star { font-size: 120px; animation: invite 1.3s ease-in-out infinite; }
+.answer.faded { opacity: 0.4; }
+.answer.reveal { border-color: var(--sunny); box-shadow: 0 0 0 6px rgba(247, 199, 68, 0.35); }
+.icon-button.main { background: var(--button-fill); color: #fff; animation: invite 1.3s ease-in-out infinite; }
+.lesson-forward { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.buddy-mood { display: inline-block; transform-origin: 50% 100%; }
+.buddy-mood.walk { animation: buddy-walk 0.9s ease-out; }
+.buddy-mood.hop, .buddy-mood.happy { animation: hop 0.5s ease; }
+.buddy-mood.cheer { animation: hop 0.45s ease 2; }
+.buddy-mood.think { animation: buddy-think 1.2s ease; }
+.buddy-mood.wave { animation: buddy-wave 1s ease; }
+@keyframes buddy-walk { from { transform: translateX(-140%); } 25%, 75% { transform: translateX(-50%) translateY(-6px); } 50% { transform: translateX(-30%); } }
+@keyframes buddy-think { 30%, 70% { transform: rotate(-10deg); } }
+@keyframes buddy-wave { 20%, 60% { transform: rotate(-8deg); } 40%, 80% { transform: rotate(8deg); } }
+[dir='rtl'] .buddy-mood.walk { animation-name: buddy-walk-rtl; }
+@keyframes buddy-walk-rtl { from { transform: translateX(140%); } }
+
+/* ---------- spelling: the app's end-of-word sequence ---------- */
+.spell-picture { min-height: 8px; display: grid; place-items: center; }
+.spell-picture.out { animation: pop-in 0.5s cubic-bezier(0.3, 1.6, 0.5, 1); }
+.spell-picture.perched { margin-bottom: -18px; position: relative; z-index: 1; transition: transform 0.4s ease; }
+.spell-slot-in { display: grid; place-items: center; width: 100%; height: 100%; }
+.spell-slot.hop .spell-slot-in { animation: hop 0.45s ease; }
+.spell-slots.solid .spell-slot { background: transparent; }
+.spell-slots.solid .letter-art { filter: brightness(0) saturate(100%) invert(24%) sepia(84%) saturate(2700%) hue-rotate(268deg) brightness(92%); transition: filter 0.38s ease; }
+.spell-slots.bounce, .sentence-line.bounce { animation: hop 0.5s ease; }
+.sentence-line.read { cursor: pointer; }
+.sentence-blank.hint { outline: 3px solid var(--sunny); animation: glow-pulse 1.4s ease-in-out infinite; }
+.spell-end { animation: fade-in 0.4s ease; }
+
+/* bubble pop: the 4 pop dots of a round (the app's counter) */
+.pop-dots { display: inline-flex; gap: 6px; margin-inline-start: 8px; vertical-align: middle; }
+.pop-dots i { width: 14px; height: 14px; border-radius: 50%; background: rgba(255, 255, 255, 0.8); border: 2px solid var(--pastel-lilac); }
+.pop-dots i.on { background: var(--sunny); border-color: var(--sunny); }
+.trace-tools { margin-top: 10px; }
+.story-video { cursor: pointer; }

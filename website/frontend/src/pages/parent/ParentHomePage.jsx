@@ -1,6 +1,7 @@
 // PARENT HOME (Dashboard) - the Figma ParentShell dashboard:
 //   header      "Good morning, Sara", today's date, Open Child Mode + Add child
 //   stats       sessions + stars this week (all children), the best day streak, letters learned (current child)
+//   explore     the big "New here?" card (Explore KidBuddy / Not now) until the parent explored once or hid it
 //   children    a card per child: buddy, age, last active, streak, activities, this week's bars, links, ⋯ menu;
 //               clicking a child makes it the current child (the same one as the top-bar switcher)
 //   side        Open Child Mode for the current child, next steps, struggle words, Explore KidBuddy (preview)
@@ -15,7 +16,8 @@ import { useLanguage } from '../../context/LanguageContext';
 import { translate } from '../../i18n/translate';
 import { getAvatar } from '../../data/avatars';
 import { countStoryDetails } from '../../data/storyOptions';
-import { getGreeting } from '../../utils/misc';
+import { KEYS, getGreeting, loadData, saveData } from '../../utils/misc';
+import { activityOn } from '../../utils/modules';
 import { ageText, dayKey, lastActiveText, lastDays, streakDays, weekTotals } from '../../utils/progress';
 import { Page, useCurrentChild } from '../../layouts/Layouts';
 import { Avatar, Badge, Button, EmptyState, Mascot, PageHeader, Spinner } from '../../components/ui';
@@ -78,6 +80,8 @@ export default function ParentHomePage() {
   const navigate = useNavigate();
   const { currentId, setCurrentId } = useCurrentChild();
   const [pinOpen, setPinOpen] = useState(false);
+  // the big "New here?" card shows until the parent explored once or tapped "Not now" (remembered in this browser)
+  const [explored, setExplored] = useState(() => loadData(KEYS.explored, false));
 
   useEffect(() => {
     endPreview(); // the dashboard is never part of the preview
@@ -103,6 +107,16 @@ export default function ParentHomePage() {
       danger: true,
     });
     if (yes) deleteChild(child.id);
+  }
+
+  function hideExplore() {
+    saveData(KEYS.explored, true);
+    setExplored(true);
+  }
+  function exploreNow() {
+    hideExplore();
+    startPreview();
+    navigate('/child');
   }
 
   const openChildMode = () => navigate('/who', { state: { childId: chosen ? chosen.id : undefined } });
@@ -132,9 +146,11 @@ export default function ParentHomePage() {
   }
 
   const letters = alphabetProgress(chosen.id).done;
+  const phonicsOn = activityOn(chosen, 3); // the alphabet counts only when Phonics is switched on for this child
 
   const steps = [
     !pin && { icon: 'shield-lock-outline', title: 'Create your Parent PIN', copy: 'Needed to leave Child Mode.', onClick: () => setPinOpen(true) },
+    (chosen.modules || []).length === 0 && { icon: 'target', title: translate('Switch on {name}’s activities', { name: chosen.name }), copy: 'New profiles start with every activity off.', to: `/parent/children/${chosen.id}/modules` },
     (chosen.supports || []).length === 0 && { icon: 'puzzle-outline', title: translate('Add {name}’s areas of support', { name: chosen.name }), copy: 'Activities are suggested from them.', to: `/parent/children/${chosen.id}/support` },
     countStoryDetails(chosen) === 0 && { icon: 'book-open-page-variant-outline', title: 'Personalize stories', copy: 'Familiar names and favourite things.', to: `/parent/children/${chosen.id}/stories` },
     weekTotals(chosen).sessions === 0 && { icon: 'play-circle-outline', title: 'Do a first session together', copy: 'Five minutes of Read Along is a good start.', onClick: openChildMode },
@@ -147,11 +163,30 @@ export default function ParentHomePage() {
     <Page>
       {header}
 
+      {!explored && (
+        <section className="explore-welcome">
+          <Mascot size={96} avatar="puppy" alt="" />
+          <div className="ew-text">
+            <span className="ew-tag">{translate('New here?')}</span>
+            <h2>{translate('See what your child will see')}</h2>
+            <p>{translate('Play as Buddy, our demo child, for a few minutes. Every activity is open and nothing is saved.')}</p>
+          </div>
+          <div className="ew-actions">
+            <Button icon="eye-outline" onClick={exploreNow}>Explore KidBuddy</Button>
+            <button type="button" className="link" onClick={hideExplore}>{translate('Not now')}</button>
+          </div>
+        </section>
+      )}
+
       <div className="stats">
         <Stat label="Sessions this week" value={sessions} icon="calendar-check-outline" tone="lilac" hint={childProfiles.length > 1 ? 'All children' : 'Finished practice sessions'} />
         <Stat label="Day streak" value={translate('{n} days', { n: bestStreak })} icon="fire" tone="leaf" hint="Best across your children" />
         <Stat label="Stars earned this week" value={stars} icon="star-outline" tone="sun" hint="Earned for every try" />
-        <Stat label="Letters learned" value={`${letters}/26`} icon="alphabetical" tone="sky" hint={chosen.name} />
+        {phonicsOn ? (
+          <Stat label="Letters learned" value={`${letters}/26`} icon="alphabetical" tone="sky" hint={chosen.name} />
+        ) : (
+          <Stat label="Activities on" value={(chosen.modules || []).length} icon="puzzle-outline" tone="sky" hint={chosen.name} />
+        )}
       </div>
 
       <div className="dash">
@@ -264,10 +299,7 @@ export default function ParentHomePage() {
           <button
             type="button"
             className="explore"
-            onClick={() => {
-              startPreview();
-              navigate('/child');
-            }}
+            onClick={exploreNow}
           >
             <span>
               <span className="explore-title">{translate('Explore KidBuddy')}</span>

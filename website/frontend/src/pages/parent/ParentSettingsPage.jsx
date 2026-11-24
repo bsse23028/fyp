@@ -24,6 +24,7 @@ const TABS = [
   { id: 'children', label: 'Children', icon: 'account-group-outline' },
   { id: 'language', label: 'Language', icon: 'translate' },
   { id: 'safety', label: 'Parent PIN and privacy', icon: 'shield-lock-outline' },
+  { id: 'therapist', label: 'Therapist', icon: 'handshake-outline' },
   { id: 'calm', label: 'Sound and motion', icon: 'volume-high' },
   { id: 'session', label: 'Log Out', icon: 'logout' },
 ];
@@ -130,8 +131,15 @@ export default function ParentSettingsPage() {
             onClick={() => (pin ? navigate('/parent/pin') : setPinOpen(true))}
           />
           <Row icon="microphone-outline" title="Permissions" copy={permissionText} onClick={handlePermissions} end={<Badge tone={permissions.camera && permissions.microphone ? 'leaf' : 'neutral'}>{translate(permissions.camera && permissions.microphone ? 'Allowed' : 'Off')}</Badge>} />
+          <Row icon="timer-outline" title="Daily time limit" copy="How long your child can use KidBuddy each day" end={<Badge tone="neutral">{translate('Soon')}</Badge>} onClick={() => comingSoon('Daily time limit')} />
           <Row icon="bell-outline" title="Notifications" copy="Practice reminders and weekly summaries" end={<Badge tone="neutral">{translate('Soon')}</Badge>} onClick={() => comingSoon('Notifications')} />
-          <Row icon="export-variant" title="Share with therapist" copy="Export a summary, no therapist login" end={<Badge tone="neutral">{translate('Soon')}</Badge>} onClick={() => comingSoon('Share with therapist')} />
+        </div>
+      </Section>
+
+      <Section id="therapist" hidden={tab !== 'therapist'} title="Therapist" text="KidBuddy supports home practice. It is not a replacement for your therapist.">
+        <div className="panel list">
+          <Row icon="account-plus-outline" title="Invite your therapist" copy="Link a therapist to your child, so they can set goals and exercises" end={<Badge tone="neutral">{translate('Soon')}</Badge>} onClick={() => comingSoon('Invite your therapist')} />
+          <Row icon="export-variant" title="Share with therapist" copy="Export a progress summary to discuss together" end={<Badge tone="neutral">{translate('Soon')}</Badge>} onClick={() => comingSoon('Share with therapist')} />
         </div>
       </Section>
 
@@ -158,7 +166,11 @@ export default function ParentSettingsPage() {
 
       <Section id="session" hidden={tab !== 'session'} title="Session" text="Log out of KidBuddy on this browser.">
         <Button variant="danger" icon="logout" onClick={confirmLogOut}>Log Out</Button>
-        <p className="tiny muted" style={{ marginTop: 18 }}>{translate('Credits')}: {translate('Phonics sounds: Phonicademy (phonicademy.com)')}</p>
+        <div className="credits">
+          <p className="tiny muted">{translate('Credits')}</p>
+          <p className="tiny muted">{translate('Phonics sounds: Phonicademy (phonicademy.com)')}</p>
+          <p className="tiny muted">{translate('Talk board pictures: ARASAAC (arasaac.org), by Sergio Palao, licence CC BY-NC-SA, owner Government of Aragón')}</p>
+        </div>
       </Section>
 
         </div>

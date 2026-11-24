@@ -16,6 +16,7 @@ import './styles/layouts.css';
 import './styles/pages.css';
 import './styles/entry.css';
 import './styles/english.css';
+import './styles/talk.css';
 import { KEYS, loadData } from './utils/misc';
 
 // The parent's "Animations" switch (Settings) applies to the whole site.

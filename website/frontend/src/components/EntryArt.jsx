@@ -4,6 +4,7 @@
 //   scene 1  the therapist's plan: a checked paper and a target (Onboarding 1)
 //   scene 2  activities circling the buddy (Onboarding 2)
 //   scene 3  a shield with sparkles: a safe space (Onboarding 3)
+//   scene 4  a tablet and the puppy: "Try KidBuddy first" (Onboarding 4)
 
 import { Mascot } from './ui';
 import Icon from './Icon';
@@ -73,8 +74,22 @@ export default function EntryArt({ scene = 0 }) {
           </div>
         </div>
       )}
+      {scene === 4 && (
+        <div className="ea-scene">
+          <div className="ea-device">
+            <div className="ea-device-screen">
+              <Icon name="gesture-tap" size={64} />
+            </div>
+          </div>
+          <div className="ea-stars">
+            <Icon name="creation" size={28} />
+            <Icon name="creation" size={22} />
+            <Icon name="creation" size={18} />
+          </div>
+        </div>
+      )}
       <div className={`ea-buddy s${scene}`}>
-        <Mascot avatar="rabbit" size={scene === 0 ? 150 : 130} bob alt="" />
+        <Mascot avatar={scene === 4 ? 'puppy' : 'rabbit'} size={scene === 0 ? 150 : 130} bob alt="" />
       </div>
     </div>
   );

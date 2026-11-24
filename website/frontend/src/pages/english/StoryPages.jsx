@@ -1,5 +1,5 @@
 // LETTER STORIES - short videos where a letter comes alive (the app's StoryListScreen + LetterStoryScreen).
-// The videos are the app's own Remotion renders (public/media/videos/<letter>.mp4). The ABC song stops
+// Tap the video = pause / play (no player bar, like the app). The videos are the app's own Remotion renders (public/media/videos/<letter>.mp4). The ABC song stops
 // while a story plays; the video is muted when the sound switch is off.
 
 import { useEffect, useRef, useState } from 'react';
@@ -17,7 +17,7 @@ export function StoryListPage() {
   const navigate = useNavigate();
   return (
     <>
-      <ChildTitle title="Letter stories" back="/child/english" speakText="Pick a story" />
+      <ChildTitle title="Letter stories" back="/child/english/activities/4" speakText="Pick a story" />
       <ChildInstruction text="Pick a story" />
       <div className="kid-panel">
         <div className="letter-grid">
@@ -44,6 +44,13 @@ export function LetterStoryPage() {
   const [muted, setMuted] = useState(!isSoundEnabled());
 
   useEffect(() => onSoundChange((on) => setMuted(!on)), []);
+  // like the app: tap the video = pause / play (no player bar for a child)
+  const toggle = () => {
+    const v = videoRef.current;
+    if (!v) return;
+    if (v.paused) v.play();
+    else v.pause();
+  };
   useEffect(() => {
     setEnded(false);
     setFailed(false);
@@ -63,8 +70,16 @@ export function LetterStoryPage() {
             ref={videoRef}
             className="story-video"
             src={videoFor(item.letter)}
-            controls
             autoPlay
+            tabIndex={0}
+            aria-label={translate('Story of {letter}', { letter: item.letter })}
+            onClick={toggle}
+            onKeyDown={(e) => {
+              if (e.key === ' ' || e.key === 'Enter') {
+                e.preventDefault();
+                toggle();
+              }
+            }}
             playsInline
             muted={muted}
             onEnded={() => {
@@ -76,14 +91,15 @@ export function LetterStoryPage() {
         )}
         {ended && (
           <div className="result-actions">
+            <button type="button" className="icon-button big" onClick={() => { setEnded(false); videoRef.current && videoRef.current.play(); }} aria-label={translate('Play again')} title={translate('Play again')}>
+              <Icon name="refresh" size={34} />
+            </button>
             {next && (
-              <button type="button" className="icon-button big" onClick={() => navigate(`/child/english/stories/${next.letter}`)} aria-label={translate('Next letter')}>
+              <button type="button" className="icon-button big main" onClick={() => navigate(`/child/english/stories/${next.letter}`)} aria-label={translate('Next letter')} title={translate('Next letter')}>
                 <Icon name="arrow-right" size={34} />
               </button>
             )}
-            <button type="button" className="icon-button big" onClick={() => { setEnded(false); videoRef.current && videoRef.current.play(); }} aria-label={translate('Play again')}>
-              <Icon name="refresh" size={34} />
-            </button>
+
             <button type="button" className="icon-button big" onClick={() => navigate('/child/english/stories')} aria-label={translate('All letters')}>
               <Icon name="view-grid" size={34} />
             </button>

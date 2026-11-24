@@ -17,6 +17,7 @@ import { useChild } from '../context/ChildContext';
 import { useUI } from '../context/UIContext';
 import { translate } from '../i18n/translate';
 import { ageText } from '../utils/progress';
+import { previewGuideFor } from '../utils/previewGuides';
 import { Avatar, BackButton, BrandLogo, Button, IconButton, Mascot, SpeakButton } from '../components/ui';
 import Icon from '../components/Icon';
 import PinModal from '../components/PinModal';
@@ -460,7 +461,7 @@ function SoundSwitch() {
 
 export function ChildLayout() {
   const { activeChild, displayAvatar, isPreview, exitChildMode } = useChild();
-  const { pin } = useAuth();
+  const { user, pin } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [pinOpen, setPinOpen] = useState(false);
@@ -481,8 +482,14 @@ export function ChildLayout() {
     setLogoAvatar(null);
   }, [location.pathname]);
 
+  // Leaving: a parent goes back to Parent Mode; someone who explored BEFORE signing up goes back to the intro (last step).
   function leave() {
     setPinOpen(false);
+    if (!user) {
+      // The intro page ends the preview itself (ending it here would make the route guard send us to Log in first).
+      navigate('/onboarding', { replace: true, state: { startAtLast: true } });
+      return;
+    }
     exitChildMode();
     navigate('/parent', { replace: true });
   }
@@ -491,6 +498,7 @@ export function ChildLayout() {
     else setPinOpen(true);
   }
   const isHome = location.pathname === '/child';
+  const guide = isPreview ? previewGuideFor(location.pathname) : null; // one sentence for the parent (Preview only)
 
   return (
     <HeaderContext.Provider value={{ setLogoAvatar }}>
@@ -517,9 +525,17 @@ export function ChildLayout() {
         </header>
         {isPreview && (
           <div className="preview-banner" role="status">
-            <Icon name="eye-outline" size={18} />
-            <span>{translate('Preview mode - nothing is saved')}</span>
-            <button type="button" onClick={askParent}>{translate('Exit preview')}</button>
+            <div className="pb-row">
+              <Icon name="eye-outline" size={18} />
+              <span>{translate('Preview mode - nothing is saved')}</span>
+              <button type="button" onClick={askParent}>{translate('Exit preview')}</button>
+            </div>
+            {guide && (
+              <p className="pb-guide">
+                <Icon name="information-outline" size={16} />
+                {translate(guide)}
+              </p>
+            )}
           </div>
         )}
         <Outlet />
@@ -542,12 +558,15 @@ export function Screen({ children, kind = 'page', scene, className = '', innerSt
 }
 
 // The title row of a child page: big back button · title · 🔊.
-export function ChildTitle({ title, back = -1, speakText, children }) {
+export function ChildTitle({ title, back = -1, speakText, eyebrow, children }) {
   const navigate = useNavigate();
   return (
     <div className="child-title-row">
       {back !== null && <BackButton onClick={() => (typeof back === 'string' ? navigate(back) : navigate(back))} />}
-      <h1>{translate(title)}</h1>
+      <h1>
+        {eyebrow && <small className="title-eyebrow">{translate(eyebrow)}</small>}
+        {translate(title)}
+      </h1>
       {children}
       {speakText && <SpeakButton text={speakText} />}
     </div>

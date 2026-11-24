@@ -1,12 +1,12 @@
 // MISC - small helpers used in several places: the greeting, ids, safe browser storage.
 
-// "Good morning / afternoon / evening" from the computer's clock (same as the app's greeting.js).
+// "Good morning / afternoon / evening / night" from the computer's clock: 5-12 morning, 12-17 afternoon, 17-20 evening, 20-5 night.
 export function getGreeting(date = new Date()) {
   const hour = date.getHours();
   if (hour >= 5 && hour < 12) return { text: 'Good morning!', emoji: '🌞' };
   if (hour >= 12 && hour < 17) return { text: 'Good afternoon!', emoji: '☀️' };
   if (hour >= 17 && hour < 20) return { text: 'Good evening!', emoji: '🌆' };
-  return { text: 'Good evening!', emoji: '🌙' };
+  return { text: 'Good night!', emoji: '🌙' }; // 8 pm - 5 am (the app says "Good evening" here too; the website says night)
 }
 
 // A random UUID (used once per Read-Along session so a retry never counts the stars twice).
@@ -27,6 +27,8 @@ export const KEYS = {
   alphabetCase: 'kidbuddy_alphabet_case',
   sound: 'kidbuddy_sound',
   motion: 'kidbuddy_motion',
+  aacBig: 'kidbuddy_aac_big', // the Talk board: big buttons (true) or all words (false)
+  explored: 'kidbuddy_explored', // the parent already tried Explore KidBuddy (or tapped "Not now")
   // per browser TAB (sessionStorage): Child Mode must survive a refresh, so a child cannot
   // "refresh" their way back into Parent Mode.
   childMode: 'kidbuddy_child_mode',

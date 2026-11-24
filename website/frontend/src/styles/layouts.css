@@ -668,15 +668,29 @@
 }
 .preview-banner {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  gap: 10px;
+  gap: 2px;
   padding: 8px var(--s-4);
   background: var(--sun-soft);
   color: var(--sun-ink);
   font-family: var(--font-ui);
   font-weight: 700;
   font-size: 14px;
+}
+.pb-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+.pb-guide {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 400;
+  font-size: 13.5px;
+  text-align: center;
 }
 .preview-banner button {
   border: 0;

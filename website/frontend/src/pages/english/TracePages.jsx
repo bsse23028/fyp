@@ -11,13 +11,14 @@ import { translate } from '../../i18n/translate';
 import { ALPHABET, getLetter, nextLetter } from '../../data/alphabetData';
 import { strokesFor, TRACE_BOX } from '../../data/traceStrokes';
 import { letterArt } from '../../data/spellingWords';
-import { cheer, playSound, speak, speakAsync } from '../../services/audio';
+import { cheer, playSound, speakAsync, speakUi, speakUiAsync, stopSpeaking } from '../../services/audio';
 import { ChildTitle } from '../../layouts/Layouts';
 import { ChildInstruction } from '../../components/ui';
 import Icon from '../../components/Icon';
 import { Confetti } from './common';
 
 const TRACE = { STEP: 1.5, TOLERANCE: 14, LOOK_AHEAD: 16, FINISH_AT: 0.93, DOT_TOLERANCE: 16, ARROW_EVERY: 26 };
+const LETTER_CELEBRATE_MS = 2600; // celebration time after a letter (the app's traceConfig)
 const BADGE_COLORS = ['#E85A64', '#F08A4B', '#8A33CF', '#2F7F73'];
 
 function resample(points) {
@@ -63,7 +64,7 @@ const arrowPath = ({ x, y, a }, s = 3.2) => {
   return `M${x + Math.cos(b - 0.6) * s} ${y + Math.sin(b - 0.6) * s} L${x} ${y} L${x + Math.cos(b + 0.6) * s} ${y + Math.sin(b + 0.6) * s}`;
 };
 
-export function TraceCanvas({ char, color, onDone }) {
+export function TraceCanvas({ char, color, intro = { text: "Let's trace {letter}!", params: { letter: char.toUpperCase() }, delay: 900 }, onCue, onDone }) {
   const strokes = useMemo(() => strokesFor(char), [char]);
   const dense = useMemo(() => strokes.map((s) => resample(s.points)), [strokes]);
   const [index, setIndex] = useState(0);
@@ -78,8 +79,19 @@ export function TraceCanvas({ char, color, onDone }) {
     setProgress(0);
     setDoneCount(0);
     busy.current = false;
-    if (strokes[0]) setTimeout(() => speak(strokeCue(strokes[0])), 500);
-  }, [char, strokes]);
+    if (!strokes[0]) return undefined;
+    // the first stroke: the intro first ("Let's trace A!" / "Now small A!"), then the stroke's cue (like the app)
+    let alive = true;
+    const cue = strokeCue(strokes[0]);
+    if (onCue) onCue(cue);
+    const t = setTimeout(() => {
+      speakUiAsync(intro.text, intro.params).then(() => alive && speakUi(cue));
+    }, intro.delay);
+    return () => {
+      alive = false;
+      clearTimeout(t);
+    };
+  }, [char, strokes]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const finishStroke = useCallback(() => {
     busy.current = true;
@@ -93,10 +105,12 @@ export function TraceCanvas({ char, color, onDone }) {
         setIndex(next);
         setProgress(0);
         busy.current = false;
-        speak(strokeCue(strokes[next]));
+        const cue = strokeCue(strokes[next]);
+        if (onCue) onCue(cue);
+        speakUi(cue);
       }
     }, 450);
-  }, [index, strokes, onDone]);
+  }, [index, strokes, onDone, onCue]);
 
   function toGrid(e) {
     const r = svgRef.current.getBoundingClientRect();
@@ -225,56 +239,98 @@ export function LetterTracePage() {
   const { letter } = useParams();
   const navigate = useNavigate();
   const item = getLetter((letter || 'A').toUpperCase());
+  const example = item.examples[0];
   const [phase, setPhase] = useState('upper'); // upper | lower | done
+  const [attempt, setAttempt] = useState(0);
   const [burst, setBurst] = useState(0);
+  const lastCue = useRef(null);
+  const timers = useRef([]);
+  const later = (fn, ms) => timers.current.push(setTimeout(fn, ms));
+  const friendLine = () => speakUi('{letter} for {word}!', { letter: item.letter, word: example.word.toLowerCase() });
 
   useEffect(() => {
     setPhase('upper');
-    speakAsync(`Let's trace ${item.nameSpeech}!`);
-  }, [item]);
+    return () => {
+      timers.current.forEach(clearTimeout);
+      timers.current = [];
+      stopSpeaking();
+    };
+  }, [item, attempt]);
 
+  // a letter is traced: its sound, then a popper + a cheer; then the small letter, or the picture friend
   const handleDone = useCallback(() => {
-    setBurst((b) => b + 1);
-    cheer();
-    if (phase === 'upper') setTimeout(() => setPhase('lower'), 1600);
-    else {
-      setTimeout(() => {
+    speakAsync(item.soundSpeech, { rate: 0.75 });
+    later(() => {
+      playSound('pop');
+      setBurst((b) => b + 1);
+      cheer();
+    }, 700);
+    later(() => {
+      if (phase === 'upper') setPhase('lower');
+      else {
         setPhase('done');
         playSound('tada');
-        speakAsync(`${item.letter} for ${item.examples[0].word}!`, { pitch: 1.3 });
-      }, 1200);
-    }
-  }, [phase, item]);
+        setBurst((b) => b + 1);
+        friendLine();
+      }
+    }, LETTER_CELEBRATE_MS);
+  }, [phase, item]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  function again() {
+    timers.current.forEach(clearTimeout);
+    timers.current = [];
+    stopSpeaking();
+    setAttempt((a) => a + 1);
+  }
 
   const next = nextLetter(item.letter);
+  // the voice always says the letter NAME (a small "a" would be read as the word "a")
+  const intro = phase === 'lower' ? { text: 'Now small {letter}!', params: { letter: item.letter }, delay: 200 } : { text: "Let's trace {letter}!", params: { letter: item.letter }, delay: 900 };
 
   return (
     <div className="trace-page">
       <Confetti burstKey={burst} />
       <ChildTitle title={translate('Trace {letter}', { letter: phase === 'lower' ? item.lower : item.letter })} back="/child/english/trace" speakText={`Trace ${item.nameSpeech}`} />
       {phase !== 'done' ? (
-        <div className="trace-stage">
-          <div className="trace-sample">
-            <img src={letterArt(phase === 'lower' ? item.lower : item.letter)} alt="" />
+        <>
+          <div className="trace-stage">
+            <div className="trace-sample">
+              <img src={letterArt(phase === 'lower' ? item.lower : item.letter)} alt="" />
+            </div>
+            <TraceCanvas
+              key={`${phase}-${attempt}`}
+              char={phase === 'lower' ? item.lower : item.letter}
+              color={item.accent.main}
+              intro={intro}
+              onCue={(cue) => (lastCue.current = cue)}
+              onDone={handleDone}
+            />
           </div>
-          <TraceCanvas key={phase} char={phase === 'lower' ? item.lower : item.letter} color={item.accent.main} onDone={handleDone} />
-        </div>
+          <div className="result-actions trace-tools">
+            <button type="button" className="icon-button" onClick={() => lastCue.current && speakUi(lastCue.current)} aria-label={translate('Say it again')} title={translate('Say it again')}>
+              <Icon name="volume-high" />
+            </button>
+            <button type="button" className="icon-button" onClick={again} aria-label={translate('Start again')} title={translate('Start again')}>
+              <Icon name="refresh" />
+            </button>
+          </div>
+        </>
       ) : (
         <div className="trace-done">
-          <button type="button" className="listen-picture dance" onClick={() => speak(`${item.letter} for ${item.examples[0].word}!`)} aria-label={translate(item.examples[0].word)}>
-            <span className="emoji">{item.examples[0].emoji}</span>
+          <button type="button" className="listen-picture dance" onClick={friendLine} aria-label={translate(example.word)}>
+            <span className="emoji">{example.emoji}</span>
           </button>
-          <p className="listen-word">{item.examples[0].word}</p>
+          <p className="listen-word">{example.word}</p>
           <div className="result-actions">
+            <button type="button" className="icon-button big" onClick={again} aria-label={translate('Play again')} title={translate('Play again')}>
+              <Icon name="refresh" size={34} />
+            </button>
             {next && (
-              <button type="button" className="icon-button big" onClick={() => navigate(`/child/english/trace/${next.letter}`)} aria-label={translate('Next letter')}>
+              <button type="button" className="icon-button big main" onClick={() => navigate(`/child/english/trace/${next.letter}`)} aria-label={translate('Next letter')} title={translate('Next letter')}>
                 <Icon name="arrow-right" size={34} />
               </button>
             )}
-            <button type="button" className="icon-button big" onClick={() => setPhase('upper')} aria-label={translate('Play again')}>
-              <Icon name="refresh" size={34} />
-            </button>
-            <button type="button" className="icon-button big" onClick={() => navigate('/child/english/trace')} aria-label={translate('All letters')}>
+            <button type="button" className="icon-button big" onClick={() => navigate('/child/english/trace')} aria-label={translate('All letters')} title={translate('All letters')}>
               <Icon name="view-grid" size={34} />
             </button>
           </div>

@@ -3,7 +3,7 @@
 // instructions). Every step has Skip; "Save and close" works at any time. Saved as child.story.
 
 import { useState } from 'react';
-import { Navigate, useNavigate, useParams } from 'react-router-dom';
+import { Navigate, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useChild } from '../../context/ChildContext';
 import { translate } from '../../i18n/translate';
 import {
@@ -30,6 +30,7 @@ export default function PersonalizeStoriesPage() {
   const { childId } = useParams();
   const { childProfiles, updateChild, options } = useChild();
   const navigate = useNavigate();
+  const { state } = useLocation();
   const child = childProfiles.find((c) => c.id === childId) || null;
   const [story, setStory] = useState(() => getStory(child));
   const [step, setStep] = useState(0);
@@ -52,7 +53,7 @@ export default function PersonalizeStoriesPage() {
     setSaving(true);
     const ok = await updateChild(child.id, { story: cleanStory(story) });
     setSaving(false);
-    if (ok) navigate(`/parent/children/${child.id}`);
+    if (ok) navigate((state && state.back) || `/parent/children/${child.id}`); // back to where it was opened from (e.g. the setup page)
   }
 
   const goNext = () => (last ? save() : changeStep(step + 1));
@@ -64,7 +65,7 @@ export default function PersonalizeStoriesPage() {
       <OptionsGate>
       <div className="story-layout">
         <nav className="story-steps" aria-label={translate('Steps')}>
-          <p className="small muted">{translate('All optional. Fill in only what you know. You can skip any section.')}</p>
+          <p className="small muted">{translate('This helps customise your child’s stories and activities. All optional: fill in only what you know, skip any section, or do it later.')}</p>
           <ol>
             {STEPS.map((s, i) => (
               <li key={s.title}>

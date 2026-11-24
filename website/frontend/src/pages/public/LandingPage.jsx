@@ -1,7 +1,7 @@
 // WELCOME (/) - the first page, as in the Figma "Entry Flow":
 //   splash   the logo + "Practise together. Grow every day." with three calm dots; shown ONCE per browser,
 //            it moves on by itself after 2 seconds (or on a click / key)
-//   welcome  the sofa illustration on one side; on the other the language switch, the logo, the headline,
+//   welcome  (also a "Sign up / Log in as Therapist" button: Coming soon, proposal FR-04) the sofa illustration on one side; on the other the language switch, the logo, the headline,
 //            Get Started (-> the intro) and Log In, "Not a replacement for your therapist" and three promises
 // A parent who is already logged in gets "Open Parent Mode"; a child in Child Mode goes back to /child.
 
@@ -10,6 +10,7 @@ import { Navigate, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useChild } from '../../context/ChildContext';
 import { useLanguage } from '../../context/LanguageContext';
+import { useUI } from '../../context/UIContext';
 import { translate } from '../../i18n/translate';
 import { KEYS, loadData, saveData } from '../../utils/misc';
 import { LanguageToggle } from '../../layouts/Layouts';
@@ -50,6 +51,7 @@ export default function LandingPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { childMode } = useChild();
+  const { alert } = useUI();
   const [splash, setSplash] = useState(() => !loadData(KEYS.introSeen, false));
 
   if (user && childMode) return <Navigate to="/child" replace />;
@@ -70,6 +72,15 @@ export default function LandingPage() {
       <EntryArt scene={0} />
       <main id="main" className="welcome">
         <div className="welcome-top">
+          <button
+            type="button"
+            className="therapist-btn"
+            onClick={() => alert({ title: 'Coming soon', message: 'Therapist accounts are on the way. For now, parents can sign up and log in below.' })}
+          >
+            <Icon name="account-heart-outline" size={18} />
+            <span>{translate('Sign up / Log in as Therapist')}</span>
+            <em>{translate('Soon')}</em>
+          </button>
           <LanguageToggle compact />
         </div>
         <span className="welcome-logo"><BrandLogo height={78} avatar="rabbit" /></span>

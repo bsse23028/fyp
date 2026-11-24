@@ -19,7 +19,7 @@ export default function AlphabetListPage() {
 
   return (
     <>
-      <ChildTitle title="Alphabets" back="/child/english" speakText="Pick a letter">
+      <ChildTitle title="Alphabets" back="/child/english/activities/3" speakText="Pick a letter">
         <CaseToggle />
       </ChildTitle>
       <ChildInstruction text="Pick a letter" />

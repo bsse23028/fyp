@@ -92,9 +92,10 @@ export function Confetti({ burstKey }) {
 //   const drag = useDrag({ onDrop: (pieceId, targetId) => true/false });
 //   <div {...drag.pieceProps('A')} style={drag.style('A')} />   <div {...drag.targetProps('apple')} />
 // onDrop returns true when the drop is right (the piece then stays put; the page moves it into place).
+// onGrab(id) / onRelease(id) (optional) run when a piece is picked up / let go (the spelling hold sound).
 // A wrong drop or a drop outside glides the piece home. Keyboard / switch users can TAP a piece
 // and then TAP a target instead (the same onDrop is called).
-export function useDrag({ onDrop }) {
+export function useDrag({ onDrop, onGrab, onRelease }) {
   const [active, setActive] = useState(null); // { id, dx, dy }
   const [picked, setPicked] = useState(null); // tap-to-move: the piece chosen first
   const targets = useRef(new Map());
@@ -123,6 +124,7 @@ export function useDrag({ onDrop }) {
         start.current = { id, x: e.clientX, y: e.clientY };
         moved.current = false;
         setActive({ id, dx: 0, dy: 0 });
+        if (onGrab) onGrab(id);
       },
       onPointerMove: (e) => {
         if (!start.current || start.current.id !== id) return;
@@ -135,6 +137,7 @@ export function useDrag({ onDrop }) {
         if (!start.current || start.current.id !== id) return;
         start.current = null;
         setActive(null);
+        if (onRelease) onRelease(id);
         if (!moved.current) {
           // a tap: choose this piece, then tap a target
           setPicked((p) => (p === id ? null : id));
@@ -148,6 +151,7 @@ export function useDrag({ onDrop }) {
       onPointerCancel: () => {
         start.current = null;
         setActive(null);
+        if (onRelease) onRelease(id);
       },
       onKeyDown: (e) => {
         if (disabled) return;
@@ -160,7 +164,7 @@ export function useDrag({ onDrop }) {
       role: 'button',
       'aria-pressed': picked === id,
     }),
-    [onDrop, picked]
+    [onDrop, onGrab, onRelease, picked]
   );
 
   const targetProps = useCallback(

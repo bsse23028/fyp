@@ -1,11 +1,14 @@
 // CREATE CHILD PROFILE - one quick form (nickname, age band, buddy, language) next to a live preview of
 // how the child will look in Child Mode. Used for the first child (setup) and "Add another child".
+// A new child starts with ALL activities switched OFF (NEW_CHILD_ACTIVITIES_ON in data/childOptions.js); "Create profile"
+// then opens the optional setup page (areas of support, activities, personalize stories) with "Skip for now".
 
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useChild } from '../../context/ChildContext';
 import { translate } from '../../i18n/translate';
 import { EMPTY_STORY } from '../../data/storyOptions';
+import { NEW_CHILD_ACTIVITIES_ON } from '../../data/childOptions';
 import { DEFAULT_AVATAR, getAvatar } from '../../data/avatars';
 import { Page, useLogoAvatar } from '../../layouts/Layouts';
 import { Button, Chip, Mascot, PageHeader, SegmentedControl, TextField } from '../../components/ui';
@@ -30,9 +33,10 @@ export default function CreateChildPage({ embedded = false }) {
     setSubmitted(true);
     if (nameProblem || ageProblem) return;
     setSaving(true);
-    const child = await addChild({ name: name.trim(), ageBand, avatar, language, supports: [], modules: options.defaultModules(), story: EMPTY_STORY });
+    const child = await addChild({ name: name.trim(), ageBand, avatar, language, supports: [], modules: NEW_CHILD_ACTIVITIES_ON ? options.defaultModules() : [], story: EMPTY_STORY });
     setSaving(false);
-    if (child) navigate('/parent', { replace: true });
+    // next: the OPTIONAL extras (areas of support, activities, stories). In Preview nothing is saved (no id): Dashboard.
+    if (child) navigate(child.id ? `/parent/children/${child.id}/setup` : '/parent', { replace: true });
   }
 
   const canGoBack = embedded || childProfiles.length > 0;
@@ -80,14 +84,14 @@ export default function CreateChildPage({ embedded = false }) {
   if (embedded) {
     return (
       <Page>
-        <PageHeader title="Create child profile" subtitle="Just a few quick details. You can add more later in Edit profile." />
+        <PageHeader title="Create child profile" subtitle="Just a few quick details. Next you can add more if you like (optional)." />
         <OptionsGate>{form}</OptionsGate>
       </Page>
     );
   }
   return (
     <div className="setup-page">
-      <PageHeader title="Create child profile" subtitle="Just a few quick details. You can add more later in Edit profile." />
+      <PageHeader title="Create child profile" subtitle="Just a few quick details. Next you can add more if you like (optional)." />
       <OptionsGate>{form}</OptionsGate>
     </div>
   );

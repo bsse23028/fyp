@@ -102,6 +102,41 @@ export function speakAsync(text, options = {}) {
   });
 }
 
+// speakUi that waits until the voice is done (the lesson chains a hint after a line, like the app)
+export function speakUiAsync(text, params) {
+  const urdu = getCurrentLanguage() === 'ur';
+  return speakAsync(translate(text, params), { lang: urdu ? 'ur-PK' : 'en-US', rate: 0.9 });
+}
+
+// HOLD SOUND - while a spelling letter is held, its sound plays and repeats (the app's startHoldSound):
+// a pause of `gapMs` after each one, at most `maxRepeats` repeats; stopHoldSound() (let go) cuts it at once.
+let holdToken = 0;
+let holdTimer = null;
+export function startHoldSound(text, { gapMs = 700, maxRepeats = 8, firstDelay = 0 } = {}) {
+  holdToken += 1;
+  clearTimeout(holdTimer);
+  const mine = holdToken;
+  let repeats = 0;
+  const once = () => {
+    if (mine !== holdToken) return;
+    // speakAsync ends on the voice's "end" OR a safety timer (some browsers never report the end)
+    speakAsync(text, { lang: 'en-US', rate: 0.75 }).then(() => {
+      if (mine !== holdToken || repeats >= maxRepeats) return;
+      holdTimer = setTimeout(() => {
+        repeats += 1;
+        once();
+      }, gapMs);
+    });
+  };
+  if (firstDelay) holdTimer = setTimeout(once, firstDelay);
+  else once();
+}
+export function stopHoldSound() {
+  holdToken += 1;
+  clearTimeout(holdTimer);
+  stopSpeaking();
+}
+
 const CHEERS = ['Yay!', 'Hooray!', 'Well done!', 'Great job!', 'You did it!', 'Super!'];
 let lastCheer = '';
 export function cheer() {

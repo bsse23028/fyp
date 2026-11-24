@@ -2296,3 +2296,321 @@ html[lang='ur'] .eyebrow {
   color: #667080;
   font-weight: 700;
 }
+
+/* =========================================================== practice calendar (Progress) */
+.pcal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+.pcal-head strong {
+  font-size: 16px;
+}
+.pcal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+  justify-items: center;
+}
+.pcal-wd {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--ink-3);
+  padding-bottom: 4px;
+}
+.pcal-day {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-2);
+}
+.pcal-day.on {
+  background: var(--lilac);
+  color: #fff;
+  font-weight: 700;
+}
+.pcal-day.today {
+  box-shadow: inset 0 0 0 2px var(--lilac);
+}
+.pcal-day.today.on {
+  box-shadow: 0 0 0 2px #fff, 0 0 0 4px var(--lilac);
+}
+.pcal-day.future {
+  opacity: 0.4;
+}
+.pcal-note {
+  margin-top: 12px;
+  text-align: center;
+}
+
+/* =========================================================== child setup */
+.setup-ready {
+  display: flex;
+  align-items: center;
+  gap: var(--s-4);
+}
+.setup-ready .callout {
+  flex: 1;
+}
+
+/* =========================================================== areas of support + activities (profile) */
+.support-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 18px;
+  border-radius: var(--r-panel);
+  background: var(--surface);
+  border: 1px solid var(--line);
+}
+.support-group-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: var(--t-md);
+}
+.support-group.berry .ico-tile {
+  background: var(--berry-soft);
+  color: var(--berry-ink);
+}
+.support-group.sky .ico-tile {
+  background: var(--sky-soft);
+  color: var(--sky-ink);
+}
+.support-group.leaf .ico-tile {
+  background: var(--leaf-soft);
+  color: var(--leaf-ink);
+}
+.support-group.sun .ico-tile {
+  background: var(--sun-soft);
+  color: var(--sun-ink);
+}
+.area-card {
+  border: 1.5px solid var(--line);
+  border-radius: 14px;
+  background: var(--surface-2);
+}
+.support-group.berry .area-card.on {
+  border-color: var(--berry);
+  background: var(--berry-soft);
+}
+.support-group.sky .area-card.on {
+  border-color: var(--sky);
+  background: var(--sky-soft);
+}
+.support-group.leaf .area-card.on {
+  border-color: var(--leaf);
+  background: var(--leaf-soft);
+}
+.support-group.sun .area-card.on {
+  border-color: var(--sun);
+  background: var(--sun-soft);
+}
+.area-row {
+  display: flex;
+  align-items: stretch;
+}
+.area-check {
+  align-self: center;
+  width: 28px;
+  height: 28px;
+  margin: 0 4px 0 14px;
+  flex-shrink: 0;
+  border-radius: 8px;
+  border: 2px solid var(--line-strong);
+  background: var(--surface);
+  color: #fff;
+  display: grid;
+  place-items: center;
+}
+.area-card.on .area-check {
+  background: var(--lilac);
+  border-color: var(--lilac);
+}
+.area-open {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 16px;
+  border: 0;
+  background: transparent;
+  text-align: start;
+  color: inherit;
+}
+.area-text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.area-text strong {
+  font-size: 15px;
+}
+.area-text small {
+  color: var(--ink-3);
+  font-size: 13.5px;
+  line-height: 1.45;
+}
+.area-count {
+  margin-top: 4px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--lilac);
+}
+.area-drop {
+  list-style: none;
+  margin: 0;
+  padding: 4px 16px 14px 50px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.area-drop li {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  animation: fade-in 0.2s ease both;
+}
+.area-dot {
+  width: 8px;
+  height: 8px;
+  margin-top: 7px;
+  border-radius: 50%;
+  background: var(--lilac);
+  flex-shrink: 0;
+}
+.guide {
+  margin-top: 4px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  background: var(--paper);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.guide h4 {
+  font-size: 14.5px;
+}
+.diagnosis {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+}
+.diagnosis:first-of-type {
+  border-top: 0;
+  padding-top: 0;
+}
+.recommend {
+  margin-top: 4px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink-2);
+}
+.recommend.soft {
+  margin-top: 0;
+  font-weight: 400;
+  color: var(--ink-3);
+}
+.for-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 6px;
+}
+.for-tag {
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 700;
+}
+.for-tag.berry {
+  background: var(--berry-soft);
+  color: var(--berry-ink);
+}
+.for-tag.sky {
+  background: var(--sky-soft);
+  color: var(--sky-ink);
+}
+.for-tag.leaf {
+  background: var(--leaf-soft);
+  color: var(--leaf-ink);
+}
+.for-tag.sun {
+  background: var(--sun-soft);
+  color: var(--sun-ink);
+}
+.list-row .toggle {
+  flex-shrink: 0;
+}
+
+/* =========================================================== explore welcome (dashboard) */
+.explore-welcome {
+  display: flex;
+  align-items: center;
+  gap: var(--s-5);
+  padding: var(--s-5) var(--s-6);
+  border-radius: var(--r-panel);
+  background: #eaf3fc;
+  border: 1px solid #cfe3f7;
+}
+.ew-text {
+  flex: 1;
+  min-width: 0;
+}
+.ew-tag {
+  display: inline-flex;
+  height: 22px;
+  align-items: center;
+  padding: 0 8px;
+  border-radius: 6px;
+  background: #fff;
+  color: #2e6a8a;
+  font-size: 12px;
+  font-weight: 700;
+}
+.ew-text h2 {
+  margin: 8px 0 4px;
+  color: #1f4b66;
+  font-size: var(--t-lg);
+}
+.ew-text p {
+  color: #3e5568;
+  line-height: 1.5;
+  max-width: 60ch;
+}
+.ew-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+@media (max-width: 760px) {
+  .explore-welcome {
+    flex-wrap: wrap;
+  }
+  .ew-actions {
+    flex-direction: row;
+    width: 100%;
+  }
+  .ew-actions .btn {
+    flex: 1;
+  }
+}
+
+@media (max-width: 520px) {
+  .buddy-choice {
+    font-size: 15px;
+    padding-right: 8px;
+    gap: 6px;
+  }
+}

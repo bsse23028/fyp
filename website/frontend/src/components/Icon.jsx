@@ -4,6 +4,7 @@
 import {
   mdiViewDashboardOutline, mdiAccountGroupOutline, mdiChartLine, mdiChartBoxOutline, mdiClipboardTextOutline, mdiCogOutline, mdiLogout, mdiPlus, mdiCheck, mdiCheckCircle, mdiCheckCircleOutline, mdiAlertCircleOutline, mdiShieldLockOutline, mdiShieldCheckOutline, mdiTranslate, mdiBellOutline, mdiChevronDown, mdiChevronRight, mdiChevronLeft, mdiEmailOutline, mdiLockOutline, mdiLockOpenVariantOutline, mdiAccountOutline, mdiAccountCircleOutline, mdiStar, mdiStarOutline, mdiFire, mdiBookOpenVariant, mdiBookOpenPageVariant, mdiPlayCircleOutline, mdiEyeOutline, mdiEyeOffOutline, mdiMenu, mdiClose, mdiArrowRight, mdiArrowLeft, mdiPencilOutline, mdiTrashCanOutline, mdiInformationOutline, mdiCompassOutline, mdiMicrophoneOutline, mdiCameraOutline, mdiVolumeHigh, mdiVolumeOff, mdiMotionPlayOutline, mdiAccountChildOutline, mdiPuzzleOutline, mdiTarget, mdiAlphabeticalVariant, mdiDraw, mdiGamepadVariantOutline, mdiMovieOpenOutline, mdiWeatherSunny, mdiHeartOutline, mdiChatOutline, mdiNumeric, mdiAccountPlusOutline, mdiDotsHorizontal, mdiKeyOutline, mdiCalendarMonthOutline, mdiHomeOutline, mdiRefresh, mdiPartyPopper, mdiCreation, mdiTextBoxOutline, mdiLightbulbOnOutline, mdiHandHeartOutline, mdiPaletteOutline, mdiFormatListChecks, mdiClockOutline, mdiHelpCircleOutline, mdiEye, mdiEarHearing, mdiMicrophone, mdiGamepadVariant, mdiThumbUp, mdiViewGrid, mdiPlay, mdiCardsOutline, mdiBalloon, mdiLock, mdiHome,
   mdiAlphabetical, mdiAutoFix, mdiBookOpenPageVariantOutline, mdiBullseyeArrow, mdiCalendarCheckOutline, mdiEmailFastOutline, mdiExportVariant, mdiFileDocumentOutline, mdiFormatLetterCase, mdiGestureTap, mdiLockReset, mdiMotionOutline, mdiShieldKeyOutline, mdiToyBrickOutline, mdiViewGridOutline, mdiWeatherNight,
+  mdiFormatText, mdiAccountVoice, mdiEmoticonHappyOutline, mdiBookAccount, mdiAbacus, mdiCalendarCheck, mdiBackspaceOutline, mdiMagnifyPlusOutline, mdiMedal, mdiImagePlus, mdiChevronUp, mdiChat, mdiHeart, mdiTargetAccount, mdiAccountHeartOutline, mdiAccountClockOutline, mdiTimerOutline, mdiHandshakeOutline, mdiSchoolOutline,
 } from '@mdi/js';
 
 const ICONS = {
@@ -89,6 +90,25 @@ const ICONS = {
   'balloon': mdiBalloon,
   'lock': mdiLock,
   'home': mdiHome,
+  'format-text': mdiFormatText,
+  'account-voice': mdiAccountVoice,
+  'emoticon-happy-outline': mdiEmoticonHappyOutline,
+  'book-account': mdiBookAccount,
+  'abacus': mdiAbacus,
+  'calendar-check': mdiCalendarCheck,
+  'backspace-outline': mdiBackspaceOutline,
+  'magnify-plus-outline': mdiMagnifyPlusOutline,
+  'medal': mdiMedal,
+  'image-plus': mdiImagePlus,
+  'chevron-up': mdiChevronUp,
+  'chat': mdiChat,
+  'heart': mdiHeart,
+  'target-account': mdiTargetAccount,
+  'account-heart-outline': mdiAccountHeartOutline,
+  'account-clock-outline': mdiAccountClockOutline,
+  'timer-outline': mdiTimerOutline,
+  'handshake-outline': mdiHandshakeOutline,
+  'school-outline': mdiSchoolOutline,
   'alphabetical': mdiAlphabetical,
   'auto-fix': mdiAutoFix,
   'book-open-page-variant-outline': mdiBookOpenPageVariantOutline,
