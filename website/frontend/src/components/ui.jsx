@@ -10,7 +10,7 @@ import { translate } from '../i18n/translate';
 import { useLanguage } from '../context/LanguageContext';
 import { useChild } from '../context/ChildContext';
 import { getAvatar } from '../data/avatars';
-import { passwordChecks } from '../utils/validation';
+import { passwordChecks, passwordStrength } from '../utils/validation';
 import { speakUi, speak } from '../services/audio';
 import Icon from './Icon';
 
@@ -27,10 +27,14 @@ export function Spinner({ big = false }) {
 }
 
 // variant: primary | secondary | ghost | danger | danger-solid    size: sm | md | lg
-export function Button({ children, variant = 'primary', size, block = false, loading = false, icon, iconEnd, to, className = '', style, ...rest }) {
+// loadingText (optional): shown next to the spinner while loading, for example "Logging in…".
+export function Button({ children, variant = 'primary', size, block = false, loading = false, loadingText, icon, iconEnd, to, className = '', style, ...rest }) {
   const classes = `btn btn-${variant}${size && size !== 'md' ? ` btn-${size}` : ''}${block ? ' btn-block' : ''} ${className}`;
   const inside = loading ? (
-    <Spinner />
+    <>
+      <Spinner />
+      {loadingText && tr(loadingText)}
+    </>
   ) : (
     <>
       {icon && <Icon name={icon} size={18} />}
@@ -61,7 +65,9 @@ export function IconButton({ icon, label, onClick, outlined = false, size = 20, 
 }
 
 let fieldCount = 0;
-export function TextField({ label, error, hint, optional = false, type = 'text', value, onChange, multiline = false, className = '', style, inputRef, labelEnd, ...rest }) {
+// icon (optional): a small icon inside the field, at the start. showText (optional, password fields): the toggle says
+// "Show" / "Hide" in words instead of an eye icon.
+export function TextField({ label, error, hint, optional = false, type = 'text', value, onChange, multiline = false, className = '', style, inputRef, labelEnd, icon, showText = false, ...rest }) {
   const idRef = useRef(null);
   if (!idRef.current) idRef.current = `field-${++fieldCount}`;
   const id = idRef.current;
@@ -79,10 +85,15 @@ export function TextField({ label, error, hint, optional = false, type = 'text',
         </label>
       )}
       <div className="field-control">
+        {icon && (
+          <span className="field-icon" aria-hidden="true">
+            <Icon name={icon} size={20} />
+          </span>
+        )}
         <Input
           id={id}
           ref={inputRef}
-          className={`field-input${secret ? ' with-toggle' : ''}`}
+          className={`field-input${secret ? ' with-toggle' : ''}${icon ? ' with-icon' : ''}${secret && showText ? ' with-toggle-text' : ''}`}
           type={secret && shown ? 'text' : type}
           value={value}
           onChange={(event) => onChange(event.target.value)}
@@ -92,8 +103,8 @@ export function TextField({ label, error, hint, optional = false, type = 'text',
           placeholder={rest.placeholder ? translate(rest.placeholder) : undefined}
         />
         {secret && (
-          <button type="button" className="field-toggle" onClick={() => setShown(!shown)} aria-label={translate(shown ? 'Hide password' : 'Show password')} title={translate(shown ? 'Hide password' : 'Show password')}>
-            <Icon name={shown ? 'eye-off-outline' : 'eye-outline'} size={18} />
+          <button type="button" className={`field-toggle${showText ? ' text' : ''}`} onClick={() => setShown(!shown)} aria-label={translate(shown ? 'Hide password' : 'Show password')} aria-pressed={shown} title={translate(shown ? 'Hide password' : 'Show password')}>
+            {showText ? translate(shown ? 'Hide' : 'Show') : <Icon name={shown ? 'eye-off-outline' : 'eye-outline'} size={18} />}
           </button>
         )}
       </div>
@@ -134,13 +145,37 @@ export function FormNotice({ message, style }) {
 
 // The password rules as small pills that turn green when met (the same rules as the app and the API).
 const SHORT_RULE = { length: '8+ characters', upper: 'A capital (A-Z)', lower: 'A small letter (a-z)', number: 'A number', special: 'A symbol (! @ #)', space: 'No spaces' };
-export function PasswordRules({ password, style }) {
+// calm (Create account): one hint line until `open` (the field was used), then a strength bar and the rules in two columns.
+export function PasswordRules({ password, style, calm = false, open = true }) {
   const checks = passwordChecks(password);
+  if (calm && !open) {
+    return <p className="pw-hint" style={style}>{translate('Use 8 or more characters with a capital, a small letter, a number and a symbol.')}</p>;
+  }
+  if (calm) {
+    const { bars, tone } = passwordStrength(password);
+    return (
+      <div className="pw-calm" style={style}>
+        <div className={`pw-meter ${tone}`} aria-hidden="true">
+          {[1, 2, 3, 4].map((n) => <i key={n} className={n <= bars ? 'on' : ''} />)}
+        </div>
+        <ul className="pw-checklist" aria-label={translate('Password rules')}>
+          {checks.map((rule) => (
+            <li key={rule.id} className={rule.ok ? 'ok' : ''}>
+              <i className="pw-tick" aria-hidden="true">{rule.ok && <Icon name="check" size={11} />}</i>
+              {translate(SHORT_RULE[rule.id] || rule.label)}
+              <span className="sr-only">{translate(rule.ok ? 'done' : 'not yet')}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+    );
+  }
   return (
     <ul className="pw-rules" aria-label={translate('Password rules')} style={style}>
       {checks.map((rule) => (
         <li key={rule.id} className={rule.ok ? 'ok' : ''} title={translate(rule.label)}>
-          <Icon name="check" size={13} />
+          {/* R11: a rule that is not met yet shows an empty circle, never a tick */}
+          {rule.ok ? <Icon name="check" size={13} /> : <span className="pw-dot" aria-hidden="true" />}
           {translate(SHORT_RULE[rule.id] || rule.label)}
           <span className="sr-only">{translate(rule.ok ? 'done' : 'not yet')}</span>
         </li>
@@ -331,7 +366,9 @@ export function BackButton({ onClick, style }) {
   );
 }
 
-export function SpeakButton({ text, onClick, english = false, compact = false, style, label = 'Read aloud' }) {
+// "Read to me": the one button on a page that reads something aloud (R7 of the website audit). A speech bubble,
+// not a speaker, so it never looks like the sound switch. `compact` = icon only (inside a speech bubble, tables).
+export function SpeakButton({ text, onClick, english = false, compact = false, style, label = 'Read to me' }) {
   return (
     <button
       type="button"
@@ -345,7 +382,8 @@ export function SpeakButton({ text, onClick, english = false, compact = false, s
         else speakUi(text);
       }}
     >
-      <Icon name="volume-high" size={compact ? 20 : 26} />
+      <Icon name="chat-processing-outline" size={compact ? 20 : 24} />
+      {!compact && <span className="speak-label">{translate(label)}</span>}
     </button>
   );
 }
@@ -362,10 +400,13 @@ export function StarRow({ filled = 0, total = 3, size = 40 }) {
   );
 }
 
-export function ChildInstruction({ text, tint, style }) {
+// What the page asks the child, said by the buddy in a speech bubble (R21 of the website audit: it was a white
+// bar that looked like a text box). The same look as the English hub's "What do you want to learn?".
+export function ChildInstruction({ text, style }) {
   return (
-    <div className="child-instruction" style={{ background: tint, ...style }}>
-      <span>{translate(text)}</span>
+    <div className="buddy-ask" style={style}>
+      <Mascot size={72} bob alt="" />
+      <div className="buddy-ask-bubble">{translate(text)}</div>
     </div>
   );
 }

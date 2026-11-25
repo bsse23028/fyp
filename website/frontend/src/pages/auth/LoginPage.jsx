@@ -59,18 +59,26 @@ export default function LoginPage() {
           </span>
         </div>
       )}
-      <TextField label="Email address" type="email" value={email} onChange={setEmail} placeholder="you@example.com" autoComplete="email" error={submitted ? emailProblem : ''} autoFocus />
-      <TextField label="Password" type="password" value={password} onChange={setPassword} placeholder="Enter your password" autoComplete="current-password" error={submitted ? passwordProblem : ''} />
-      <div className="login-options">
-        <Link to="/forgot-password" className="link">{translate('Forgot password?')}</Link>
-      </div>
-      <Button type="submit" size="lg" block loading={loading} iconEnd="arrow-right">Log in</Button>
+      <TextField label="Email address" type="email" icon="email-outline" value={email} onChange={setEmail} placeholder="you@example.com" autoComplete="email" error={submitted ? emailProblem : ''} autoFocus />
+      <TextField
+        label="Password"
+        type="password"
+        icon="lock-outline"
+        showText
+        labelEnd={<Link to="/forgot-password" className="link">{translate('Forgot password?')}</Link>}
+        value={password}
+        onChange={setPassword}
+        placeholder="Enter your password"
+        autoComplete="current-password"
+        error={submitted ? passwordProblem : ''}
+      />
+      <Button type="submit" size="lg" block loading={loading} loadingText="Logging in…" iconEnd="arrow-right">Log in</Button>
+      <p className="auth-note">
+        <Icon name="information-outline" size={18} />
+        {translate('Your child does not need a login. Profiles are managed from your parent account.')}
+      </p>
       <p className="auth-switch">
         {translate('New to KidBuddy?')} <Link to="/signup" className="link">{translate('Create an account')}</Link>
-      </p>
-      <p className="auth-note">
-        <Icon name="account-child-outline" size={16} />
-        {translate('Your child does not need a login. Profiles are managed from your parent account.')}
       </p>
     </form>
   );

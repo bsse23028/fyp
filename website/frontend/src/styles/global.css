@@ -116,7 +116,7 @@ html[lang='ur'] h4 {
 /* ---------- type helpers ---------- */
 .display {
   font-family: var(--font-display);
-  font-weight: 800;
+  font-weight: 700;
   letter-spacing: -0.03em;
 }
 .title-xl {
@@ -156,7 +156,9 @@ html[lang='ur'] h4 {
   color: var(--ink-3);
   text-align: center;
 }
+/* the tap area of a text link is 44px high even where the text is one line (the ::after adds no space to the layout) */
 .link {
+  position: relative;
   background: none;
   border: 0;
   padding: 0;
@@ -165,6 +167,11 @@ html[lang='ur'] h4 {
   color: var(--lilac);
   text-decoration: none;
   cursor: pointer;
+}
+.link::after {
+  content: '';
+  position: absolute;
+  inset: -12px -6px;
 }
 .link:hover {
   text-decoration: underline;
@@ -192,7 +199,7 @@ html[lang='ur'] h4 {
   border: 1px solid transparent;
   font-family: var(--font-ui);
   font-weight: 700;
-  font-size: 15px;
+  font-size: var(--t-base);
   line-height: 1;
   text-decoration: none;
   white-space: nowrap;
@@ -209,7 +216,7 @@ html[lang='ur'] h4 {
 .btn-primary {
   background: var(--lilac);
   color: #fff;
-  box-shadow: 0 5px 14px rgba(79, 70, 229, 0.2);
+  box-shadow: var(--shadow-raise);
 }
 .btn-primary:hover:not([disabled]) {
   background: var(--lilac-hover);
@@ -246,12 +253,12 @@ html[lang='ur'] h4 {
 .btn-lg {
   --btn-h: 48px;
   padding: 0 24px;
-  font-size: 16px;
+  font-size: var(--t-base);
 }
 .btn-sm {
   --btn-h: 36px;
   padding: 0 12px;
-  font-size: 14px;
+  font-size: var(--t-sm);
 }
 .btn-block {
   width: 100%;
@@ -310,7 +317,7 @@ html[lang='ur'] h4 {
   gap: var(--s-2);
   margin-bottom: 6px;
   font-weight: 700;
-  font-size: 14px;
+  font-size: var(--t-sm);
   color: var(--ink);
 }
 .field-label .opt {
@@ -328,7 +335,7 @@ html[lang='ur'] h4 {
   border: 1px solid var(--line-strong);
   background: var(--surface);
   padding: 0 14px;
-  font-size: 16px;
+  font-size: var(--t-base);
   color: var(--ink);
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
@@ -340,7 +347,7 @@ textarea.field-input {
   line-height: 1.5;
 }
 .field-input::placeholder {
-  color: var(--ink-4);
+  color: var(--ink-3); /* R5: readable placeholder (was --ink-4, 2.6:1) */
 }
 .field-input:hover {
   border-color: var(--ink-4);
@@ -348,7 +355,7 @@ textarea.field-input {
 .field-input:focus {
   outline: none;
   border-color: var(--lilac);
-  box-shadow: var(--focus);
+  box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.18);
 }
 .field.has-error .field-input {
   border-color: #d55e4a;
@@ -371,14 +378,44 @@ textarea.field-input {
   color: var(--ink-3);
   padding: 0;
   border: 0;
-  border-radius: 7px;
+  border-radius: var(--r-chip);
   background: transparent;
   font-weight: 700;
-  font-size: 13px;
+  font-size: var(--t-sm);
   color: var(--ink-2);
 }
 .field-toggle:hover {
   background: var(--lilac-soft);
+}
+/* optional field extras (Log in / Create account): an icon at the start, and a "Show" / "Hide" word toggle */
+.field-icon {
+  position: absolute;
+  inset-inline-start: 16px;
+  top: 0;
+  bottom: 0;
+  display: grid;
+  place-items: center;
+  color: #98a2b3;
+  pointer-events: none;
+}
+.field-control:focus-within .field-icon {
+  color: var(--lilac);
+}
+.field-input.with-icon {
+  padding-inline-start: 46px;
+}
+.field-toggle.text {
+  inset-inline-end: 6px;
+  top: 4px;
+  bottom: 4px;
+  width: auto;
+  padding: 0 12px;
+  color: var(--lilac);
+  font-size: 14px;
+  font-weight: 600;
+}
+.field-input.with-toggle-text {
+  padding-inline-end: 72px;
 }
 .field-hint {
   margin-top: 6px;
@@ -431,16 +468,27 @@ textarea.field-input {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  height: 26px;
+  height: 30px;
   padding: 0 9px;
   border-radius: var(--r-pill);
   background: #f3f4f6;
-  color: #788191;
-  font-size: 12px;
+  color: var(--ink-3);
+  font-size: var(--t-xs);
   font-weight: 600;
   transition: background-color 0.15s ease, color 0.15s ease;
 }
+.pw-rules li:not(.ok) {
+  background: var(--surface);
+  border: 1px solid var(--line);
+}
+.pw-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  border: 1.5px solid currentColor;
+}
 .pw-rules li.ok {
+  border: 1px solid #b7e4cf;
   background: var(--success-soft);
   color: var(--success);
 }
@@ -460,7 +508,7 @@ textarea.field-input {
   height: 100%;
   opacity: 0;
   border: 0;
-  font-size: 16px;
+  font-size: var(--t-base);
   caret-color: transparent;
   cursor: text;
 }
@@ -473,7 +521,7 @@ textarea.field-input {
   place-items: center;
   font-family: var(--font-display);
   font-weight: 700;
-  font-size: 26px;
+  font-size: var(--t-xl);
   color: var(--ink);
   pointer-events: none;
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
@@ -496,12 +544,12 @@ textarea.field-input {
   gap: var(--s-2);
 }
 .chip {
-  min-height: 38px;
+  min-height: 44px;
   padding: 0 14px;
   border-radius: var(--r-pill);
   border: 1px solid var(--line-strong);
   background: var(--surface);
-  font-size: 14px;
+  font-size: var(--t-sm);
   font-weight: 700;
   color: var(--ink-2);
   display: inline-flex;
@@ -528,16 +576,16 @@ textarea.field-input {
   min-height: 34px;
   padding: 0 14px;
   border: 0;
-  border-radius: 8px;
+  border-radius: var(--r-chip);
   background: transparent;
   font-weight: 700;
-  font-size: 14px;
+  font-size: var(--t-sm);
   color: var(--ink-3);
 }
 .segmented button.on {
   background: var(--surface);
   color: var(--ink);
-  box-shadow: 0 1px 2px rgba(30, 27, 58, 0.12);
+  box-shadow: var(--shadow-raise);
 }
 .segmented.block {
   display: flex;
@@ -549,7 +597,7 @@ textarea.field-input {
   position: relative;
   width: 42px;
   height: 24px;
-  border-radius: 12px;
+  border-radius: var(--r-control);
   border: 0;
   padding: 0;
   background: var(--line-strong);
@@ -565,7 +613,7 @@ textarea.field-input {
   height: 18px;
   border-radius: 50%;
   background: #fff;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  box-shadow: var(--shadow-raise);
   transition: transform 0.15s ease;
 }
 .toggle.on {
@@ -612,10 +660,10 @@ textarea.field-input {
   gap: 4px;
   height: 22px;
   padding: 0 8px;
-  border-radius: 6px;
+  border-radius: var(--r-chip);
   background: var(--lilac-soft);
   color: var(--lilac-hover);
-  font-size: 12px;
+  font-size: var(--t-xs);
   font-weight: 700;
   white-space: nowrap;
 }
@@ -678,7 +726,7 @@ a.list-row:hover {
   color: var(--ink-3);
 }
 .list-row .lr-end {
-  color: var(--ink-4);
+  color: var(--ink-3);
 }
 [dir='rtl'] .flip-rtl {
   transform: scaleX(-1);
@@ -695,14 +743,14 @@ a.list-row:hover {
 }
 .progress-track {
   height: 6px;
-  border-radius: 3px;
+  border-radius: var(--r-pill);
   background: #ecebf3;
   overflow: hidden;
 }
 .progress-track > span {
   display: block;
   height: 100%;
-  border-radius: 3px;
+  border-radius: var(--r-pill);
   background: var(--lilac);
   transition: width 0.6s ease;
 }
@@ -722,7 +770,7 @@ a.list-row:hover {
   border: 0;
   background: none;
   font-weight: 700;
-  font-size: 15px;
+  font-size: var(--t-base);
   color: var(--ink-3);
   text-decoration: none;
   white-space: nowrap;
@@ -739,7 +787,7 @@ a.list-row:hover {
   inset-inline: 0;
   bottom: -1px;
   height: 2px;
-  border-radius: 2px;
+  border-radius: var(--r-pill);
   background: var(--lilac);
 }
 
@@ -858,7 +906,7 @@ a.list-row:hover {
   gap: var(--s-2);
   margin-top: var(--s-6);
 }
-@media (max-width: 560px) {
+@media (max-width: 640px) {
   .sheet-backdrop {
     place-items: end center;
     padding: 0;
@@ -928,7 +976,7 @@ a.list-row:hover {
   background: var(--surface-2);
   font-family: var(--font-display);
   font-weight: 600;
-  font-size: 22px;
+  font-size: var(--t-lg);
   color: var(--ink);
 }
 .pin-pad button:hover {
@@ -973,7 +1021,7 @@ a.list-row:hover {
 .toast.error .ico {
   color: #ffb0a6;
 }
-@media (max-width: 560px) {
+@media (max-width: 640px) {
   .toasts {
     inset-inline: 16px;
     bottom: 16px;

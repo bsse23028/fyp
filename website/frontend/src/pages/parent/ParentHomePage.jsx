@@ -1,11 +1,11 @@
-// PARENT HOME (Dashboard) - the Figma ParentShell dashboard:
-//   header      "Good morning, Sara", today's date, Open Child Mode + Add child
-//   stats       sessions + stars this week (all children), the best day streak, letters learned (current child)
-//   explore     the big "New here?" card (Explore KidBuddy / Not now) until the parent explored once or hid it
-//   children    a card per child: buddy, age, last active, streak, activities, this week's bars, links, ⋯ menu;
-//               clicking a child makes it the current child (the same one as the top-bar switcher)
-//   side        Open Child Mode for the current child, next steps, struggle words, Explore KidBuddy (preview)
-// All numbers come from the server (and the alphabet stars saved in this browser).
+// PARENT HOME (Dashboard) - "how is my child doing, and what should I do next?"
+//   header      "Good morning, Sara", today's date, Add child (Open Child Mode lives once, in the sidebar)
+//   chooser     a pill per child (with 2+ children); the whole page follows the chosen child
+//   week card   "Zara practised on 5 of the last 7 days", last practised + streak, Open Child Mode / View progress, the 7 days
+//   numbers     sessions, stars, day streak of the chosen child (last 7 days)
+//   next steps  what to do next for the chosen child; "Your children" (a short list); Words to practise (struggle words)
+//   explore     a slim "New here?" bar at the bottom until the parent explored once or dismissed it
+// All numbers come from the server. (Letters learned lives on Progress, where it says it is saved on this device only.)
 
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
@@ -17,11 +17,10 @@ import { translate } from '../../i18n/translate';
 import { getAvatar } from '../../data/avatars';
 import { countStoryDetails } from '../../data/storyOptions';
 import { KEYS, getGreeting, loadData, saveData } from '../../utils/misc';
-import { activityOn } from '../../utils/modules';
 import { ageText, dayKey, lastActiveText, lastDays, streakDays, weekTotals } from '../../utils/progress';
 import { Page, useCurrentChild } from '../../layouts/Layouts';
-import { Avatar, Badge, Button, EmptyState, Mascot, PageHeader, Spinner } from '../../components/ui';
-import { MiniBars, MoreMenu, Row, Stat } from '../../components/rows';
+import { Button, EmptyState, Mascot, PageHeader, Spinner } from '../../components/ui';
+import { ChildPicker, Row, Stat, WeekDots } from '../../components/rows';
 import Icon from '../../components/Icon';
 import PinModal from '../../components/PinModal';
 
@@ -44,10 +43,7 @@ function StruggleCard({ child }) {
   return (
     <section className="panel">
       <div className="panel-head">
-        <div>
-          <span className="eyebrow">{translate('Practise gently')}</span>
-          <h2>{translate('Struggle words')}</h2>
-        </div>
+        <h2>{translate('Words to practise')}</h2>
         <Link to="/parent/struggle-words" className="link small">{translate('See all')}</Link>
       </div>
       <div className="panel-body">
@@ -74,8 +70,8 @@ function StruggleCard({ child }) {
 
 export default function ParentHomePage() {
   const { user, pin } = useAuth();
-  const { childProfiles, deleteChild, startPreview, endPreview, alphabetProgress } = useChild();
-  const { confirm, alert } = useUI();
+  const { childProfiles, startPreview, endPreview } = useChild();
+  const { alert } = useUI();
   useLanguage();
   const navigate = useNavigate();
   const { currentId, setCurrentId } = useCurrentChild();
@@ -99,16 +95,6 @@ export default function ParentHomePage() {
     stars += week.stars;
   });
 
-  async function confirmDelete(child) {
-    const yes = await confirm({
-      title: translate('Delete {name}?', { name: child.name }),
-      message: 'This deletes the profile and all of its progress from your account. It cannot be undone.',
-      confirmLabel: 'Delete',
-      danger: true,
-    });
-    if (yes) deleteChild(child.id);
-  }
-
   function hideExplore() {
     saveData(KEYS.explored, true);
     setExplored(true);
@@ -125,12 +111,7 @@ export default function ParentHomePage() {
     <PageHeader
       title={`${translate(getGreeting(now).text.replace('!', ''))}${firstName ? `, ${firstName}` : ''}`}
       subtitle={dateText(now)}
-      actions={
-        <>
-          {chosen && <Button variant="secondary" icon="lock-open-variant-outline" onClick={openChildMode}>Open Child Mode</Button>}
-          <Button icon="plus" to="/parent/children/new">Add child</Button>
-        </>
-      }
+      actions={<Button variant="secondary" icon="plus" to="/parent/children/new">Add child</Button>}
     />
   );
 
@@ -145,9 +126,6 @@ export default function ParentHomePage() {
     );
   }
 
-  const letters = alphabetProgress(chosen.id).done;
-  const phonicsOn = activityOn(chosen, 3); // the alphabet counts only when Phonics is switched on for this child
-
   const steps = [
     !pin && { icon: 'shield-lock-outline', title: 'Create your Parent PIN', copy: 'Needed to leave Child Mode.', onClick: () => setPinOpen(true) },
     (chosen.modules || []).length === 0 && { icon: 'target', title: translate('Switch on {name}’s activities', { name: chosen.name }), copy: 'New profiles start with every activity off.', to: `/parent/children/${chosen.id}/modules` },
@@ -156,162 +134,100 @@ export default function ParentHomePage() {
     weekTotals(chosen).sessions === 0 && { icon: 'play-circle-outline', title: 'Do a first session together', copy: 'Five minutes of Read Along is a good start.', onClick: openChildMode },
   ].filter(Boolean);
 
-  const bestStreak = Math.max(0, ...childProfiles.map((c) => streakDays(c)));
-  const activeDays = (child) => lastDays(child, 7).filter((d) => d.sessions > 0).length;
+  const week = weekTotals(chosen);
+  const streak = streakDays(chosen);
+  const daysPracticed = lastDays(chosen, 7).filter((d) => d.sessions > 0).length;
+  const lastActive = `${translate('Last practised: {when}', { when: translate(lastActiveText(chosen)) })}${streak > 0 ? ` · ${translate('{n} day streak', { n: streak })}` : ''}`;
+  const openFor = (child) => navigate('/who', { state: { childId: child.id } });
 
   return (
     <Page>
       {header}
 
-      {!explored && (
-        <section className="explore-welcome">
-          <Mascot size={96} avatar="puppy" alt="" />
-          <div className="ew-text">
-            <span className="ew-tag">{translate('New here?')}</span>
-            <h2>{translate('See what your child will see')}</h2>
-            <p>{translate('Play as Buddy, our demo child, for a few minutes. Every activity is open and nothing is saved.')}</p>
-          </div>
-          <div className="ew-actions">
-            <Button icon="eye-outline" onClick={exploreNow}>Explore KidBuddy</Button>
-            <button type="button" className="link" onClick={hideExplore}>{translate('Not now')}</button>
-          </div>
-        </section>
-      )}
+      <ChildPicker list={childProfiles} value={chosen.id} onChange={setCurrentId} showAge />
 
-      <div className="stats">
-        <Stat label="Sessions this week" value={sessions} icon="calendar-check-outline" tone="lilac" hint={childProfiles.length > 1 ? 'All children' : 'Finished practice sessions'} />
-        <Stat label="Day streak" value={translate('{n} days', { n: bestStreak })} icon="fire" tone="leaf" hint="Best across your children" />
-        <Stat label="Stars earned this week" value={stars} icon="star-outline" tone="sun" hint="Earned for every try" />
-        {phonicsOn ? (
-          <Stat label="Letters learned" value={`${letters}/26`} icon="alphabetical" tone="sky" hint={chosen.name} />
-        ) : (
-          <Stat label="Activities on" value={(chosen.modules || []).length} icon="puzzle-outline" tone="sky" hint={chosen.name} />
-        )}
+      <section className="panel week-hero">
+        <div className="wh-main">
+          <span className="wh-art" style={{ background: getAvatar(chosen.avatar).color }}>
+            <Mascot avatar={chosen.avatar} size={72} alt="" />
+          </span>
+          <div>
+            <h2>
+              {daysPracticed > 0
+                ? translate('{name} practised on {n} of the last 7 days', { name: chosen.name, n: daysPracticed })
+                : translate('{name} has not practised in the last 7 days', { name: chosen.name })}
+            </h2>
+            <p>{lastActive}</p>
+            <div className="wh-actions">
+              <Button onClick={() => openFor(chosen)}>Open Child Mode</Button>
+              <Button variant="secondary" to={`/parent/progress?child=${chosen.id}`}>View progress</Button>
+            </div>
+          </div>
+        </div>
+        <WeekDots days={weekBars(chosen)} full />
+      </section>
+
+      <div className="stats three">
+        <Stat label="Sessions this week" value={week.sessions} icon="calendar-check-outline" tone="lilac" hint={translate('{name} · last 7 days', { name: chosen.name })} />
+        <Stat label="Stars this week" value={week.stars} icon="star-outline" tone="leaf" hint="One for every try" />
+        <Stat label="Day streak" value={streak} unit={translate(streak === 1 ? 'day' : 'days')} icon="fire" tone="sun" hint={chosen.name} />
       </div>
 
       <div className="dash">
         <div className="dash-main">
-          <div className="section-heading">
-            <div>
-              <span className="eyebrow">{translate('Family overview')}</span>
-              <h2>{translate('Your children')}</h2>
-            </div>
-            <Link to="/parent/children" className="link small">
-              {translate('View all')} <Icon name="chevron-right" size={16} className="ico flip-rtl" />
-            </Link>
-          </div>
-          <div className="kid-tiles">
-            {childProfiles.map((child) => {
-              const on = child.id === chosen.id;
-              const mods = child.modules || [];
-              const streak = streakDays(child);
-              return (
-                <article key={child.id} className={`panel kid-tile${on ? ' selected' : ''}`}>
-                  <div className="kid-tile-top">
-                    <button type="button" className="kid-tile-pick" onClick={() => setCurrentId(child.id)} aria-pressed={on} aria-label={translate('Show {name} on the dashboard', { name: child.name })}>
-                      <span className="kid-tile-art" style={{ background: getAvatar(child.avatar).color }}>
-                        <Mascot avatar={child.avatar} size={40} alt="" />
-                      </span>
-                      <span className="kid-tile-id">
-                        <span className="kid-tile-name">{child.name}</span>
-                        <span className="kid-tile-meta">
-                          {translate(ageText(child))} · {translate('Active')} {translate(lastActiveText(child)).toLowerCase()}
-                        </span>
-                      </span>
-                    </button>
-                    {streak > 0 && (
-                      <span className="streak-badge">
-                        <Icon name="creation" size={13} />
-                        {translate('{n} day streak', { n: streak })}
-                      </span>
-                    )}
-                    <MoreMenu
-                      label="More options"
-                      items={[
-                        { label: 'View progress', icon: 'chart-line', onClick: () => navigate(`/parent/progress?child=${child.id}`) },
-                        { label: 'Edit profile', icon: 'pencil-outline', onClick: () => navigate(`/parent/children/${child.id}`) },
-                        { label: 'Delete', icon: 'trash-can-outline', danger: true, onClick: () => confirmDelete(child) },
-                      ]}
-                    />
-                  </div>
-                  <div className="kid-tile-mods">
-                    {mods.slice(0, 4).map((m) => <span key={m} className="module-chip">{translate(m)}</span>)}
-                    {mods.length > 4 && <span className="module-chip more">+{mods.length - 4}</span>}
-                    {mods.length === 0 && <span className="small muted">{translate('No activities switched on yet')}</span>}
-                  </div>
-                  <div className="kid-tile-week">
-                    <div>
-                      <strong>{translate('This week')}</strong>
-                      <small>{translate('{n} active days', { n: activeDays(child) })}</small>
-                    </div>
-                    <MiniBars days={weekBars(child)} />
-                  </div>
-                  <div className="kid-tile-links">
-                    <Link to={`/parent/progress?child=${child.id}`} className="link">
-                      {translate('View progress')} <Icon name="chevron-right" size={15} className="ico flip-rtl" />
-                    </Link>
-                    <Link to={`/parent/children/${child.id}`} className="link muted-link">{translate('Edit profile')}</Link>
-                  </div>
-                </article>
-              );
-            })}
-          </div>
-          <Link to="/parent/children/new" className="add-child">
-            <Icon name="plus" size={20} />
-            <span>
-              <strong>{translate('Add another child')}</strong>
-              <small>{translate('Create a personalised practice space')}</small>
-            </span>
-          </Link>
-        </div>
-
-        <aside className="dash-side">
-          <section className="panel focus-mini">
-            <div className="fm-top">
-              <Avatar avatar={chosen.avatar} size={44} />
-              <div>
-                <span className="eyebrow">{translate('Ready to learn')}</span>
-                <h3>{chosen.name}</h3>
-              </div>
-            </div>
-            <Button block icon="lock-open-variant-outline" onClick={openChildMode}>Open Child Mode</Button>
-          </section>
-
           {steps.length > 0 && (
             <section className="panel">
               <div className="panel-head">
-                <div>
-                  <span className="eyebrow">{translate('For {name}', { name: chosen.name })}</span>
-                  <h2>{translate('Next steps')}</h2>
-                </div>
+                <h2>{translate('Next steps for {name}', { name: chosen.name })}</h2>
                 <span className="small muted">{translate('{n} left', { n: steps.length })}</span>
               </div>
               <div className="list">
-                {steps.map((s) => (
-                  <Row key={s.title} icon={s.icon} title={s.title} copy={s.copy} to={s.to} onClick={s.onClick} />
+                {steps.map((st) => (
+                  <Row key={st.title} icon={st.icon} title={st.title} copy={st.copy} to={st.to} onClick={st.onClick} />
                 ))}
               </div>
             </section>
           )}
 
-          <StruggleCard child={chosen} />
+          <section className="panel">
+            <div className="panel-head">
+              <h2>{translate('Your children')}</h2>
+              <Link to="/parent/children" className="link small">
+                {translate('View all')} <Icon name="chevron-right" size={16} className="ico flip-rtl" />
+              </Link>
+            </div>
+            <ul className="kid-rows">
+              {childProfiles.map((child) => (
+                <li key={child.id} className="kr">
+                  <span className="kr-art" style={{ background: getAvatar(child.avatar).color }}>
+                    <Mascot avatar={child.avatar} size={36} alt="" />
+                  </span>
+                  <span className="kr-id">
+                    <strong>{child.name}</strong>
+                    <span>{translate(ageText(child))} · {translate('Active')} {translate(lastActiveText(child)).toLowerCase()}</span>
+                  </span>
+                  <Button variant="secondary" size="sm" onClick={() => openFor(child)}>Open Child Mode</Button>
+                </li>
+              ))}
+            </ul>
+          </section>
+        </div>
 
-          <button
-            type="button"
-            className="explore"
-            onClick={exploreNow}
-          >
-            <span>
-              <span className="explore-title">{translate('Explore KidBuddy')}</span>
-              <span className="explore-copy">{translate('Try every activity as Buddy, our demo child. Nothing is saved.')}</span>
-              <span className="explore-cta">
-                {translate('Start exploring')} <Icon name="arrow-right" size={16} className="ico flip-rtl" />
-              </span>
-            </span>
-            <Mascot size={86} avatar="bear" alt="" />
-          </button>
+        <aside className="dash-side">
+          <StruggleCard child={chosen} />
         </aside>
       </div>
+
+      {!explored && (
+        <section className="explore-bar">
+          <Mascot size={44} avatar="bear" alt="" />
+          <p>
+            <strong>{translate('New here?')}</strong> {translate('Try KidBuddy as Buddy, our demo child. Nothing is saved.')}
+          </p>
+          <Button variant="secondary" size="sm" icon="eye-outline" onClick={exploreNow}>Explore KidBuddy</Button>
+          <button type="button" className="link muted-link" onClick={hideExplore}>{translate('Dismiss')}</button>
+        </section>
+      )}
 
       {pinOpen && (
         <PinModal

@@ -39,7 +39,7 @@ export default function LearningGroupPage() {
         <ChildTitle title={translate('What shall we try?')} back="/child" speakText="What shall we try?" eyebrow={group.label} />
         <div className="ktiles">
           {items.length === 0 && <NothingOn />}
-          {items.map((item, i) => (
+          {[...items].sort((a, b) => Number(!moduleScreen(a)) - Number(!moduleScreen(b))).map((item, i) => (
             <KidTile key={item.no} index={i} icon={item.icon} tone={group.tone} title={item.title} subtitle={item.subtitle} soon={!moduleScreen(item)} onClick={() => open(item)} />
           ))}
         </div>

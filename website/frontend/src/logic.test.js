@@ -198,3 +198,34 @@ describe('greeting', () => {
     expect(at(2)).toBe('Good night!');
   });
 });
+
+import { crumbsFor } from './utils/crumbs';
+describe('breadcrumbs', () => {
+  const kids = [{ id: '1', name: 'Zara K' }];
+  const labels = (p) => crumbsFor(p, kids).map((c) => c.label);
+  test('follow the sidebar and name the child', () => {
+    expect(labels('/parent')).toEqual(['Dashboard']);
+    expect(labels('/parent/children/1/support')).toEqual(['Dashboard', 'My Children', 'Zara K', 'Areas of support']);
+    expect(labels('/parent/struggle-words')).toEqual(['Dashboard', 'Plan', 'Struggle words']);
+    expect(labels('/parent/account/password')).toEqual(['Dashboard', 'Settings', 'My account', 'Change password']);
+  });
+  test('only the last step is not a link', () => {
+    const trail = crumbsFor('/parent/children/1', kids);
+    expect(trail.slice(0, -1).every((c) => c.to)).toBe(true);
+    expect(trail[trail.length - 1].to).toBeUndefined();
+  });
+});
+
+import { passwordStrength } from './utils/validation';
+describe('password strength bar', () => {
+  test('fills as rules are met and turns green at 5 of 6', () => {
+    expect(passwordStrength('').bars).toBe(0);
+    expect(passwordStrength('abc').met).toBe(2); // a small letter and no spaces
+    expect(passwordStrength('abcdefgh').tone).toBe('mid');
+    const strong = passwordStrength('Kid#2026');
+    expect(strong.met).toBe(6);
+    expect(strong.bars).toBe(4);
+    expect(strong.tone).toBe('good');
+    expect(passwordStrength('Kid2026ab').tone).toBe('good'); // no symbol: 5 of 6
+  });
+});

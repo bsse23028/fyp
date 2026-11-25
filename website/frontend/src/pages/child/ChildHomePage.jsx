@@ -35,7 +35,8 @@ export default function ChildHomePage() {
   const greetingKey = greeting.text.replace('!', ', {name}!');
   const filled = Math.min(5, starsToday(activeChild, now));
   // Only the groups with an activity the parent switched on for this child (child.modules from the server).
-  const groups = visibleGroups(activeChild);
+  // built groups first, the "Soon" ones last (R12 of the website audit)
+  const groups = [...visibleGroups(activeChild)].sort((a, b) => Number(!groupIsBuilt(a)) - Number(!groupIsBuilt(b)));
 
   useEffect(() => {
     const clock = setInterval(() => setNow(new Date()), 60000);
@@ -121,7 +122,7 @@ export default function ChildHomePage() {
                 >
                   <span className="kh-module-ico"><Icon name={group.icon} size={42} /></span>
                   <strong>{translate(group.label)}</strong>
-                  {!built && <span className="soon-tag">{translate('Coming soon')}</span>}
+                  {!built && <span className="soon-tag">{translate('Soon')}</span>}
                 </button>
               );
             })}

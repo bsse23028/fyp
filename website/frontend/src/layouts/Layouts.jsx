@@ -1,10 +1,10 @@
 // LAYOUTS - the frames around the pages.
 //   EntryLayout   Welcome + the intro (full-screen split pages with an illustration)
-//   AuthLayout    log in / sign up: value panel + form card; codes and passwords: one centred card
+//   AuthLayout    log in / sign up: brand panel + form with a Log in | Create account switch; codes and passwords: the same panel without the switch
 //   SetupLayout   first steps after sign-up (permissions, first child) and "Who is learning?"
 //   ParentLayout  Parent Mode (Figma ParentShell): sidebar with Open Child Mode, Dashboard, My Children, Plan
-//                 (+ Struggle words), Progress, Settings, the language switch, you and Log Out; a 72px top bar
-//                 with the breadcrumb, the child switcher and your initials; a slide-in drawer under 1024px
+//                 (+ Struggle words), Progress, Settings, the language switch and you (a menu: My account, Log out);
+//                 a 72px top bar with the breadcrumb and the child switcher; a slide-in drawer under 1024px
 //   ChildLayout   Child Mode (Figma ChildShell): Back · Home pills, the buddy's logo in the middle, sound,
 //                 language and the 🔒 Parent Exit (PIN); a warm cream page
 //   Screen        a page area; ChildTitle + AuthHeading are the shared page headings
@@ -15,9 +15,10 @@ import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
 import { useChild } from '../context/ChildContext';
 import { useUI } from '../context/UIContext';
-import { translate } from '../i18n/translate';
+import { getCurrentLanguage, translate } from '../i18n/translate';
 import { ageText } from '../utils/progress';
 import { previewGuideFor } from '../utils/previewGuides';
+import { crumbsFor } from '../utils/crumbs';
 import { Avatar, BackButton, BrandLogo, Button, IconButton, Mascot, SpeakButton } from '../components/ui';
 import Icon from '../components/Icon';
 import PinModal from '../components/PinModal';
@@ -72,63 +73,99 @@ export function EntryLayout() {
 
 /* ---------------- auth ---------------- */
 
-// /login and /signup: the value panel on the left, the form card on the right.
-// Code, forgot and reset pages: one centred card on a soft background.
+// /login and /signup (Option A of the website's Login and Create account redesign): a brand panel on the left
+// and the form on the right, with a Log in | Create account switch at the top of the form. The panel and the switch
+// stay where they are while the form changes, so moving between the two pages is like flipping a switch.
+// Below 1100px the panel folds into a band across the top (logo + the bunny and kitty).
+// Code, forgot and reset pages use the same panel and column (no switch).
 const SPLIT = {
   '/login': 'Welcome back to your family’s learning space',
   '/signup': 'A little practice goes a long way',
+  // the code and password pages use the same panel, without the Log in | Create account switch
+  '/verify-email': 'One quick step to go',
+  '/forgot-password': 'Let’s get you back in',
+  '/reset-code': 'Let’s get you back in',
+  '/reset-password': 'Almost there',
 };
-const VALUES = [
-  { icon: 'check', title: 'Therapist-aligned', text: 'Keep home practice focused on the right goals.' },
-  { icon: 'shield-check-outline', title: 'Private by design', text: 'No advertising, feeds or open-ended chat.' },
-  { icon: 'creation', title: 'Made for your child', text: 'Personalised activities that celebrate progress.' },
+const WITH_SWITCH = ['/login', '/signup'];
+const PROMISES = ['Ad-free', 'Parent-controlled', 'Follows your therapist’s plan'];
+// the little "this week" card of the panel: an illustration of the Dashboard's week dots (Mon..Sun), not anyone's data
+const WEEK_DAYS = [
+  { day: 'Mon', on: true },
+  { day: 'Tue', on: true },
+  { day: 'Wed', on: false },
+  { day: 'Thu', on: true },
+  { day: 'Fri', on: true },
+  { day: 'Sat', on: false },
+  { day: 'Sun', on: false, today: true },
 ];
+
+function AuthWeekCard() {
+  const urdu = getCurrentLanguage() === 'ur';
+  return (
+    <div className="ap-card" aria-hidden="true">
+      <small>{translate('Illustration')}</small>
+      <b>{translate('Zara’s week · 4 days practised')}</b>
+      <div className="ap-dots">
+        {WEEK_DAYS.map((d) => (
+          <div key={d.day} className={`${d.on ? 'on' : ''}${d.today ? ' today' : ''}`}>
+            <i />
+            {urdu ? translate(d.day) : d.day.slice(0, 1)}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// Log in | Create account: the same place on both pages
+function AuthSwitch() {
+  return (
+    <nav className="auth-tabs" aria-label={translate('Log in or create an account')}>
+      <NavLink to="/login">{translate('Log in')}</NavLink>
+      <NavLink to="/signup">{translate('Create account')}</NavLink>
+    </nav>
+  );
+}
 
 export function AuthLayout() {
   const { pathname } = useLocation();
   useLanguage();
   const panelTitle = SPLIT[pathname];
-  if (!panelTitle) {
-    return (
-      <div className="auth-centered">
-        <SkipLink />
-        <div className="auth-corner"><LanguageToggle compact /></div>
-        <main id="main" className="auth-centered-main">
-          <div className="auth-card compact">
-            <Outlet />
-          </div>
-        </main>
-      </div>
-    );
-  }
+  if (!panelTitle) return <Outlet />;
   return (
     <div className="auth-split">
       <SkipLink />
-      <aside className="value-panel">
-        <Link to="/" className="vp-logo" aria-label="KidBuddy">
-          <BrandLogo height={52} avatar="rabbit" />
+      <aside className="auth-panel">
+        <i className="ap-c1" aria-hidden="true" />
+        <i className="ap-c2" aria-hidden="true" />
+        <Link to="/" className="ap-logo" aria-label="KidBuddy">
+          <img src="/media/auth/logo.png" alt="KidBuddy" draggable={false} />
         </Link>
-        <div className="vp-copy">
-          <span className="kicker">{translate('Welcome to KidBuddy')}</span>
+        <div className="ap-copy">
           <h2>{translate(panelTitle)}</h2>
           <p>{translate('Everything your child needs to practise, with the guidance and controls you need as a parent.')}</p>
+          <ul className="ap-list">
+            {PROMISES.map((text) => (
+              <li key={text}>
+                <Icon name="check" size={19} />
+                {translate(text)}
+              </li>
+            ))}
+          </ul>
         </div>
-        <ul className="vp-list">
-          {VALUES.map((v) => (
-            <li key={v.title}>
-              <span><Icon name={v.icon} size={16} /></span>
-              <div>
-                <strong>{translate(v.title)}</strong>
-                <small>{translate(v.text)}</small>
-              </div>
-            </li>
-          ))}
-        </ul>
-        <div className="vp-mascot" aria-hidden="true"><Mascot avatar="rabbit" size={150} alt="" /></div>
+        <div className="ap-bottom">
+          <AuthWeekCard />
+          <div className="ap-art" aria-hidden="true">
+            <img src="/media/auth/panel-art.png" alt="" draggable={false} />
+            <span className="ap-bubble">{translate('Hi, grown-up!')}</span>
+          </div>
+        </div>
       </aside>
       <main id="main" className="auth-split-main">
         <div className="auth-corner"><LanguageToggle compact /></div>
         <div className="auth-card">
+          {WITH_SWITCH.includes(pathname) && <AuthSwitch />}
           <Outlet />
         </div>
       </main>
@@ -216,20 +253,6 @@ const NAV = [
   { to: '/parent/settings', label: 'Settings', icon: 'cog-outline' },
 ];
 
-// The breadcrumb label of each Parent Mode page.
-function crumbFor(pathname) {
-  if (pathname === '/parent') return 'Dashboard';
-  if (pathname.startsWith('/parent/struggle-words')) return 'Struggle words';
-  if (pathname.startsWith('/parent/plan')) return 'Plan';
-  if (pathname.startsWith('/parent/progress')) return 'Progress';
-  if (pathname === '/parent/children/new') return 'Add a child';
-  if (pathname.startsWith('/parent/children')) return 'My Children';
-  if (pathname.startsWith('/parent/account/password')) return 'Change password';
-  if (pathname.startsWith('/parent/account')) return 'My account';
-  if (pathname.startsWith('/parent/pin')) return 'Update PIN';
-  return 'Settings';
-}
-
 // The child the parent is looking at (dashboard, progress, struggle words), remembered for this tab.
 const CURRENT_KEY = 'kb_parent_child';
 const ParentChildContext = createContext({ currentId: null, setCurrentId: () => {} });
@@ -237,6 +260,64 @@ export const useCurrentChild = () => useContext(ParentChildContext);
 
 function initialsOf(name) {
   return name ? name.trim().split(/\s+/).map((w) => w[0]).slice(0, 2).join('').toUpperCase() : '?';
+}
+
+// You, at the bottom of the sidebar: one button that opens a small menu (My account · Log out).
+// It is the only place for your account and Log out in the shell (R4 of the website audit).
+function AccountMenu({ user, onNavigate, onLogOut }) {
+  const [open, setOpen] = useState(false);
+  const box = useRef(null);
+  useEffect(() => {
+    if (!open) return undefined;
+    const away = (e) => box.current && !box.current.contains(e.target) && setOpen(false);
+    const esc = (e) => e.key === 'Escape' && setOpen(false);
+    document.addEventListener('mousedown', away);
+    document.addEventListener('keydown', esc);
+    return () => {
+      document.removeEventListener('mousedown', away);
+      document.removeEventListener('keydown', esc);
+    };
+  }, [open]);
+  return (
+    <div className="sb-account" ref={box}>
+      {open && (
+        <div className="sb-menu" role="menu" aria-label={translate('Account menu')}>
+          <Link
+            role="menuitem"
+            to="/parent/account"
+            className="sb-menu-item"
+            onClick={() => {
+              setOpen(false);
+              if (onNavigate) onNavigate();
+            }}
+          >
+            <Icon name="account-outline" size={18} />
+            <span>{translate('My account')}</span>
+          </Link>
+          <button
+            role="menuitem"
+            type="button"
+            className="sb-menu-item danger"
+            onClick={() => {
+              setOpen(false);
+              onLogOut();
+            }}
+          >
+            <Icon name="logout" size={18} />
+            <span>{translate('Log out')}</span>
+          </button>
+        </div>
+      )}
+      <button type="button" className="sb-user" aria-haspopup="menu" aria-expanded={open} onClick={() => setOpen(!open)}>
+        <span className="sb-initials">{initialsOf(user && user.name)}</span>
+        <span className="sb-user-text">
+          <span className="sb-user-name">{user ? user.name : ''}</span>
+          <span className="sb-user-mail">{user ? user.email : translate('Parent')}</span>
+        </span>
+        <Icon name={open ? 'chevron-down' : 'chevron-up'} size={18} className="ico sb-user-caret" />
+      </button>
+    </div>
+  );
 }
 
 function Sidebar({ onNavigate }) {
@@ -253,7 +334,6 @@ function Sidebar({ onNavigate }) {
       </Link>
       <Button
         block
-        icon="lock-open-variant-outline"
         onClick={() => {
           go();
           navigate('/who');
@@ -288,37 +368,38 @@ function Sidebar({ onNavigate }) {
       </nav>
       <div className="sb-footer">
         <LanguageToggle block />
-        <NavLink to="/parent/account" className="sb-user" onClick={go}>
-          <span className="sb-initials">{initialsOf(user && user.name)}</span>
-          <span className="sb-user-text">
-            <span className="sb-user-name">{user ? user.name : ''}</span>
-            <span className="sb-user-mail">{translate('Parent')}</span>
-          </span>
-        </NavLink>
-        <button
-          type="button"
-          className="sb-link sb-logout"
-          onClick={async () => {
+        <AccountMenu
+          user={user}
+          onNavigate={go}
+          onLogOut={async () => {
             if (await confirm({ title: 'Log out?', message: 'You can log back in with your email and password.', confirmLabel: 'Log out', danger: true })) {
               go();
               await logOut();
               navigate('/login', { replace: true });
             }
           }}
-        >
-          <Icon name="logout" size={20} />
-          <span>{translate('Log Out')}</span>
-        </button>
+        />
       </div>
     </div>
   );
 }
 
+// The child shown in the top bar. It appears ONLY on pages about one child (a child's profile pages, Progress, Struggle words),
+// and it always shows the child of THAT page (the profile in the address, Progress's ?child=), never a stale one. Choosing another
+// child opens the same page for that child. Family pages (Dashboard, My Children, Plan, Settings, Account) have no switcher.
+const PROFILE_SECTIONS = ['basics', 'support', 'modules', 'stories'];
 function ChildSwitcher() {
   const { childProfiles } = useChild();
   const { currentId, setCurrentId } = useCurrentChild();
+  const { pathname, search } = useLocation();
+  const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
+  const profile = pathname.match(/^\/parent\/children\/([^/]+)(?:\/([^/]+))?\/?$/);
+  const onProfile = Boolean(profile) && profile[1] !== 'new';
+  const onProgress = pathname === '/parent/progress';
+  const onChildPage = onProfile || onProgress || pathname === '/parent/struggle-words';
+  const pageId = onProfile ? profile[1] : onProgress ? new URLSearchParams(search).get('child') : null;
   useEffect(() => {
     if (!open) return undefined;
     const close = (e) => ref.current && !ref.current.contains(e.target) && setOpen(false);
@@ -330,8 +411,14 @@ function ChildSwitcher() {
       document.removeEventListener('keydown', esc);
     };
   }, [open]);
-  const current = childProfiles.find((c) => c.id === currentId) || childProfiles[0];
-  if (!current) return null;
+  const current = childProfiles.find((c) => c.id === pageId) || childProfiles.find((c) => c.id === currentId) || childProfiles[0];
+  if (!onChildPage || !current) return null;
+  function pick(id) {
+    setCurrentId(id);
+    setOpen(false);
+    if (onProfile) navigate(`/parent/children/${id}${profile[2] && PROFILE_SECTIONS.includes(profile[2]) ? `/${profile[2]}` : ''}`);
+    else if (onProgress) navigate(`/parent/progress?child=${id}`, { replace: true });
+  }
   return (
     <div className="child-switch" ref={ref}>
       <button type="button" className="cs-button" aria-haspopup="listbox" aria-expanded={open} onClick={() => setOpen(!open)}>
@@ -350,10 +437,7 @@ function ChildSwitcher() {
               type="button"
               role="option"
               aria-selected={c.id === current.id}
-              onClick={() => {
-                setCurrentId(c.id);
-                setOpen(false);
-              }}
+              onClick={() => pick(c.id)}
             >
               <Avatar avatar={c.avatar} size={26} />
               {c.name}
@@ -422,15 +506,15 @@ export function ParentLayout() {
                 <BrandLogo height={36} avatar={logoAvatar || 'rabbit'} />
               </Link>
               <nav className="crumbs" aria-label={translate('Breadcrumb')}>
-                <Link to="/parent">{translate('Home')}</Link>
-                <Icon name="chevron-right" size={16} className="ico flip-rtl" />
-                <span aria-current="page">{translate(crumbFor(location.pathname))}</span>
+                {crumbsFor(location.pathname, childProfiles).map((c, i, all) => (
+                  <span key={i} className="crumb">
+                    {c.to ? <Link to={c.to}>{c.raw ? c.label : translate(c.label)}</Link> : <span aria-current="page">{c.raw ? c.label : translate(c.label)}</span>}
+                    {i < all.length - 1 && <Icon name="chevron-right" size={16} className="ico flip-rtl" />}
+                  </span>
+                ))}
               </nav>
               <div className="topbar-spacer" />
               <ChildSwitcher />
-              <Link to="/parent/account" className="topbar-me" aria-label={translate('My account')} title={user ? user.name : ''}>
-                {initialsOf(user && user.name)}
-              </Link>
             </header>
             <main id="main" className="app-content">
               <Outlet />
@@ -449,13 +533,68 @@ export function Page({ children, narrow = false, className = '' }) {
 
 /* ---------------- Child Mode ---------------- */
 
+// The sound switch of Child Mode (R7 of the website audit): a bell with its state written on it ("Sound on").
+// Turning sound OFF needs a 0.6 s press-and-hold, so a quick tap can never mute the whole app by accident;
+// turning it back ON is one tap. Keyboard: Enter / Space switches straight away.
+const HOLD_TO_MUTE_MS = 600;
 function SoundSwitch() {
   const [on, setOn] = useState(isSoundEnabled());
+  const [holding, setHolding] = useState(false);
+  const [hint, setHint] = useState(false);
+  const timer = useRef(null);
+  const hintTimer = useRef(null);
+  const justMuted = useRef(false); // the click that ends a successful hold must not switch sound back on
   useEffect(() => onSoundChange(setOn), []);
+  useEffect(() => () => {
+    clearTimeout(timer.current);
+    clearTimeout(hintTimer.current);
+  }, []);
+  const label = translate(on ? 'Sound on' : 'Sound off');
+  function start(e) {
+    if (e.pointerType === 'mouse' && e.button !== 0) return;
+    if (!on) return; // off -> on happens on click
+    setHolding(true);
+    timer.current = setTimeout(() => {
+      setHolding(false);
+      justMuted.current = true;
+      setSoundEnabled(false);
+    }, HOLD_TO_MUTE_MS);
+  }
+  function cancel() {
+    if (!holding) return;
+    clearTimeout(timer.current);
+    setHolding(false);
+    setHint(true); // a short tap while on: say how it works, nothing changes
+    clearTimeout(hintTimer.current);
+    hintTimer.current = setTimeout(() => setHint(false), 2200);
+  }
   return (
-    <button type="button" className="kid-btn" aria-pressed={on} aria-label={translate(on ? 'Sound on' : 'Sound off')} title={translate(on ? 'Sound on' : 'Sound off')} onClick={() => setSoundEnabled(!on)}>
-      <Icon name={on ? 'volume-high' : 'volume-off'} size={24} />
-    </button>
+    <span className="sound-switch">
+      <button
+        type="button"
+        className={`kid-btn sound-btn${on ? ' on' : ''}${holding ? ' holding' : ''}`}
+        aria-pressed={on}
+        aria-label={`${label}. ${translate(on ? 'Hold to turn off' : 'Tap to turn on')}`}
+        title={translate(on ? 'Hold to turn off' : 'Tap to turn on')}
+        onPointerDown={start}
+        onPointerUp={cancel}
+        onPointerLeave={cancel}
+        onPointerCancel={cancel}
+        onClick={(e) => {
+          if (justMuted.current) {
+            justMuted.current = false;
+            return;
+          }
+          if (e.detail === 0) setSoundEnabled(!on); // keyboard
+          else if (!on) setSoundEnabled(true);
+        }}
+        onContextMenu={(e) => e.preventDefault()}
+      >
+        <Icon name={on ? 'bell-outline' : 'bell-off-outline'} size={22} />
+        <span className="sound-label">{label}</span>
+      </button>
+      {hint && <span className="sound-hint" role="status">{translate('Hold to turn off')}</span>}
+    </span>
   );
 }
 

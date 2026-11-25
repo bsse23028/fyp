@@ -88,7 +88,7 @@ export function ReadingLevelPage() {
               <span className="level-stars" style={{ background: TINTS[level.color] }}>{'★'.repeat(level.stars)}</span>
               <span className="level-text">
                 <strong>{translate(level.label)}</strong>
-                <span>{translate('{n} sentences', { n: count })}</span>
+                <span>{translate(count === 1 ? '{n} sentence' : '{n} sentences', { n: count })}</span>
               </span>
               <span className="chevron">›</span>
             </button>
@@ -213,6 +213,13 @@ export function ReadingAlongPage() {
     navigate(`${BASE}/${topicId}/${level}/${index}/turn`);
   }
 
+  // Next sentence: skip the child's turn for this one (the turn page is still the way to say the word and mark it tricky)
+  function nextSentence() {
+    stopReading();
+    if (index >= sentences.length - 1) navigate(`${BASE}/${topicId}/${level}/done`, { replace: true });
+    else navigate(`${BASE}/${topicId}/${level}/${index + 1}`);
+  }
+
   return (
     <div className="reading-page">
       <div className="child-title-row">
@@ -225,6 +232,7 @@ export function ReadingAlongPage() {
       <div className="reading-dots" aria-label={translate('Sentence {n} of {total}', { n: index + 1, total: sentences.length })}>
         {sentences.map((_, i) => <span key={i} className={i <= index ? 'on' : ''} />)}
       </div>
+      <p className="reading-count">{translate('Sentence {n} of {total}', { n: index + 1, total: sentences.length })}</p>
       <div className="reading-card">
         <p className="reading-label">{translate('READ ALOUD:')}</p>
         <p className="reading-words" dir={language === 'ur' ? 'rtl' : 'ltr'} lang={language}>
@@ -233,18 +241,23 @@ export function ReadingAlongPage() {
           ))}
         </p>
         <div className="wave" aria-hidden="true">
-          {WAVE_BARS.map((h, i) => <span key={i} style={{ height: h, background: reading && i >= 3 && i <= 8 ? 'var(--calm-primary)' : 'var(--pastel-lilac)' }} />)}
+          {WAVE_BARS.map((h, i) => <span key={i} style={{ height: h, background: reading && i >= 3 && i <= 8 ? 'var(--lilac)' : 'var(--lilac-soft)' }} />)}
         </div>
         <div className="encourage">
           <Mascot size={56} alt="" />
           <span>{translate('Listen first, then it is your turn!')}</span>
         </div>
       </div>
-      <div className="mic-wrap">
-        <button type="button" className="reading-mic" onClick={handleSpeak} aria-label={translate('Tap to speak')}>
-          <Icon name="microphone" size={46} color="#fff" />
-        </button>
-        <span>{translate('Tap to speak')}</span>
+      <div className="reading-actions">
+        <div className="mic-wrap">
+          <button type="button" className="reading-mic" onClick={handleSpeak} aria-label={translate('Tap to speak')}>
+            <Icon name="microphone" size={46} color="#fff" />
+          </button>
+          <span>{translate('Tap to speak')}</span>
+        </div>
+        <Button variant="secondary" size="lg" className="next-sentence" iconEnd="arrow-right" onClick={nextSentence}>
+          {index >= sentences.length - 1 ? 'Finish' : 'Next sentence'}
+        </Button>
       </div>
     </div>
   );
@@ -285,6 +298,7 @@ export function ReadingYourTurnPage() {
   return (
     <div className="reading-page">
       <ChildTitle title="Your turn" back={-1} speakText="Your turn" />
+      <p className="reading-count">{translate('Sentence {n} of {total}', { n: index + 1, total: sentences.length })}</p>
       <ChildInstruction text="Listen, then say the glowing word" />
       <div className="reading-card center">
         <p className="reading-words">
@@ -293,13 +307,15 @@ export function ReadingYourTurnPage() {
           ))}
         </p>
         <SpeakButton text={focusWord} english big label="Hear the word" />
-        <Mascot size={90} bob alt="" />
+        <Mascot size={64} bob alt="" />
         <p className="try-text">{translate('Try “{word}” with me', { word: focusWord })}</p>
+      </div>
+      <div className="turn-actions">
+        <Button size="lg" className="picker-continue" iconEnd="check" onClick={done}>I said it</Button>
         <button type="button" className="link-button" onClick={tricky} disabled={reported}>
           {translate(reported ? 'Saved for practice' : 'That was tricky')}
         </button>
       </div>
-      <Button block className="picker-continue" style={{ marginTop: 18 }} onClick={done}>I said it</Button>
     </div>
   );
 }
@@ -334,9 +350,12 @@ export function ReadingSummaryPage() {
       <Confetti burstKey={burst} />
       <Mascot size={170} bob />
       <h1 className="page-title" style={{ margin: '14px 0 6px' }}>{translate('Nice reading!')}</h1>
-      <p className="muted" style={{ fontSize: 18 }}>{translate('You kept trying and found the tricky words.')}</p>
+      <p className="muted" style={{ fontSize: 20, fontWeight: 700 }}>{translate('You tried every sentence. Great job.')}</p>
       <StarRow filled={STARS_PER_SESSION} size={56} />
-      <Button className="picker-continue" style={{ marginTop: 22, minWidth: 260 }} onClick={() => navigate(`${BASE}/${topicId}`, { replace: true })}>Finish</Button>
+      <div className="finish-actions">
+        <Button variant="secondary" size="lg" onClick={() => navigate(`${BASE}/${topicId}/${session.current ? session.current.level : level}/0`, { replace: true })}>Read again</Button>
+        <Button size="lg" className="picker-continue" onClick={() => navigate(`${BASE}/${topicId}`, { replace: true })}>Finish</Button>
+      </div>
     </div>
   );
 }

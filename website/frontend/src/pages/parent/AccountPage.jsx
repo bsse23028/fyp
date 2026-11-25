@@ -1,5 +1,5 @@
-// MY ACCOUNT - your name (Save name / Saved), the email (read only), and Security: Change password.
-// (The Parent PIN lives only in Settings -> Parent PIN and privacy, as in the app.)
+// MY ACCOUNT - your name (Save name / Saved), the email (read only), and Security: Change password and the Parent PIN
+// (Update PIN, or Create PIN the first time; the same row is in Settings -> Parent PIN and privacy).
 
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -11,9 +11,11 @@ import { Page } from '../../layouts/Layouts';
 import { Button, PageHeader, TextField } from '../../components/ui';
 import { Row, Section } from '../../components/rows';
 import Icon from '../../components/Icon';
+import PinModal from '../../components/PinModal';
 
 export default function AccountPage() {
-  const { user, updateName } = useAuth();
+  const { user, updateName, pin } = useAuth();
+  const [pinOpen, setPinOpen] = useState(false);
   const { alert } = useUI();
   const navigate = useNavigate();
   const [name, setName] = useState(user ? user.name : '');
@@ -52,12 +54,23 @@ export default function AccountPage() {
           </div>
         </form>
       </Section>
-      <Section id="security" title="Security" text="Changing your password needs proof it is you. The Parent PIN is in Settings → Parent PIN and privacy.">
+      <Section id="security" title="Security" text="Changing your password needs proof it is you. The Parent PIN keeps your child in Child Mode.">
         <div className="panel list">
           <Row icon="key-outline" title="Change password" copy="Needs your old password and a code sent to your email." to="/parent/account/password" />
+          <Row icon="shield-lock-outline" title={pin ? 'Update PIN' : 'Create PIN'} copy={pin ? 'Required when leaving Child Mode. Needs your old PIN.' : 'Not set yet. Tap to create one.'} onClick={() => (pin ? navigate('/parent/pin') : setPinOpen(true))} />
 
         </div>
       </Section>
+      {pinOpen && (
+        <PinModal
+          forceCreate
+          onClose={() => setPinOpen(false)}
+          onSuccess={() => {
+            setPinOpen(false);
+            alert({ title: 'PIN saved', message: 'Use this PIN to leave Child Mode.' });
+          }}
+        />
+      )}
     </Page>
   );
 }

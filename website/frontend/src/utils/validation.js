@@ -26,6 +26,14 @@ export function passwordChecks(password) {
   return PASSWORD_RULES.map((rule) => ({ id: rule.id, label: rule.label, ok: rule.test(password) }));
 }
 
+// For the Create account strength bar: how many of the rules are met, how many bars to fill (of 4) and their colour.
+// 5 or 6 rules met = green, fewer = amber. Nothing here changes what is allowed; passwordError() above still decides.
+export function passwordStrength(password) {
+  const met = PASSWORD_RULES.filter((rule) => rule.test(password)).length;
+  const bars = Math.round((met * 4) / PASSWORD_RULES.length);
+  return { met, total: PASSWORD_RULES.length, bars, tone: met >= 5 ? 'good' : 'mid' };
+}
+
 export function passwordError(password) {
   if (!password) return 'Enter a password.';
   if (password.length > 72) return 'Use at most 72 characters.';

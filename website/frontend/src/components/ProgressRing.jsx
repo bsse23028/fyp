@@ -24,12 +24,12 @@ export default function ProgressRing({ value = 0, label = 'Completed', detail, s
   return (
     <div className="ring-wrap">
       <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} role="img" aria-label={`${percent}% ${translate(label)}`}>
-        <path d={arc(start, start + sweep)} fill="none" stroke="var(--pastel-lilac)" strokeWidth={stroke} strokeLinecap="round" />
-        {safe > 0 && <path d={arc(start, end)} fill="none" stroke="var(--purple)" strokeWidth={stroke} strokeLinecap="round" />}
-        <text x={c} y={c} textAnchor="middle" dominantBaseline="middle" style={{ font: '900 38px Nunito, sans-serif', fill: 'var(--deep-plum)' }}>
+        <path d={arc(start, start + sweep)} fill="none" stroke="var(--lilac-soft)" strokeWidth={stroke} strokeLinecap="round" />
+        {safe > 0 && <path d={arc(start, end)} fill="none" stroke="var(--lilac)" strokeWidth={stroke} strokeLinecap="round" />}
+        <text x={c} y={c} textAnchor="middle" dominantBaseline="middle" style={{ font: '900 38px Nunito, sans-serif', fill: 'var(--ink)' }}>
           {percent}%
         </text>
-        <text x={c} y={c + 30} textAnchor="middle" style={{ font: '700 13px Inter, sans-serif', fill: 'var(--muted-plum)' }}>
+        <text x={c} y={c + 30} textAnchor="middle" style={{ font: '700 13px Inter, sans-serif', fill: 'var(--ink-3)' }}>
           {translate(label)}
         </text>
       </svg>

@@ -1,18 +1,19 @@
-// NOT FOUND - a calm page for a link that does not exist.
+// NOT FOUND - a calm page for a link that does not exist, in the same layout as Welcome and Log in.
 
-import { Mascot, Button, T } from '../../components/ui';
-import TracingLetters from '../../components/TracingLetters';
+import { useLanguage } from '../../context/LanguageContext';
+import { translate } from '../../i18n/translate';
+import { Button } from '../../components/ui';
+import EntryShell, { PanelArt } from '../../components/EntryShell';
 
 export default function NotFoundPage() {
+  useLanguage();
   return (
-    <div className="center-screen notfound">
-      <div className="state-card">
-        <Mascot size={130} avatar="rabbit" bob alt="" />
-        <h1 className="title-xl"><T>Page not found</T></h1>
-        <p className="muted"><T>This page does not exist. Let’s go back home.</T></p>
-        <Button to="/">Go home</Button>
+    <EntryShell theme={0} scene={<PanelArt />}>
+      <h1>{translate('Page not found')}</h1>
+      <p className="es-sub">{translate('This page does not exist. Let’s go back home.')}</p>
+      <div className="es-stack">
+        <Button size="lg" to="/">Go home</Button>
       </div>
-      <div className="notfound-art" aria-hidden="true"><TracingLetters /></div>
-    </div>
+    </EntryShell>
   );
 }

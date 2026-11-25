@@ -44,7 +44,7 @@ export default function EnglishHubPage() {
       </div>
       <div className="ktiles">
         {shown.length === 0 && <NothingOn />}
-        {shown.map((module, i) => (
+        {[...shown].sort((a, b) => Number(!a.to && !a.activities) - Number(!b.to && !b.activities)).map((module, i) => (
           <KidTile key={module.no} index={i} icon={module.icon} tone={module.tone} title={module.title} subtitle={module.subtitle} soon={!module.to && !module.activities} onClick={() => open(module)} />
         ))}
       </div>

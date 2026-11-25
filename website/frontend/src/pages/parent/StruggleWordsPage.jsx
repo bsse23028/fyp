@@ -6,7 +6,8 @@ import { useChild } from '../../context/ChildContext';
 import { useLanguage } from '../../context/LanguageContext';
 import { translate } from '../../i18n/translate';
 import { Page, useCurrentChild } from '../../layouts/Layouts';
-import { Badge, Button, EmptyState, LoadError, PageHeader, SpeakButton } from '../../components/ui';
+import { speak } from '../../services/audio';
+import { Badge, Button, EmptyState, LoadError, PageHeader } from '../../components/ui';
 import { ChildPicker } from '../../components/rows';
 
 export default function StruggleWordsPage() {
@@ -36,11 +37,11 @@ export default function StruggleWordsPage() {
         <div className="panel"><EmptyState mascot="rabbit" title="No child profiles yet" text="Add a child profile first. It takes about a minute." action={<Button to="/parent/children/new" icon="plus">Add a child</Button>} /></div>
       ) : (
         <>
-          <ChildPicker list={childProfiles} value={child.id} onChange={setChildId} />
+          <ChildPicker list={childProfiles} value={child.id} onChange={setChildId} showAge />
           <section className="panel">
             <div className="panel-head">
               <h2>{translate('{name}’s words', { name: child.name })}</h2>
-              {!loading && !failed && !none && <span className="small muted">{translate('{n} words', { n: words.length })}</span>}
+              {!loading && !failed && !none && <span className="small muted">{translate(words.length === 1 ? '{n} word' : '{n} words', { n: words.length })}</span>}
             </div>
             {loading && (
               <div className="list" aria-busy="true">
@@ -58,7 +59,7 @@ export default function StruggleWordsPage() {
                     <th>{translate('Word')}</th>
                     <th>{translate('Missed')}</th>
                     <th className="hide-sm">{translate('Topic')}</th>
-                    <th><span className="sr-only">{translate('Read aloud')}</span></th>
+                    <th><span className="sr-only">{translate('Say it')}</span></th>
                   </tr>
                 </thead>
                 <tbody>
@@ -72,7 +73,7 @@ export default function StruggleWordsPage() {
                         </span>
                       </td>
                       <td className="hide-sm">{item.topic ? <Badge tone="neutral">{translate(item.topic)}</Badge> : <span className="muted">-</span>}</td>
-                      <td className="cell-end"><SpeakButton text={item.word} english compact /></td>
+                      <td className="cell-end"><Button variant="secondary" icon="volume-high" onClick={() => speak(item.word)}>Say it</Button></td>
                     </tr>
                   ))}
                 </tbody>

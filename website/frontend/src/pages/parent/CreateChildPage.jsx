@@ -55,8 +55,8 @@ export default function CreateChildPage({ embedded = false }) {
           {submitted && ageProblem && <p className="field-error">{translate(ageProblem)}</p>}
         </fieldset>
         <fieldset className="choice-field">
-          <legend className="field-label">{translate('Choose an avatar')}</legend>
-          <AvatarPicker selectedId={avatar} onSelect={setAvatar} />
+          <legend className="field-label">{translate('Choose a buddy')}</legend>
+          <AvatarPicker selectedId={avatar} onSelect={setAvatar} compact />
         </fieldset>
         <div className="field">
           <span className="field-label">{translate('Primary language')}</span>
@@ -74,6 +74,7 @@ export default function CreateChildPage({ embedded = false }) {
           </span>
           <p className="cc-name">{name.trim() || translate('Your child')}</p>
           <p className="small muted">{[ageBand ? translate(ageBand) : '', language === 'ur' ? 'اردو' : 'English'].filter(Boolean).join(' · ')}</p>
+          <p className="small cc-buddy">{translate('Buddy: {name}', { name: translate(buddy.name) })}</p>
         </div>
         <p className="tiny muted">{translate('This is how {name} will see themself in Child Mode.', { name: name.trim() || translate('your child') })}</p>
         <p className="tiny muted">{translate('Areas of support, activities and story details can be added later.')}</p>

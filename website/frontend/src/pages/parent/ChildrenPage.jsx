@@ -1,5 +1,5 @@
-// CHILDREN - every child profile as a card: buddy, age, language, this week, activities switched on,
-// with Open Child Mode, Progress and Edit; plus "Add a child".
+// CHILDREN - every child profile as a card with the same three parts: who (buddy, age, language, last active), this week in one
+// line, and the actions (Open Child Mode, then Progress and Edit profile side by side); plus "Add a child". Cards stack on phones.
 
 import { useNavigate } from 'react-router-dom';
 import { useChild } from '../../context/ChildContext';
@@ -18,31 +18,34 @@ export default function ChildrenPage() {
 
   return (
     <Page>
-      <PageHeader title="Children" subtitle="Each child has their own buddy, language, activities and progress." actions={<Button icon="plus" to="/parent/children/new">Add child</Button>} />
+      <PageHeader title="My Children" subtitle="Each child has their own buddy, language, activities and progress." actions={<Button icon="plus" to="/parent/children/new">Add child</Button>} />
       <div className="kids-grid">
         {childProfiles.map((child) => {
           const week = weekTotals(child);
           return (
             <article key={child.id} className="panel kid-card">
-              <div className="kid-card-art" style={{ background: getAvatar(child.avatar).color }}>
-                <Mascot avatar={child.avatar} size={104} alt="" />
+              <div className="kc-id">
+                <span className="kc-art" style={{ background: getAvatar(child.avatar).color }}>
+                  <Mascot avatar={child.avatar} size={52} alt="" />
+                </span>
+                <div>
+                  <h2>{child.name}</h2>
+                  <p>
+                    {translate(ageText(child))} · {child.language === 'ur' ? 'اردو' : 'English'} · {translate('Active')} {translate(lastActiveText(child)).toLowerCase()}
+                  </p>
+                </div>
               </div>
-              <div className="kid-card-body">
-                <h2 className="title-md">{child.name}</h2>
-                <p className="small muted">
-                  {translate(ageText(child))} · {child.language === 'ur' ? 'اردو' : 'English'} · {translate('Active')} {translate(lastActiveText(child)).toLowerCase()}
-                </p>
-                <dl className="kid-card-facts">
-                  <div><dt>{translate('Sessions this week')}</dt><dd>{week.sessions}</dd></div>
-                  <div><dt>{translate('Stars this week')}</dt><dd>{week.stars}</dd></div>
-                  <div><dt>{translate('Day streak')}</dt><dd>{streakDays(child)}</dd></div>
-                </dl>
-                <p className="tiny muted">{translate('{n} activities switched on', { n: (child.modules || []).length })}</p>
+              <div className="kc-nums">
+                <span><b>{week.sessions}</b> {translate('sessions')}</span>
+                <span><b>{week.stars}</b> {translate('stars')}</span>
+                <span><b>{streakDays(child)}</b> {translate('day streak')}</span>
               </div>
-              <div className="kid-card-actions">
-                <Button size="sm" icon="lock-open-variant-outline" onClick={() => navigate('/who', { state: { childId: child.id } })}>Open Child Mode</Button>
-                <Button size="sm" variant="secondary" icon="chart-line" to={`/parent/progress?child=${child.id}`}>Progress</Button>
-                <Button size="sm" variant="ghost" icon="pencil-outline" to={`/parent/children/${child.id}`}>Edit</Button>
+              <div className="kc-acts">
+                <Button block onClick={() => navigate('/who', { state: { childId: child.id } })}>Open Child Mode</Button>
+                <div className="kc-acts2">
+                  <Button block variant="secondary" to={`/parent/progress?child=${child.id}`}>Progress</Button>
+                  <Button block variant="secondary" to={`/parent/children/${child.id}`}>Edit profile</Button>
+                </div>
               </div>
             </article>
           );

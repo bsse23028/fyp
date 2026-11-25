@@ -11,13 +11,15 @@
 // Guards: a page for logged-in parents sends visitors to Log In; while a child is in Child Mode
 // every Parent Mode page sends them back to /child (the only way out is the 🔒 Parent PIN).
 
-import { lazy, Suspense } from 'react';
+import { lazy, Suspense, useEffect } from 'react';
 import { Navigate, Outlet, Route, Routes, useLocation } from 'react-router-dom';
 import { useAuth } from './context/AuthContext';
 import { useChild } from './context/ChildContext';
 import { useLanguage } from './context/LanguageContext';
 import { AuthLayout, ChildLayout, EntryLayout, ParentLayout, SetupLayout } from './layouts/Layouts';
 import { LoadError, Spinner } from './components/ui';
+import { BootScreen } from './components/EntryShell';
+import { translate } from './i18n/translate';
 import { parentStartPath } from './utils/start';
 
 import LandingPage from './pages/public/LandingPage';
@@ -64,15 +66,54 @@ function FullScreenSpinner() {
 // Waits for the saved login check; shows Retry when the server cannot be reached.
 function SessionGate({ children }) {
   const { loading, startupError, retryRestoreSession } = useAuth();
-  if (startupError) {
-    return (
-      <div className="center-screen">
-        <LoadError message={startupError} onRetry={retryRestoreSession} />
-      </div>
-    );
-  }
-  if (loading) return <FullScreenSpinner />;
+  if (startupError) return <BootScreen error={startupError} onRetry={retryRestoreSession} />;
+  if (loading) return <BootScreen />;
   return children;
+}
+
+// The browser tab says which page you are on ("Log in · KidBuddy", "Zara · Activities · KidBuddy"): before the account exists
+// and in Parent Mode. Child Mode keeps plain "KidBuddy".
+const PAGE_TITLES = {
+  '/': 'Welcome',
+  '/onboarding': 'Get started',
+  '/login': 'Log in',
+  '/signup': 'Create account',
+  '/verify-email': 'Verify your email',
+  '/forgot-password': 'Forgot password',
+  '/reset-code': 'Enter your code',
+  '/reset-password': 'New password',
+  '/permissions': 'Permissions',
+  '/children/new': 'Add a child',
+  '/who': 'Who’s playing?',
+  '/parent': 'Dashboard',
+  '/parent/children': 'My Children',
+  '/parent/children/new': 'Add a child',
+  '/parent/plan': 'Plan',
+  '/parent/struggle-words': 'Struggle words',
+  '/parent/progress': 'Progress',
+  '/parent/settings': 'Settings',
+  '/parent/account': 'My account',
+  '/parent/account/password': 'Change password',
+  '/parent/pin': 'Update PIN',
+};
+const PROFILE_PARTS = { basics: 'Basics', support: 'Areas of support', modules: 'Activities', stories: 'Stories', setup: 'Set up' };
+const APP_PATHS = ['/parent', '/child', '/who', '/start', '/permissions', '/children', '/welcome'];
+function PageTitle() {
+  const { pathname } = useLocation();
+  const { childProfiles } = useChild();
+  useEffect(() => {
+    const path = pathname.length > 1 ? pathname.replace(/\/+$/, '') : pathname;
+    let title = PAGE_TITLES[path] ? translate(PAGE_TITLES[path]) : null;
+    const profile = path.match(/^\/parent\/children\/([^/]+)(?:\/([^/]+))?$/);
+    if (!title && profile) {
+      const child = childProfiles.find((c) => c.id === profile[1]);
+      const part = PROFILE_PARTS[profile[2]];
+      title = child ? (part ? `${child.name} · ${translate(part)}` : child.name) : translate('Child profile');
+    }
+    if (!title && !APP_PATHS.some((p) => path === p || path.startsWith(p + '/'))) title = translate('Page not found');
+    document.title = title ? `${title} · KidBuddy` : 'KidBuddy';
+  });
+  return null;
 }
 
 function RequireGuest() {
@@ -134,6 +175,7 @@ export default function App() {
   useLanguage();
   return (
     <SessionGate>
+      <PageTitle />
       <Routes>
         <Route element={<EntryLayout />}>
           <Route index element={<LandingPage />} />

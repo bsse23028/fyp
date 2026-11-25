@@ -42,7 +42,7 @@ export function SpellingWordsPage() {
       <div className="kid-panel">
         <div className="tile-grid">
           {SPELLING_WORDS.map((word) => (
-            <button key={word.id} type="button" className="pastel-tile" style={{ background: 'var(--cloud-white)', alignItems: 'center', minHeight: 170 }} onClick={() => { playSound('pop'); speak(word.sayAs); navigate(word.id); }}>
+            <button key={word.id} type="button" className="pastel-tile" style={{ background: 'var(--surface)', alignItems: 'center', minHeight: 170 }} onClick={() => { playSound('pop'); speak(word.sayAs); navigate(word.id); }}>
               <WordPicture word={word} size={90} />
               <span className="pt-title" style={{ fontSize: 22 }}>{word.word}</span>
             </button>

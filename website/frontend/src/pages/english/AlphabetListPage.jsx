@@ -44,7 +44,7 @@ export default function AlphabetListPage() {
                 <span className="lt-char">{showLetter(item, caseMode)}</span>
                 <span className="lt-stars" aria-hidden="true">
                   {[1, 2, 3].map((n) => (
-                    <span key={n} style={{ color: n <= count ? 'var(--sunny)' : 'rgba(255,255,255,0.8)' }}>★</span>
+                    <span key={n} style={{ color: n <= count ? '#8a5a00' : '#4f5870' }}>{n <= count ? '★' : '☆'}</span>
                   ))}
                 </span>
               </button>

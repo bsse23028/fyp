@@ -18,6 +18,7 @@ export default function SignUpPage() {
   const [submitted, setSubmitted] = useState(false);
   const [formError, setFormError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [pwFocus, setPwFocus] = useState(false); // the password rules open when the field is used
 
   const nameProblem = name.trim().length > 100 ? 'Enter your name (100 characters at most).' : nameError(name);
   const emailProblem = emailError(email);
@@ -41,14 +42,27 @@ export default function SignUpPage() {
   return (
     <form onSubmit={handleSubmit} noValidate className="auth-form">
       <AuthHeading title="Create your parent account" subtitle="Set up your secure space to manage your child’s practice." />
-      <TextField label="Full name" value={name} onChange={setName} placeholder="Full name" autoComplete="name" error={submitted ? nameProblem : ''} maxLength={100} autoFocus />
-      <TextField label="Email address" type="email" value={email} onChange={setEmail} placeholder="you@example.com" autoComplete="email" error={submitted ? emailProblem : ''} />
+      <TextField label="Full name" icon="account-outline" value={name} onChange={setName} placeholder="Full name" autoComplete="name" error={submitted ? nameProblem : ''} maxLength={100} autoFocus />
+      <TextField label="Email address" type="email" icon="email-outline" value={email} onChange={setEmail} placeholder="you@example.com" autoComplete="email" error={submitted ? emailProblem : ''} />
       <div>
-        <TextField label="Password" type="password" value={password} onChange={setPassword} placeholder="Create a password" autoComplete="new-password" error={submitted ? passwordProblem : ''} maxLength={72} />
-        <PasswordRules password={password} />
+        <TextField
+          label="Password"
+          type="password"
+          icon="lock-outline"
+          showText
+          value={password}
+          onChange={setPassword}
+          placeholder="Create a password"
+          autoComplete="new-password"
+          error={submitted ? passwordProblem : ''}
+          maxLength={72}
+          onFocus={() => setPwFocus(true)}
+          onBlur={() => setPwFocus(false)}
+        />
+        <PasswordRules password={password} calm open={pwFocus || password.length > 0 || (submitted && Boolean(passwordProblem))} />
       </div>
       <FormError message={formError} />
-      <Button type="submit" size="lg" block loading={loading} iconEnd="arrow-right">Create account</Button>
+      <Button type="submit" size="lg" block loading={loading} loadingText="Creating account…" iconEnd="arrow-right">Create account</Button>
       <p className="small-print center-text">{translate('By continuing, you agree to the privacy policy and terms.')}</p>
       <p className="auth-switch">
         {translate('Already have an account?')} <Link to="/login" className="link">{translate('Log in')}</Link>

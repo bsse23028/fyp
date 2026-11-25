@@ -34,15 +34,15 @@
   height: 30px;
   padding: 0 10px;
   border: 0;
-  border-radius: 7px;
+  border-radius: var(--r-chip);
   background: transparent;
   font-weight: 700;
-  font-size: 13.5px;
+  font-size: var(--t-sm);
   color: var(--ink-3);
 }
 .lang-switch button.ur {
   font-family: var(--font-urdu);
-  font-size: 13px;
+  font-size: var(--t-sm);
   line-height: 1;
 }
 .lang-switch button.on {
@@ -52,7 +52,7 @@
 .lang-switch button:hover:not(.on) {
   color: var(--ink);
 }
-@media (max-width: 520px) {
+@media (max-width: 640px) {
   .lang-switch.compact .lang-ico {
     display: none;
   }
@@ -141,9 +141,9 @@
   height: 32px;
   padding: 0 12px;
   border-radius: var(--r-pill);
-  font-size: 13.5px;
+  font-size: var(--t-sm);
   font-weight: 700;
-  color: var(--ink-4);
+  color: var(--ink-3);
 }
 .stepper li + li::before {
   content: '';
@@ -167,7 +167,7 @@
   display: grid;
   place-items: center;
   border: 1.5px solid currentColor;
-  font-size: 11px;
+  font-size: var(--t-xs);
 }
 .stepper.inline {
   margin: 0 0 var(--s-4);
@@ -182,7 +182,7 @@
   flex-direction: column;
   gap: var(--s-6);
 }
-@media (max-width: 820px) {
+@media (max-width: 900px) {
   .setup-top .stepper {
     display: none;
   }
@@ -234,11 +234,11 @@
   height: 44px;
   padding: 0 11px;
   border: 0;
-  border-radius: 10px;
+  border-radius: var(--r-chip);
   background: transparent;
   color: #596273;
-  font-weight: 500;
-  font-size: 14.5px;
+  font-weight: 600;
+  font-size: 15px;
   text-decoration: none;
   text-align: start;
 }
@@ -283,9 +283,9 @@
   display: flex;
   align-items: center;
   padding: 0 10px;
-  border-radius: 8px;
+  border-radius: var(--r-chip);
   color: var(--ink-3);
-  font-size: 13.5px;
+  font-size: var(--t-sm);
   text-decoration: none;
 }
 .sb-sublink:hover {
@@ -299,17 +299,21 @@
 .sb-count {
   min-width: 22px;
   height: 22px;
-  border-radius: 11px;
+  border-radius: var(--r-control);
   display: grid;
   place-items: center;
   background: var(--paper);
   color: var(--ink-3);
-  font-size: 12px;
+  font-size: var(--t-xs);
 }
 .sb-footer {
   margin-top: auto;
   display: grid;
+  grid-template-columns: minmax(0, 1fr); /* a long email shortens with … instead of pushing the sidebar wider */
   gap: 9px;
+}
+.sb-account {
+  min-width: 0;
 }
 .lang-switch.block {
   display: flex;
@@ -318,35 +322,89 @@
 }
 .lang-switch.block button {
   flex: 1;
+  min-height: 44px;
 }
 .lang-switch.block .lang-ico {
   display: none;
 }
+/* shown only while the sidebar is folded into the drawer */
+@media (min-width: 1025px) {
+  .when-drawer {
+    display: none !important;
+  }
+}
+.sb-account {
+  position: relative;
+}
 .sb-user {
+  width: 100%;
   display: flex;
   align-items: center;
   gap: 10px;
   padding: 8px;
-  border-radius: 10px;
-  text-decoration: none;
+  border: 0;
+  border-radius: var(--r-chip);
+  background: none;
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
   color: var(--ink);
 }
 .sb-user:hover,
-.sb-user.active {
+.sb-user[aria-expanded='true'] {
   background: var(--paper);
 }
-.sb-initials,
-.topbar-me {
+.sb-user-caret {
+  color: var(--ink-3);
+}
+/* the account menu opens upwards, over the language switch */
+.sb-menu {
+  position: absolute;
+  inset-inline: 0;
+  bottom: calc(100% + 6px);
+  z-index: 5;
+  display: grid;
+  gap: 2px;
+  padding: 6px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-control);
+  background: var(--surface);
+  box-shadow: var(--shadow-menu);
+}
+.sb-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 40px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: var(--r-chip);
+  background: none;
+  font: inherit;
+  font-size: var(--t-sm);
+  font-weight: 600;
+  color: var(--ink-2);
+  text-decoration: none;
+  cursor: pointer;
+}
+.sb-menu-item:hover,
+.sb-menu-item:focus-visible {
+  background: var(--paper);
+}
+.sb-menu-item.danger {
+  color: var(--danger);
+}
+.sb-initials {
   width: 34px;
   height: 34px;
-  border-radius: 10px;
+  border-radius: var(--r-chip);
   display: grid;
   place-items: center;
   flex-shrink: 0;
   background: #e9e7fb;
   color: #554ca3;
   font-weight: 700;
-  font-size: 12px;
+  font-size: var(--t-xs);
   text-decoration: none;
 }
 .sb-user-text {
@@ -357,17 +415,17 @@
 }
 .sb-user-name {
   font-weight: 700;
-  font-size: 14px;
+  font-size: var(--t-sm);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 .sb-user-mail {
-  font-size: 12.5px;
+  font-size: var(--t-sm);
   color: var(--ink-3);
-}
-.sb-logout .ico {
-  color: var(--ink-4);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .app-main {
   min-width: 0;
@@ -394,18 +452,34 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 13.5px;
+  font-size: var(--t-sm);
   color: var(--ink-3);
   min-width: 0;
 }
+.crumb {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
 .crumbs a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 4px;
+  margin: 0 -4px;
+  border-radius: var(--r-chip);
   color: var(--ink-3);
   text-decoration: none;
+  white-space: nowrap;
 }
 .crumbs a:hover {
   color: var(--ink);
 }
 .crumbs [aria-current] {
+  display: inline-flex; /* same box as the links, so it sits on the same line */
+  align-items: center;
+  min-height: 44px;
   color: var(--ink);
   font-weight: 700;
   white-space: nowrap;
@@ -420,9 +494,9 @@
   display: flex;
   align-items: center;
   gap: 9px;
-  height: 46px;
+  height: 44px;
   padding: 0 10px 0 6px;
-  border-radius: 12px;
+  border-radius: var(--r-control);
   border: 1px solid var(--line);
   background: var(--surface);
   color: var(--ink-3);
@@ -438,11 +512,11 @@
 }
 .cs-name {
   font-weight: 700;
-  font-size: 13.5px;
+  font-size: var(--t-sm);
   color: var(--ink);
 }
 .cs-age {
-  font-size: 11.5px;
+  font-size: var(--t-xs);
 }
 .cs-menu {
   min-width: 220px;
@@ -450,9 +524,6 @@
 .cs-menu .cs-check {
   margin-inline-start: auto;
   color: var(--lilac);
-}
-.topbar-me:hover {
-  background: var(--lilac-soft);
 }
 .app-content {
   flex: 1;
@@ -500,7 +571,7 @@
     opacity: 0;
   }
 }
-@media (max-width: 1024px) {
+@media (max-width: 1024px) /* the app shell switches to the drawer here (kept: below it the 264px sidebar crushes the page) */ {
   .app {
     grid-template-columns: 1fr;
   }
@@ -521,7 +592,7 @@
     padding: var(--s-6) var(--s-6) var(--s-16);
   }
 }
-@media (max-width: 520px) {
+@media (max-width: 640px) {
   .app-content {
     padding: var(--s-5) var(--s-4) var(--s-12);
   }
@@ -544,7 +615,7 @@
 }
 .page-header h1 {
   font-family: var(--font-display);
-  font-size: 32px;
+  font-size: var(--t-xl);
   letter-spacing: -0.02em;
   line-height: 1.1;
   font-weight: 700;
@@ -552,14 +623,14 @@
 .page-header .ph-text p {
   margin-top: 7px;
   color: var(--ink-3);
-  font-size: 15px;
+  font-size: var(--t-base);
 }
 .ph-actions {
   display: flex;
   gap: var(--s-3);
   flex-wrap: wrap;
 }
-@media (max-width: 520px) {
+@media (max-width: 640px) {
   .page-header h1 {
     font-size: var(--t-xl);
   }
@@ -571,6 +642,14 @@
   }
   .ph-actions .btn {
     flex: 1;
+  }
+  /* a "Soon" button never fills the row like a main action (R12) */
+  .ph-actions .btn.soon-btn {
+    flex: 0 1 auto;
+  }
+  /* Dashboard on a phone: Open Child Mode on its own full-width row, Add child under it */
+  .ph-actions .btn.when-drawer {
+    flex-basis: 100%;
   }
 }
 
@@ -587,7 +666,7 @@
   position: sticky;
   top: 0;
   z-index: 25;
-  height: 88px;
+  height: 72px;
   display: grid;
   grid-template-columns: auto auto 1fr auto;
   align-items: center;
@@ -598,11 +677,11 @@
   border-bottom: 1px solid #e9e3d7;
 }
 .kid-nav {
-  min-width: 128px;
-  height: 64px;
+  min-width: 112px;
+  height: 48px;
   padding: 0 18px;
   border: 0;
-  border-radius: 22px;
+  border-radius: var(--r-kid);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -610,7 +689,7 @@
   color: #3d465b;
   background: #eef2f5;
   font-family: var(--font-kid);
-  font-size: 20px;
+  font-size: var(--k-base);
   font-weight: 800;
 }
 .kid-nav:hover:not([disabled]) {
@@ -625,7 +704,7 @@
   display: flex;
   padding: 4px 8px;
   border: 0;
-  border-radius: 14px;
+  border-radius: var(--r-kid-s);
   background: transparent;
 }
 .kid-top-actions {
@@ -635,9 +714,9 @@
 }
 .kid-btn,
 .kid-parent {
-  width: 64px;
-  height: 64px;
-  border-radius: 20px;
+  width: 48px;
+  height: 48px;
+  border-radius: var(--r-kid-s);
   border: 0;
   display: grid;
   place-items: center;
@@ -649,19 +728,83 @@
   background: #e7e9ee;
 }
 .kid-btn[aria-pressed='false'] {
-  color: var(--ink-4);
+  color: var(--ink-3);
+}
+/* the sound switch (R7): a labelled bell; hold to turn off */
+.sound-switch {
+  position: relative;
+  display: inline-flex;
+}
+.kid-btn.sound-btn {
+  position: relative;
+  width: auto;
+  min-width: 48px;
+  padding: 0 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  overflow: hidden;
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+.kid-btn.sound-btn.on {
+  background: #ece9ff;
+  color: #4b3fc4;
+}
+.kid-btn.sound-btn.on:hover {
+  background: #e2ddff;
+}
+.sound-label {
+  font-family: var(--font-kid);
+  font-weight: 800;
+  font-size: var(--k-sm);
+  white-space: nowrap;
+}
+/* while held, the button fills up; when full, sound turns off */
+.sound-btn::after {
+  content: '';
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 4px;
+  background: #4b3fc4;
+  transform: scaleX(0);
+  transform-origin: left;
+}
+[dir='rtl'] .sound-btn::after {
+  transform-origin: right;
+}
+.sound-btn.holding::after {
+  transform: scaleX(1);
+  transition: transform 0.6s linear;
+}
+.sound-hint {
+  position: absolute;
+  top: calc(100% + 8px);
+  inset-inline-end: 0;
+  z-index: 30;
+  padding: 8px 12px;
+  border-radius: var(--r-control);
+  background: var(--ink);
+  color: #fff;
+  font-family: var(--font-kid);
+  font-weight: 800;
+  font-size: var(--k-sm);
+  white-space: nowrap;
+  box-shadow: var(--shadow-pop);
 }
 .kid-top .lang-switch {
-  height: 64px;
-  border-radius: 18px;
+  height: 48px;
+  border-radius: var(--r-kid-s);
   padding: 5px;
 }
 .kid-top .lang-switch button {
   height: 52px;
-  border-radius: 13px;
+  border-radius: var(--r-control);
   font-family: var(--font-kid);
   font-weight: 800;
-  font-size: 16px;
+  font-size: var(--k-base);
 }
 .kid-top .lang-switch .lang-ico {
   display: none;
@@ -672,11 +815,11 @@
   align-items: center;
   gap: 2px;
   padding: 8px var(--s-4);
-  background: var(--sun-soft);
-  color: var(--sun-ink);
+  background: #fff3d6;
+  color: #6b4700; /* 8.3:1 */
   font-family: var(--font-ui);
   font-weight: 700;
-  font-size: 14px;
+  font-size: 15px;
 }
 .pb-row {
   display: flex;
@@ -689,10 +832,12 @@
   align-items: center;
   gap: 6px;
   font-weight: 400;
-  font-size: 13.5px;
+  font-size: var(--k-sm);
   text-align: center;
 }
 .preview-banner button {
+  min-height: 44px;
+  padding: 0 8px;
   border: 0;
   background: transparent;
   color: inherit;
@@ -710,7 +855,7 @@
     padding: 0;
   }
 }
-@media (max-width: 600px) {
+@media (max-width: 640px) {
   .kid-top {
     height: 72px;
     padding: 0 10px;
@@ -721,7 +866,14 @@
   .kid-parent {
     width: 48px;
     height: 48px;
-    border-radius: 15px;
+    border-radius: var(--r-kid-s);
+  }
+  .kid-btn.sound-btn {
+    min-width: 48px;
+    padding: 0 12px;
+  }
+  .sound-label {
+    display: none;
   }
   .kid-brand img {
     height: 34px !important;
@@ -734,9 +886,10 @@
   .kid-top .lang-switch button {
     height: 40px;
     padding: 0 7px;
-    font-size: 13px;
+    font-size: var(--k-sm);
   }
-  .kid-btn {
+  .kid-btn,
+  .kid-btn.sound-btn {
     display: none;
   }
 }
@@ -761,11 +914,22 @@
 .screen.form .screen-inner {
   width: min(640px, 100%);
 }
-@media (max-width: 520px) {
+@media (max-width: 640px) {
   .screen-inner {
     padding: var(--s-4) var(--s-4) var(--s-10);
   }
 }
 .spacer {
   flex: 1;
+}
+
+/* the "Soon" chip inside a not-yet-built button (R12) */
+.soon-chip {
+  margin-inline-start: 6px;
+  padding: 1px 8px;
+  border-radius: var(--r-pill);
+  background: #f2f4f7;
+  color: var(--ink-2);
+  font-size: var(--t-xs);
+  font-weight: 700;
 }

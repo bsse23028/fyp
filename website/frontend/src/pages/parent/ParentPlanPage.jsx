@@ -1,14 +1,17 @@
-// PLAN - turning the therapist's guidance into home practice. "Struggle words" opens its page;
-// the other planning tools are still being built and say so (as in the app).
+// PLAN - turning the therapist's guidance into home practice:
+//   left   a light summary per child: buddy, activities switched on + a link to choose them
+//   right  Struggle words, the one tool that works, as a single row with a count; the tools still being built are folded into one
+//          "{n} more planning tools are on the way" line that opens a short list (nothing in it is clickable)
 
-import { useNavigate } from 'react-router-dom';
-import { useUI } from '../../context/UIContext';
+import { Link } from 'react-router-dom';
+import { useEffect } from 'react';
 import { useChild } from '../../context/ChildContext';
 import { useLanguage } from '../../context/LanguageContext';
 import { translate } from '../../i18n/translate';
-import { Page } from '../../layouts/Layouts';
-import { Badge, PageHeader } from '../../components/ui';
+import { Page, useCurrentChild } from '../../layouts/Layouts';
+import { Avatar, PageHeader } from '../../components/ui';
 import { Row } from '../../components/rows';
+import Icon from '../../components/Icon';
 
 // The planning tools, worded after the FYP proposal (the same cards as the app's Plan tab). "Struggle words" is built;
 // the others say "Soon". (FR = the proposal's requirement number.)
@@ -22,44 +25,70 @@ const TOOLS = [
 ];
 
 export default function ParentPlanPage() {
-  const { alert } = useUI();
-  const { childProfiles } = useChild();
-  const navigate = useNavigate();
+  const { childProfiles, struggle, fetchStruggleWords } = useChild();
+  const { currentId } = useCurrentChild();
   useLanguage();
+  const ready = TOOLS.filter((t) => t.to);
+  const soon = TOOLS.filter((t) => !t.to);
+  const current = childProfiles.find((c) => c.id === currentId) || childProfiles[0] || null;
+  useEffect(() => {
+    if (current) fetchStruggleWords(current.id);
+  }, [current && current.id, fetchStruggleWords]); // eslint-disable-line react-hooks/exhaustive-deps
+  const entry = current ? struggle[current.id] : null;
+  const wordCount = entry && entry.words ? entry.words.length : null;
+  // "3 words Zara found tricky while reading" once it is known; the plain description until then
+  const struggleCopy = (tool) =>
+    current && wordCount
+      ? translate(wordCount === 1 ? '{n} word {name} found tricky while reading' : '{n} words {name} found tricky while reading', { n: wordCount, name: current.name })
+      : tool.desc;
 
   return (
     <Page>
-      <PageHeader title="Plan" subtitle="Turn guidance into manageable home practice." />
+      <PageHeader title="Plan" subtitle="Turn your therapist’s guidance into home practice." />
       <div className="plan">
-        <section className="plan-week">
-          <p className="small">{translate('This week')}</p>
-          <h2 className="title-lg">{translate('Small steps, repeated gently')}</h2>
+        <section className="plan-week" aria-label={translate('This week')}>
+          <h2>{translate('Small steps, repeated gently')}</h2>
           <p>{translate('The therapist gives the plan. KidBuddy helps your family practise it.')}</p>
           <ul className="plan-kids">
-            {childProfiles.map((c) => (
-              <li key={c.id}>
-                <span>{c.name}</span>
-                <span className="tiny">{translate('{n} activities switched on', { n: (c.modules || []).length })}</span>
-              </li>
-            ))}
+            {childProfiles.map((c) => {
+              const n = (c.modules || []).length;
+              return (
+                <li key={c.id}>
+                  <Avatar avatar={c.avatar} size={44} />
+                  <span className="pk-id">
+                    <strong>{c.name}</strong>
+                    <span className="small muted">{translate(n === 1 ? '{n} activity switched on' : '{n} activities switched on', { n })}</span>
+                  </span>
+                  <Link to={`/parent/children/${c.id}/modules`} className="link small" aria-label={translate('Choose activities for {name}', { name: c.name })}>{translate('Choose')}</Link>
+                </li>
+              );
+            })}
           </ul>
         </section>
-        <section className="panel">
-          <div className="panel-head"><h2>{translate('Planning tools')}</h2></div>
-          <div className="list">
-            {TOOLS.map((tool) => (
-              <Row
-                key={tool.title}
-                icon={tool.icon}
-                tone={tool.tone}
-                title={tool.title}
-                copy={tool.desc}
-                end={!tool.to && <Badge tone="neutral">{translate('Soon')}</Badge>}
-                onClick={() => (tool.to ? navigate(tool.to) : alert({ title: tool.title, message: 'This part is still being built. Check back soon!' }))}
-              />
-            ))}
-          </div>
-        </section>
+        <div className="plan-tools">
+          <section className="panel">
+            <div className="list">
+              {ready.map((tool) => (
+                <Row key={tool.title} icon={tool.icon} tone={tool.tone} title={tool.title} copy={struggleCopy(tool)} to={tool.to} />
+              ))}
+            </div>
+          </section>
+          <details className="plan-soon">
+            <summary>
+              <Icon name="information-outline" size={18} />
+              <span>{translate('{n} more planning tools are on the way', { n: soon.length })}</span>
+              <Icon name="chevron-down" size={18} className="ico ps-caret" />
+            </summary>
+            <ul>
+              {soon.map((tool) => (
+                <li key={tool.title}>
+                  <strong>{translate(tool.title)}</strong>
+                  <span>{translate(tool.desc)}</span>
+                </li>
+              ))}
+            </ul>
+          </details>
+        </div>
       </div>
     </Page>
   );

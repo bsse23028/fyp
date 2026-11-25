@@ -24,18 +24,20 @@ export function OptionsGate({ children }) {
 }
 
 // The buddies the server allows, as selectable cards.
-export function AvatarPicker({ selectedId, onSelect }) {
+// `compact` (Create child, R15): 64px tiles, 6-8 per row; the name is in the tooltip and read by screen readers
+// (the big preview next to the form shows the chosen buddy's name).
+export function AvatarPicker({ selectedId, onSelect, compact = false }) {
   const { options } = useChild();
   return (
-    <div className="buddy-picker" role="radiogroup" aria-label={translate('Choose an avatar')}>
+    <div className={`buddy-picker${compact ? ' compact' : ''}`} role="radiogroup" aria-label={translate('Choose an avatar')}>
       {options.avatars.map((avatar) => {
         const on = avatar.id === selectedId;
         return (
-          <button key={avatar.id} type="button" role="radio" aria-checked={on} className={`buddy-option${on ? ' on' : ''}`} onClick={() => onSelect(avatar.id)}>
+          <button key={avatar.id} type="button" role="radio" aria-checked={on} className={`buddy-option${on ? ' on' : ''}`} onClick={() => onSelect(avatar.id)} title={compact ? translate(avatar.name) : undefined}>
             <span className="bo-art" style={{ background: avatar.color }}>
-              <img src={avatar.mascot} alt="" style={{ height: 64, width: 64 * avatar.ratio }} draggable={false} />
+              <img src={avatar.mascot} alt="" style={compact ? { height: '78%', width: 'auto', maxWidth: '88%' } : { height: 64, width: 64 * avatar.ratio }} draggable={false} />
             </span>
-            <span className="bo-name">{translate(avatar.name)}</span>
+            <span className={compact ? 'sr-only' : 'bo-name'}>{translate(avatar.name)}</span>
             {on && <Icon name="check-circle" size={20} className="ico bo-check" />}
           </button>
         );

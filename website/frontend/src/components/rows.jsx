@@ -9,7 +9,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { translate } from '../i18n/translate';
+import { getCurrentLanguage, translate } from '../i18n/translate';
 import { Avatar, PageHeader } from './ui';
 import Icon from './Icon';
 
@@ -50,20 +50,41 @@ export function Section({ title, text, children, id, hidden }) {
   );
 }
 
-export function Stat({ label, value, icon, tone = '', hint }) {
+// A number card: icon on top, then the label, the value (+ a small unit like "days" or "/26") and a hint.
+// Everything wraps instead of being cut off (R1 of the website audit).
+export function Stat({ label, value, unit, icon, tone = '', hint }) {
   return (
     <div className={`stat ${tone}`}>
       {icon && (
         <span className="stat-ico">
-          <Icon name={icon} size={20} />
+          <Icon name={icon} size={18} />
         </span>
       )}
       <div className="stat-text">
         <span className="stat-label">{translate(label)}</span>
-        <span className="stat-value">{value}</span>
+        <span className="stat-value">
+          {value}
+          {unit && <small className="stat-unit">{unit}</small>}
+        </span>
         {hint && <span className="stat-hint">{translate(hint)}</span>}
       </div>
     </div>
+  );
+}
+
+// The child card's week (R13): seven circles with the day's first letter; a practised day is filled,
+// today has a ring. `days` = [{ label: 'Mon', value: sessions, today }], oldest first. `full`: the whole day name (Mon Tue …).
+export function WeekDots({ days, full = false }) {
+  return (
+    <ol className="week-dots">
+      {days.map((d, i) => (
+        <li key={i} className={`${d.value ? 'on' : ''}${d.today ? ' today' : ''}`} aria-label={`${translate(d.label)}: ${translate(d.value ? 'practised' : 'not practised')}`}>
+          <i aria-hidden="true" />
+          {/* English: the first letter (M T W …); Urdu day names share first letters (جمعرات / جمعہ), so the whole name */}
+          <span aria-hidden="true">{full || getCurrentLanguage() === 'ur' ? translate(d.label) : translate(d.label).slice(0, 1)}</span>
+        </li>
+      ))}
+    </ol>
   );
 }
 
@@ -101,7 +122,7 @@ export function WeekChart({ bars, caption, height = 160 }) {
   );
 }
 
-export function ChildPicker({ list, value, onChange, label = 'Choose a child' }) {
+export function ChildPicker({ list, value, onChange, label = 'Choose a child', showAge = false }) {
   if (!list || list.length < 2) return null;
   return (
     <div className="child-picker" role="radiogroup" aria-label={translate(label)}>
@@ -109,6 +130,7 @@ export function ChildPicker({ list, value, onChange, label = 'Choose a child' })
         <button key={c.id} type="button" role="radio" aria-checked={c.id === value} className={c.id === value ? 'on' : ''} onClick={() => onChange(c.id)}>
           <Avatar avatar={c.avatar} size={26} />
           <span>{c.name}</span>
+          {showAge && c.ageBand && <small>{c.ageBand.replace(' years', '')}</small>}
         </button>
       ))}
     </div>

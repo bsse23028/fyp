@@ -56,7 +56,7 @@ as the app's screens (`useAuth().logIn`, `useChild().addChild`, `enterChildMode`
 | Frontend | React 18, React Router 6, Vite 6, Vitest, `@mdi/js` (the same Material Design icons the app uses) |
 | Backend | Node.js ≥ 20, Express 5, helmet, cookie-parser, express-rate-limit, dotenv; Jest + supertest |
 | Data | the shared API (`fyp/backend`: Express + MySQL 8 / MariaDB 10.4+) |
-| Design | the app's palette, Nunito / Inter / Noto Nastaliq Urdu (Google Fonts), the app's buddy art, letter art, sounds and letter-story videos (`frontend/public/media`) |
+| Design | the app's palette, Nunito / Inter / Noto Nastaliq Urdu (Google Fonts), the Cuddle Pals buddy art (11 soft round buddies, same ids as the app), letter art, sounds and letter-story videos (`frontend/public/media`) |
 
 ## 3. Folder structure
 
@@ -102,11 +102,38 @@ mobile app does not have (those parts of the Figma are left out on purpose; see 
   sky `#0072B2`, gold `#E69F00`, mint `#009E73`, rose `#CC79A7`; the child palette (`--ch-*`: purple, blue,
   sun, leaf, coral, cream `#FFFAF0`). Inter for the parent side, Nunito for the child, Noto Nastaliq Urdu
   for Urdu. 12 px radius on controls, 16 px on cards, 48 px fields and big buttons.
-- **Entry flow** (`styles/entry.css`, `components/EntryArt.jsx`): the splash (once per browser), Welcome
-  (sofa illustration + "Practise together. Grow every day.", Get Started / Log In, the three promises),
-  the 3-step intro with its own illustration per step, Log in and Create account (value panel on the left,
-  white card on the right), and the code / forgot / new-password pages as one centred card.
-  The illustrations use the real KidBuddy bunny.
+- **Parent Mode design tokens and shell** (`styles/tokens.css`, `layouts/Layouts.jsx`, `App.jsx`): Inter only at 400 / 600 / 700 (that is all that is
+  loaded), secondary text 14.5px and small print 13px (nothing smaller), one colour per measure everywhere (Sessions indigo, Stars green,
+  Streak amber, Letters blue), card shadow `--shadow-card` and menu shadow `--shadow-menu`, 44px tap targets (sidebar language switch, breadcrumb,
+  text links get a 44px tap area). The top-bar child switcher shows only on pages about one child (a profile, Progress, Struggle words) and always
+  shows the child of that page; choosing another child opens the same page for them. Every Parent Mode page sets its own tab title
+  ("Zara · Activities · KidBuddy"). The sidebar account button shows your email.
+- **Parent Dashboard, My Children, child profile (Parents module batch 2)**: the Dashboard answers "how is my child doing, what next?": a child
+  chooser (2+ children), the week card ("Zara practised on 5 of the last 7 days", last practised, streak, Open Child Mode / View progress, the 7
+  days with names), three numbers for the chosen child, Next steps, a short "Your children" list, "Words to practise", and a slim dismissible
+  "New here?" bar at the bottom (Letters learned lives on Progress only). My Children cards all have the same three parts (who, this week in one
+  line, Open Child Mode + Progress + Edit profile). On phones a child's profile shows a section picker instead of the five tabs, and the
+  Overview cards read as one list.
+- **Progress, Plan, Struggle words, Settings, Account, Add a child (Parents module batch 3)**: Progress has one child chooser, three numbers
+  (Sessions, Stars, Day streak), the Read Along calendar, "Activities {name} can use" (the built ones), a Letters card marked "This device only"
+  (the 26-letter grid only when something is saved in this browser) and one "On the way" line (unfinished activities, badges, a therapist report).
+  Plan shows Struggle words as one row with a count and folds the unfinished tools into "{n} more planning tools are on the way". Struggle words
+  has a labelled "Say it" button. Settings: the Account pane also has the Parent PIN (Update / Create), the Therapist section and the
+  time-limit / reminders rows are one grey "on the way" line; My account has the PIN row too. Add a child: "Choose a buddy" as an even grid of six.
+  Form inputs get a 4px focus ring and Parent Mode form actions sit at the end (Cancel, then the main action).
+- **Parent Mode compact scale** (end of `styles/pages.css`): from 641px up, Parent Mode and the first-child setup are a step smaller (body 15px, secondary
+  13.5px, small 12px, page title 24px, buttons 38px, inputs 42px, sidebar 240px, top bar 60px, radius 10 / 14). Phones keep the larger touch sizes.
+  Child Mode, Welcome, intro and Log in are not touched.
+- **Child Mode calm scale** (Child audit C1, C4, C5, C6, C7): top bar 72px with 48px controls; the Preview banner is #6B4700 on #FFF3D6 with a 44px "Exit preview"; child text sizes `--k-sm` 15px and `--k-base` 18px and Nunito 700/800 only (no 900, no font loaded for it); the sky backdrop (clouds, sun) is a still picture; A / a switch 56x44, "That was tricky" a 56px button, the Talk sentence strip at least 56px, Read to me 48px, alphabet stars filled vs hollow in darker colours; "Nice reading!" says "You tried every sentence. Great job." and has Read again + Finish. Also built (C3; C2 was undone, Home and the hubs keep their Soon tiles): Reading Time has a bigger passage (up to 60px, calm yellow word with a gold underline), "Sentence n of m", and a Next sentence button (Finish on the last one) beside the microphone; Your turn has I said it and That was tricky side by side.
+- **Child Mode compact scale** (end of `styles/english.css`): from 641px up, Child Mode is a step smaller (text 14 / 16 / 20 / 24 / 34px, top bar 64px, controls 44px, smaller tiles and passage). Phones keep the larger touch sizes.
+- **Entry flow** (`styles/entry.css`, `components/EntryShell.jsx`, `index.html`): everything before the account exists
+  is ONE layout, the Login's: a brand panel on one side and one calm column on the other (a band on top under 1100px).
+  No splash screen: the branded loader (logo + thin progress bar, text after 1 s) is in `index.html`, so it paints before
+  any script, and `BootScreen` shows the same while the saved login is checked (or a branded "We can't reach KidBuddy" card
+  with Try again). Welcome (bunny and kitty, Get started / Log in, therapist "Coming soon" line), the 4-step intro (each step has
+  its own panel colour, shapes and picture; the bunny is on every step; Skip jumps to step 4, which has Create my account, Explore
+  KidBuddy first, Log in and Back), Log in and Create account (switch on top), the code / forgot / reset pages (same panel, no
+  switch) and "page not found" all use it. Every page before sign-up sets its own browser-tab title; the favicon is the new logo mark.
 - **Parent shell** (`layouts/Layouts.jsx`): 264 px sidebar (Open Child Mode, Dashboard, My Children, Plan
   with Struggle words under it, Progress, Settings; language switch, you, Log Out) and a 72 px top bar
   (breadcrumb, a child switcher that sets the child the Dashboard, Progress and Struggle words show, your
@@ -128,8 +155,8 @@ Talk, My Day, Sounds stay "Coming soon").
 
 | Area | Pages |
 |---|---|
-| Public | Splash (once) + Welcome (+ "Sign up / Log in as Therapist": Coming soon) · the 4-step intro (the last step, "Try KidBuddy first", opens Explore KidBuddy **without an account**) · Not found |
-| Auth | Log in · Sign up (live password rules) · Verify email (6-digit code, resend) · Forgot password · Reset code · Set a new password · Log out (Settings) |
+| Public | Welcome (+ "Are you a therapist? Coming soon") · the 4-step intro (the last step, "Try KidBuddy first", opens Explore KidBuddy **without an account**) · Not found |
+| Auth | Log in · Sign up (one screen with a **Log in \| Create account** switch: a brand panel with the bunny and kitty on the left, the form on the right, no card; below 1100px the panel becomes a band on top; password rules open as you type, "Show" / "Hide" in words, "Logging in…" while it works) · Verify email (6-digit code, resend) · Forgot password · Reset code · Set a new password · Log out (Settings) |
 | First steps | Permissions (browser camera / microphone prompt, asked once per browser) · Create child profile (a new child starts with **all activities off**) → **Setup**: "{name}'s profile is ready!" with three optional cards (Areas of support, Activities, Personalize stories) and Skip for now / Finish |
 | Parent Mode | Dashboard ("New here?" Explore card until tried or hidden, stats, children cards, next steps, struggle words) · Children · Plan (Therapist targets, Reading material, Struggle words, Routine builder, Talk board pictures, Social stories) · Progress (only what the child is enrolled in: Read Along practice calendar when Read-Along is on, alphabet when Phonics is on, "No activities yet" + Choose activities) · Settings (Account, Children, Language, Parent PIN and privacy incl. Daily time limit, Therapist: Invite / Share (Soon), Sound and motion, Session + credits) · My account (name, password) · Change password · Update PIN · Child profile tabs: Basics · **Areas of support** (3 groups, tick + drop-down of activities, diagnosis guide, offer to switch on matching activities) · **Activities** (Recommended for {name} first) · Stories · Struggle words |
 | Child Mode | Who's playing? · Child Home (greeting, stars today, **6 groups** from the FYP proposal: Reading & Writing, Speech Sounds, Feelings & Stories, Numbers, Talk, My Day; only groups with an activity switched on) · group page (Coming soon modules) · My Buddy (11 buddies) · 🔒 Parent (PIN, Forgot PIN?) · Preview banner with a guide sentence for parents |

@@ -7,8 +7,8 @@
   /* ----- core ----- */
   --ink: #172033;
   --ink-2: #344054;
-  --ink-3: #667085;
-  --ink-4: #98a2b3;
+  --ink-3: #5b6577; /* R5: 5.5:1 on --paper (was #667085, 4.2-4.7:1) */
+  --ink-4: #98a2b3; /* borders and disabled states only, never text (2.6:1) */
   --lilac: #4f46e5;
   --lilac-hover: #3730a3;
   --lilac-soft: #eef2ff;
@@ -47,8 +47,8 @@
   --font-urdu: 'Noto Nastaliq Urdu', 'Inter', serif;
 
   /* type scale (1.25 minor third from 16px) */
-  --t-xs: 12px;
-  --t-sm: 13.5px;
+  --t-xs: 13px; /* small print only */
+  --t-sm: 14.5px; /* secondary text: never smaller */
   --t-base: 16px;
   --t-md: 18px;
   --t-lg: 22px;
@@ -56,6 +56,12 @@
   --t-2xl: 36px;
   --t-3xl: 48px;
   --t-hero: clamp(44px, 5.6vw, 76px);
+  /* child type scale (Nunito) */
+  --k-sm: 15px; /* the smallest text a child reads */
+  --k-base: 18px;
+  --k-lg: 22px;
+  --k-xl: 28px;
+  --k-2xl: 40px;
 
   /* ----- space (4px grid) ----- */
   --s-1: 4px;
@@ -73,11 +79,17 @@
   /* ----- shape: two radii, by hierarchy ----- */
   --r-control: 12px;
   --r-panel: 16px;
+  --r-chip: 8px;
   --r-pill: 999px;
+  --r-kid-s: 14px; /* child: small tiles, chips */
+  --r-kid: 22px; /* child: tiles, panels */
 
   --shadow-pop: 0 16px 45px rgba(27, 36, 54, 0.09);
+  --shadow-card: 0 1px 2px rgba(23, 32, 51, 0.06); /* Parent Mode cards */
+  --shadow-menu: 0 8px 24px -8px rgba(23, 32, 51, 0.18); /* Parent Mode menus */
   --shadow-raise: 0 2px 8px rgba(25, 34, 61, 0.06);
   --focus: 0 0 0 3px rgba(79, 70, 229, 0.3);
+  --shadow-press: 0 3px 0 #efe6d6; /* child: a tile you can press */
 
   /* ----- child palette (Figma) ----- */
   --ch-purple: #7567d8;
@@ -87,78 +99,17 @@
   --ch-coral: #ef896d;
   --ch-cream: #fffaf0;
 
+  /* breakpoints (in the media queries): 640 phone · 900 tablet · 1024 app shell / small laptop · 1200 wide */
   --sidebar: 264px;
   --content: 1180px;
   --header-h: 72px;
 
-  /* ----- names still used by the child / English pages, mapped onto this system ----- */
-  --white: #ffffff;
-  --text: var(--ink);
-  --text-muted: var(--ink-3);
-  --border: var(--line);
-  --primary: var(--lilac);
-  --primary-pale: var(--lilac-soft);
-  --error: var(--danger);
-  --warm-text: var(--ink);
-  --warm-muted: var(--ink-3);
-  --warm-border: var(--line-strong);
-  --bubble: var(--ink);
-  --bubble-accent: #b8aef5;
-  --blue: var(--sky);
-  --blue-pale: var(--sky-soft);
-  --sage-pale: var(--leaf-soft);
-  --yellow: var(--sun);
-  --yellow-pale: var(--sun-soft);
-  --purple-pale: var(--lilac-soft);
-  --orange-pale: var(--berry-soft);
-  --coral-pale: var(--berry-soft);
-  --calm-bg: var(--paper);
-  --calm-surface: var(--surface);
-  --calm-surface-soft: var(--surface-2);
-  --calm-line: var(--line);
-  --calm-primary: var(--lilac);
-  --calm-primary-dark: var(--lilac-hover);
-  --calm-primary-pale: var(--lilac-soft);
-  --calm-sky: var(--sky);
-  --calm-sky-pale: var(--sky-soft);
-  --calm-coral: var(--berry);
-  --calm-coral-pale: var(--berry-soft);
-  --calm-yellow: var(--sun);
-  --calm-yellow-pale: var(--sun-soft);
-  --calm-sage: var(--leaf);
-  --calm-sage-pale: var(--leaf-soft);
-  --calm-lavender: var(--lilac-line);
-  --calm-lavender-pale: var(--lilac-soft);
-  --calm-text: var(--ink);
-  --calm-text-soft: var(--ink-3);
-  --calm-backdrop: rgba(30, 27, 58, 0.4);
-  --calm-radius-s: var(--r-control);
-  --calm-radius-m: 14px;
-  --calm-radius-l: var(--r-panel);
-  --calm-radius-xl: var(--r-panel);
+  /* ----- a few shared values that are not colours of the scale ----- */
   --tap: 56px;
-  --shadow-soft: var(--shadow-raise);
-  --shadow-lifted: var(--shadow-pop);
-  --button-fill: var(--lilac);
-  --cloud-white: #ffffff;
-  --coral-deep: var(--berry);
-  --deep-plum: var(--ink);
-  --muted-plum: var(--ink-3);
-  --mint: var(--leaf);
-  --mint-deep: var(--leaf-ink);
-  --pale-lilac: var(--surface-2);
-  --pastel-blue: var(--sky-soft);
-  --pastel-lilac: var(--lilac-soft);
-  --pastel-mint: var(--leaf-soft);
-  --pastel-yellow: var(--sun-soft);
-  --purple-light: var(--lilac-line);
-  --sunny: var(--sun);
+  --bubble-accent: #b8aef5;
+  --calm-backdrop: rgba(30, 27, 58, 0.4);
   --glass-fill: rgba(255, 255, 255, 0.7);
   --glass-fill-strong: rgba(255, 255, 255, 0.9);
   --glass-border: rgba(255, 255, 255, 0.9);
   --glass-star: var(--sun);
-  --radius-card: var(--r-panel);
-  --radius-input: var(--r-control);
-  --radius-button: var(--r-control);
-  --radius-box: var(--r-control);
 }

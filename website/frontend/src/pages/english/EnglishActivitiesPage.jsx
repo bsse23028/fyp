@@ -37,7 +37,7 @@ export default function EnglishActivitiesPage() {
         <div className="buddy-ask-bubble">{translate(GREETING)}</div>
       </div>
       <div className="ktiles">
-        {module.activities.map((activity, i) => (
+        {[...module.activities].sort((a, b) => Number(!a.to) - Number(!b.to)).map((activity, i) => (
           <KidTile key={activity.title} index={i} icon={activity.icon} tone={activity.tone} title={activity.title} subtitle={activity.subtitle} soon={!activity.to} onClick={() => open(activity)} />
         ))}
       </div>

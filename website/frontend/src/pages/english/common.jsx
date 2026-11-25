@@ -43,7 +43,7 @@ export function CaseToggle() {
   );
 }
 
-export function LetterGlyph({ char, color = 'var(--calm-primary)', size = 160, className = '', style }) {
+export function LetterGlyph({ char, color = 'var(--lilac)', size = 160, className = '', style }) {
   return (
     <span className={`letter-glyph ${className}`} style={{ color, fontSize: size, ...style }} aria-hidden="true">
       {char}
