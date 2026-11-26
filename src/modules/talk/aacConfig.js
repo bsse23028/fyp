@@ -18,9 +18,13 @@ export const AAC = {
 
   // ----- the sentence strip (top) -----
   MAX_WORDS: 12, // the most words the strip keeps (older words are dropped)
-  STRIP_HEIGHT: 76, // height of the sentence strip
+  STRIP_HEIGHT: 100, // height of the sentence strip (room for the two small buttons, one above the other)
   STRIP_SYMBOL: 34, // size of a small picture in the strip
-  SPEAK_SIZE: 60, // the round Speak button
+  SPEAK_SIZE: 64, // the round Speak button
+  SMALL_BUTTON: 44, // the delete-last and clear buttons beside it
+
+  // ----- page arrows / back (under the switch) -----
+  ARROW_SIZE: 48, // the round arrow buttons
 
   // ----- start-up -----
   START_BIG: true, // true = the board opens with BIG buttons (3 pages); the child / parent can switch to all words

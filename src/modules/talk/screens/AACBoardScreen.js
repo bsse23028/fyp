@@ -275,15 +275,15 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   round: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
+    width: AAC.ARROW_SIZE,
+    height: AAC.ARROW_SIZE,
+    borderRadius: AAC.ARROW_SIZE / 2,
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: PALETTE.cloudWhite,
   },
   roundSpace: {
-    width: 44,
+    width: AAC.ARROW_SIZE,
   },
   dots: {
     flexDirection: 'row',

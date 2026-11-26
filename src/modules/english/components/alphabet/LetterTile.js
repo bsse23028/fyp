@@ -38,7 +38,7 @@ export default function LetterTile({ item, index, stars, isNext, size, onPress }
           {item.letter}
           {item.lower}
         </Text>
-        <StarsRow count={stars} size={Math.max(12, size * 0.14)} />
+        <StarsRow count={stars} size={Math.max(12, size * 0.14)} outlineEmpty />
         {done && (
           <View style={styles.check}>
             <Text style={styles.checkText}>✓</Text>

@@ -1,5 +1,8 @@
 # KidBuddy – Phase 2.2: modules · Redux Toolkit · reading topics with 3 levels · struggle words
 
+The repo also holds the **website** in `website/` (see `website/README.md`). Where each part lives and how website
+changes map to app files: `context.md`, section 2b.
+
 React Native + Expo, plain JavaScript (`.js`). Frontend only: everything is saved on the
 phone with AsyncStorage until the backend exists.
 
@@ -252,6 +255,9 @@ People · Favourite things · Hobbies and interests · Everyday world · Special
 
 ## 5d. Read Along: topics and levels
 Flow: Words -> Read Along -> **Pick a topic** -> **Pick a level** -> sentences (Reading Time -> Your turn, repeated) -> Nice reading!
+- **Next sentence** (beside the microphone) skips the child's turn; on the last sentence it says Finish. The ending has
+  **Read again** (same topic and level; reaching the ending again counts as another session) and **Finish**. Sizes:
+  `src/modules/english/readingConfig.js`.
 - **Add / change a topic:** edit `src/modules/english/data/readingTopics.json`. Copy a topic block and change the words.
   Each topic has `easy`, `medium`, `hard` lists of sentences (`words`, `focus`, and the Urdu `ur`). The tiles follow the file.
 - **Add its Urdu title:** one line in `src/modules/english/i18n/ur.json` (`"Weather": "موسم"`).

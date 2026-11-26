@@ -56,7 +56,7 @@ const styles = StyleSheet.create({
     color: CALM.text,
   },
   button: {
-    minHeight: 40,
+    minHeight: 44,
     marginStart: 8,
     paddingHorizontal: 14,
     borderRadius: CALM_RADIUS.pill,

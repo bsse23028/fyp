@@ -118,9 +118,9 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   smallButton: {
-    width: 30,
-    height: 30,
-    borderRadius: 15,
+    width: AAC.SMALL_BUTTON,
+    height: AAC.SMALL_BUTTON,
+    borderRadius: AAC.SMALL_BUTTON / 2,
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: PALETTE.pastelLilac,
