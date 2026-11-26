@@ -58,11 +58,11 @@ In section 11, the log lines that say "website" describe each website change: re
 
 **Sync state (update after every port)**
 - Last website commit applied to the app: **none yet**. Newest website commit at the merge: `a541921`.
-- Ported so far: nothing. (The website copied the app's flows and logic up to `f97d0e7`, then changed its own design and some behaviour.)
+- Ported so far: buddies + header logos (2026-11-26, art of `a541921`). (When porting buddies again, only compare the art and `avatars.js`.) (The website copied the app's flows and logic up to `f97d0e7`, then changed its own design and some behaviour.)
 
 | Area | Status |
 |---|---|
-| Buddies + header logos ("Cuddle Pals") | not ported |
+| Buddies + header logos ("Cuddle Pals") | ported 2026-11-26 (not yet checked on a phone) |
 | Child screens and behaviour | not ported |
 | Welcome / intro / login look + new logo | not ported |
 | Parent screens | not ported |
@@ -85,7 +85,7 @@ Never lose an app feature just because the website lacks it.
 | Website | App |
 |---|---|
 | `public/media/avatars/mascot-*.png`, `logo-*.png` | `assets/images/avatars/` |
-| `src/data/avatars.js` | `shared/theme/avatars.js` (+ `shared/components/buddyConfig.js`) |
+| `src/data/avatars.js` | `shared/theme/avatars.js` (`MASCOT_SCALE` = size of every buddy) |
 | `public/media/auth/` (logo, bunny, panel art, favicon) | new files in `assets/images/`; used by `shared/components/BrandLogo.js` and the onboarding / auth screens |
 | `src/styles/tokens.css` | `shared/theme/theme.js`, `screenColors.js`, `designConfig.js`, `fonts.js` |
 | `src/styles/global.css`, `pages.css`, `english.css`, `talk.css`, `entry.css`, `layouts.css` | the styles at the bottom of the matching screen / component |
@@ -113,10 +113,8 @@ Never lose an app feature just because the website lacks it.
 browser tab titles, favicon, HTML boot loader, "page not found", cookies / CSRF (`services/api.js`, `website/backend`),
 browser permission prompts, browser-voice workarounds. **Adapt:** use the website's PHONE layout (640px and narrower) as the guide.
 
-**Buddy porting notes (checked 2026-11-26):** website mascots are 1000 px high and much wider for their height
-(ratio about 0.93 to 1.29; the app's are about 0.71, elephant 0.9), so check every screen that draws a buddy by height.
-The website bunny has NO raised paw (the others were not checked one by one), while `buddyConfig.js` draws the waving arm over
-a raised paw, so the wave needs new numbers or a new approach. Ids and names are the same, so no server change.
+**Buddy art:** copy `public/media/avatars/*.png` over `assets/images/avatars/`, then update `ratio` / `logoRatio` from the new
+pixel sizes. The app draws mascots at `MASCOT_SCALE` (0.85) because they are wide; ids and names match the server.
 The website's auth `panel-art.png` and `logo.png` are cut-outs from a flat picture: ask Eashal for the original art.
 
 ## 3. Tech stack (package.json, 2026-11-15)
@@ -187,7 +185,7 @@ scripts/makeSounds.js        generates the WAVs: `node scripts/makeSounds.js`
   RULE from the user: backgrounds are NEVER dark; one background per screen; at most 2-3 pastel tiles in view.
   Step 2 done: KidScene skies use PALETTE (day/lesson = lavender + mint hills, spelling = blush peach, sunset = soft
   pink/peach), Child Home shapes mint/peach/yellow, games, spelling, tracing, header lines, toggle. Left on purpose:
-  `storyOptions.js` colour choices (real named colours), letter PNG art, mascot fur in buddyConfig, eye whites.
+  `storyOptions.js` colour choices (real named colours), letter PNG art, eye whites.
   Step 3: `shared/theme/screenColors.js` = ONE list: route name -> { page, header } (Lavender Mist main, Blush Peach
   log-in/welcome-back/ProfilePicker, Soft Pink top bar on detail screens, scene screens: the bar = the sky top).
   Screen.js uses `page` unless a `background` prop is given; FixedHeader/AppHeader + the Android status bar use `header`.
@@ -356,9 +354,9 @@ scripts/makeSounds.js        generates the WAVs: `node scripts/makeSounds.js`
   - Idle sway. A tap says "Hey! I am your buddy!" the first time, then friendly lines. Drag → waddles home.
   - Moods: hop, happy, think, cheer, dance, wave, walk. A ref gives `walkTo(x, y, onArrive)`, `walkToCenter`, `wave`.
   - In lessons: walks in from the left + "Hi!", idle "think" after 8s (at most twice), and on Result walks to the centre → cheer → wave.
-  - Mascots (rebrand 2026-11-20, 11 buddies): rabbit (Bunny), bear, panda, dino, elephant, fox, kitty, koala, lion,
-    penguin, puppy. NO wolf any more (old 'wolf' children fall back to the rabbit). All share one template: 900x1260
-    canvas (elephant 1140x1260), right paw raised, feet at the same height; buddyConfig.js uses one `shape(width, fur)`.
+  - Mascots ("Cuddle Pals" from the website, 2026-11-26, 11 buddies): rabbit (Bunny), bear, panda, dino, elephant, fox,
+    kitty, koala, lion, penguin, puppy. NO wolf (old 'wolf' children fall back to the rabbit). 1000 px high, own widths,
+    two side arms, floor shadow drawn in the art (the code draws no shadow, arm or feet). A wave = the body rocks.
     Logos are 840 tall with different widths: `logoRatio` per avatar; the header caps them at `HEADER_LOGO_MAX_WIDTH`.
     The server's avatar list (backend seed) still has only panda/rabbit/wolf/bear, so the 8 new ones stay hidden in the
     picker until the backend adds them (frontend can't). Source art: Downloads\KidBuddy_Mascots (also has *_Head.png).
@@ -384,7 +382,7 @@ scripts/makeSounds.js        generates the WAVs: `node scripts/makeSounds.js`
 - The language toggle still saves to AsyncStorage during Preview (a phone setting, which I left on purpose).
 - Not built yet: Words activities other than Spelling and Read Along, Sentences redesign, Numbers/Feelings/Talk/My Day/Sounds modules, therapist accounts,
   a sensory settings screen (to connect `setAnimationsEnabled` / `setSoundEnabled`), placement/locking of letters.
-- Tune on a real phone: `talkingObjectConfig.js` OVERRIDES, `buddyConfig.js` hand positions, `FIRST_DEMO_DELAY` / `FIRST_HINT_DELAY`.
+- Tune on a real phone: `talkingObjectConfig.js` OVERRIDES, `MASCOT_SCALE` + the new buddy sizes, `FIRST_DEMO_DELAY` / `FIRST_HINT_DELAY`.
 
 ## 11. Work log (newest last; add one line per task)
 - 2026-11-13: Calm redesign (Splash, Welcome + therapist "coming soon", Parent Home with drawer), Preview mode, README fixes.
@@ -494,3 +492,4 @@ scripts/makeSounds.js        generates the WAVs: `node scripts/makeSounds.js`
 - 2026-11-25: Child C2 UNDONE on request ("More is coming" line): Child Home, the Reading & Writing hub and the activities pages are back to the earlier layout (all tiles, Soon ones last, with the Soon badge and the buddy reply). C3 (reading screens) stays. The quiet-note CSS and the "More is coming: {list}" Urdu string are now unused.
 - 2026-11-25: Child Mode made a step smaller on request, website only: scoped compact scale for .kid-app at >=641px (end of english.css): tokens --k-sm 14 / --k-base 16 / --k-lg 20 / --k-xl 24 / --k-2xl 34, top bar 64px with 44px controls, smaller Home buddy/tiles, hub tiles, titles, reading passage (clamp 30-50px), mic 88px, buttons 48px. Phones keep the larger sizes; Parent Mode, Welcome, intro, Login untouched. Preview capture: no overflow, no console errors, desktop tap targets 44px or more (My Buddy 108x41 and the stars pill 361x39 are the two exceptions).
 - 2026-11-26: Merged Eashal's branch (a541921: website/ + her log lines; app code was identical) into zunaira with --no-ff --no-commit (the user commits). metro.config.js now ignores website/ too. Added section 2b 'Website ↔ app guide' (folders, file map, sync state: nothing ported to the app yet) and replaced the 'branch local' rule. No app screens changed.
+- 2026-11-26: Ported the website's "Cuddle Pals" buddies (website step 2a): new mascot + logo PNGs, avatars.js ratios + MASCOT_SCALE 0.85, wave = whole-body rock (drawn arm, feet, code shadow and per-avatar buddyConfig removed), smaller TITLE_MASCOT / AUTH_MASCOT_SIDE / CHILD_PREVIEW_MASCOT / HOME.BUDDY_SIZE / onboarding buddy / picker picture. No packages, no server change. Untested on a phone.

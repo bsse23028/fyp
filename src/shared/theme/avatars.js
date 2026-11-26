@@ -11,13 +11,12 @@
 //        ratio      = mascot width / mascot height
 //        logoRatio  = logo width / logo height
 //        color      = the soft background behind the buddy (picker tiles, child list)
-//   3. optional: its waving paw in shared/components/buddyConfig.js, its voice in
-//      shared/utils/voiceConfig.js, and its Urdu name in shared/i18n/ur.json
+//   3. optional: its voice in shared/utils/voiceConfig.js, and its Urdu name in shared/i18n/ur.json
 //   4. the SERVER must also know the id (its avatar list), or the buddy is hidden in the
 //      picker (see app/store/useChildOptions.js).
 //
-// The art is the 2026-11-20 rebrand. All mascots are 900 x 1260 (the elephant 1140 x 1260),
-// with the feet at the same height, so every buddy looks the same size.
+// The art is the "Cuddle Pals" set, the SAME pictures as the website (website/frontend/public/media/avatars,
+// ported 2026-11-26). Every mascot is 1000 pixels high with its own width, with a soft floor shadow drawn in.
 // The ids rabbit / bear / panda are the ones the server already knows.
 
 export const AVATARS = [
@@ -26,8 +25,8 @@ export const AVATARS = [
     name: 'Bunny',
     mascot: require('../../../assets/images/avatars/mascot-rabbit.png'),
     logo: require('../../../assets/images/avatars/logo-rabbit.png'),
-    ratio: 900 / 1260,
-    logoRatio: 2422 / 840,
+    ratio: 932 / 1000,
+    logoRatio: 2363 / 840,
     color: '#E4E1FA',
   },
   {
@@ -35,8 +34,8 @@ export const AVATARS = [
     name: 'Bear',
     mascot: require('../../../assets/images/avatars/mascot-bear.png'),
     logo: require('../../../assets/images/avatars/logo-bear.png'),
-    ratio: 900 / 1260,
-    logoRatio: 2594 / 840,
+    ratio: 1178 / 1000,
+    logoRatio: 2540 / 840,
     color: '#D9F2EE',
   },
   {
@@ -44,8 +43,8 @@ export const AVATARS = [
     name: 'Panda',
     mascot: require('../../../assets/images/avatars/mascot-panda.png'),
     logo: require('../../../assets/images/avatars/logo-panda.png'),
-    ratio: 900 / 1260,
-    logoRatio: 2594 / 840,
+    ratio: 1171 / 1000,
+    logoRatio: 2535 / 840,
     color: '#ECE6F3',
   },
   {
@@ -53,8 +52,8 @@ export const AVATARS = [
     name: 'Dino',
     mascot: require('../../../assets/images/avatars/mascot-dino.png'),
     logo: require('../../../assets/images/avatars/logo-dino.png'),
-    ratio: 900 / 1260,
-    logoRatio: 2594 / 840,
+    ratio: 1189 / 1000,
+    logoRatio: 2548 / 840,
     color: '#E2F3D8',
   },
   {
@@ -62,8 +61,8 @@ export const AVATARS = [
     name: 'Elephant',
     mascot: require('../../../assets/images/avatars/mascot-elephant.png'),
     logo: require('../../../assets/images/avatars/logo-elephant.png'),
-    ratio: 1140 / 1260,
-    logoRatio: 2974 / 840,
+    ratio: 1285 / 1000,
+    logoRatio: 2617 / 840,
     color: '#FCE4E7',
   },
   {
@@ -71,8 +70,8 @@ export const AVATARS = [
     name: 'Fox',
     mascot: require('../../../assets/images/avatars/mascot-fox.png'),
     logo: require('../../../assets/images/avatars/logo-fox.png'),
-    ratio: 900 / 1260,
-    logoRatio: 2422 / 840,
+    ratio: 1192 / 1000,
+    logoRatio: 2551 / 840,
     color: '#FDE3D3',
   },
   {
@@ -80,8 +79,8 @@ export const AVATARS = [
     name: 'Kitty',
     mascot: require('../../../assets/images/avatars/mascot-kitty.png'),
     logo: require('../../../assets/images/avatars/logo-kitty.png'),
-    ratio: 900 / 1260,
-    logoRatio: 2594 / 840,
+    ratio: 1135 / 1000,
+    logoRatio: 2509 / 840,
     color: '#FDF1CC',
   },
   {
@@ -89,8 +88,8 @@ export const AVATARS = [
     name: 'Koala',
     mascot: require('../../../assets/images/avatars/mascot-koala.png'),
     logo: require('../../../assets/images/avatars/logo-koala.png'),
-    ratio: 900 / 1260,
-    logoRatio: 2802 / 840,
+    ratio: 1137 / 1000,
+    logoRatio: 2511 / 840,
     color: '#E3E9F2',
   },
   {
@@ -98,8 +97,8 @@ export const AVATARS = [
     name: 'Lion',
     mascot: require('../../../assets/images/avatars/mascot-lion.png'),
     logo: require('../../../assets/images/avatars/logo-lion.png'),
-    ratio: 900 / 1260,
-    logoRatio: 2586 / 840,
+    ratio: 1186 / 1000,
+    logoRatio: 2547 / 840,
     color: '#FDEBD0',
   },
   {
@@ -107,8 +106,8 @@ export const AVATARS = [
     name: 'Penguin',
     mascot: require('../../../assets/images/avatars/mascot-penguin.png'),
     logo: require('../../../assets/images/avatars/logo-penguin.png'),
-    ratio: 900 / 1260,
-    logoRatio: 2594 / 840,
+    ratio: 1224 / 1000,
+    logoRatio: 2573 / 840,
     color: '#E6E3F0',
   },
   {
@@ -116,11 +115,15 @@ export const AVATARS = [
     name: 'Puppy',
     mascot: require('../../../assets/images/avatars/mascot-puppy.png'),
     logo: require('../../../assets/images/avatars/logo-puppy.png'),
-    ratio: 900 / 1260,
-    logoRatio: 2704 / 840,
+    ratio: 1248 / 1000,
+    logoRatio: 2592 / 840,
     color: '#DDEDFB',
   },
 ];
+
+// These buddies are round and WIDE, so every mascot is drawn a little smaller than the size a screen asks
+// for. 1 = exactly that size. Used by Mascot.js and BuddyCharacter.js (every buddy gets bigger / smaller).
+export const MASCOT_SCALE = 0.85;
 
 // The rabbit is the default (login, sign-up, parent mode ...).
 export const DEFAULT_AVATAR = 'rabbit';
@@ -131,8 +134,8 @@ export function getAvatar(id) {
 }
 
 // width / height of a logo when an avatar has no logoRatio of its own
-export const LOGO_RATIO = 2594 / 840;
+export const LOGO_RATIO = 2540 / 840;
 
-// The new logos are wider than the old ones: in the top bar a logo is never wider than this
+// Logos are wide: in the top bar a logo is never wider than this
 // (points). A wider one is drawn a little lower instead, so the buttons on the right still fit.
 export const HEADER_LOGO_MAX_WIDTH = 130;

@@ -342,10 +342,9 @@ send only its folder (e.g. `src/modules/numbers`) - its README lists what it may
 - **The buddy** (`src/shared/components/BuddyCharacter.js`) walks in from the left when a lesson opens, waves and says "Hi!",
   waddles back home after a drag, does a small "think" tilt after ~8 s without a touch, and on the Result page walks to the
   middle, cheers and waves. `walkTo(x, y, onArrive)` and `wave()` can be called through a ref.
-- **`buddyConfig.js`** (same folder) has one block per avatar (rabbit, wolf, bear, panda): where the waving arm starts
-  (`shoulder`) and where the mitten starts (`hand`), as fractions of the picture, hand size and colours, optional drawn feet,
-  shadow width and whether to mirror the picture when walking left. `BUDDY_MOTION` holds the speeds and angles.
-  Example: the bear's waving hand should start a little higher -> `bear.hand.y: 0.46` -> `0.42`.
+- **`buddyConfig.js`** (same folder) holds `BUDDY_MOTION`: the speeds and angles of the wave and walk, the same for every
+  buddy. A wave rocks the whole buddy from side to side (`waveDegrees`). `MASCOT_SCALE` in `shared/theme/avatars.js`
+  makes every buddy picture bigger or smaller.
 - **Celebrations** (`src/shared/components/Celebration.js`): small wins play the "popper", the Result page "confetti" + "stars".
   They use free Lottie files that you add yourself: put `confetti.json`, `party-popper.json`, `stars.json`, `balloons.json` in
   `assets/lottie/` (see the README there, check each licence), then remove the `//` in front of the file's line in

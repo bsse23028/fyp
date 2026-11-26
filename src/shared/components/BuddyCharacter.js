@@ -22,9 +22,9 @@ import { Animated, Easing, PanResponder, StyleSheet, View } from 'react-native';
 import Text from './AppText';
 import Mascot from './Mascot';
 import Sparkles from './Sparkles';
-import { BUDDY_MOTION, buddyConfigFor } from './buddyConfig';
+import { BUDDY_MOTION } from './buddyConfig';
 import { useChild } from '../../app/store/useChild';
-import { getAvatar } from '../theme/avatars';
+import { MASCOT_SCALE, getAvatar } from '../theme/avatars';
 import { hop, motion, useIdleSway, wiggle, wiggleRotate } from '../utils/motion';
 import { onTouch } from '../utils/touchPoint';
 import { speakUi } from '../utils/speech';
@@ -62,48 +62,6 @@ function SpeechBubble({ text, side }) {
   );
 }
 
-// The waving arm: a short arm + a round mitten, turning around the SHOULDER (move up half the
-// length, turn, move back down), drawn over the picture only while waving.
-function WaveArm({ cfg, width, height, angle, show }) {
-  const sx = cfg.shoulder.x * width;
-  const sy = cfg.shoulder.y * height;
-  const length = Math.max(6, Math.hypot((cfg.hand.x - cfg.shoulder.x) * width, (cfg.hand.y - cfg.shoulder.y) * height));
-  const thick = Math.max(3, cfg.armThickness * height);
-  const hand = cfg.handSize * height;
-  return (
-    <Animated.View
-      pointerEvents="none"
-      style={{
-        position: 'absolute',
-        left: sx - thick / 2,
-        top: sy,
-        width: thick,
-        height: length,
-        borderRadius: thick / 2,
-        backgroundColor: cfg.armColor,
-        opacity: show,
-        transform: [
-          { translateY: -length / 2 },
-          { rotate: angle.interpolate({ inputRange: [-360, 360], outputRange: ['-360deg', '360deg'] }) },
-          { translateY: length / 2 },
-        ],
-      }}
-    >
-      <View
-        style={{
-          position: 'absolute',
-          bottom: -hand / 2,
-          left: (thick - hand) / 2,
-          width: hand,
-          height: hand,
-          borderRadius: hand / 2,
-          backgroundColor: cfg.handColor,
-        }}
-      />
-    </Animated.View>
-  );
-}
-
 const BuddyCharacter = forwardRef(function BuddyCharacter(
   {
     size = 96,
@@ -126,8 +84,7 @@ const BuddyCharacter = forwardRef(function BuddyCharacter(
 ) {
   const { displayAvatar } = useChild();
   const chosen = getAvatar(avatar || displayAvatar);
-  const cfg = buddyConfigFor(chosen.id);
-  const width = size * chosen.ratio;
+  const width = size * MASCOT_SCALE * chosen.ratio; // as wide as <Mascot size={size}> draws it
   const entering = enterFromLeft || enterFromRight;
   const offscreen = (enterFromRight ? 1 : -1) * (width + 40);
 
@@ -142,12 +99,8 @@ const BuddyCharacter = forwardRef(function BuddyCharacter(
   const stepLift = useRef(new Animated.Value(0)).current;
   const walkTilt = useRef(new Animated.Value(0)).current;
   const facing = useRef(new Animated.Value(1)).current;
-  const footL = useRef(new Animated.Value(0)).current;
-  const footR = useRef(new Animated.Value(0)).current;
   // waving
-  const lean = useRef(new Animated.Value(0)).current;
-  const waveAngle = useRef(new Animated.Value(0)).current;
-  const waveShow = useRef(new Animated.Value(0)).current;
+  const waveTilt = useRef(new Animated.Value(0)).current;
   const idle = useIdleSway({ active });
 
   const [bubble, setBubble] = useState(null);
@@ -178,34 +131,15 @@ const BuddyCharacter = forwardRef(function BuddyCharacter(
     hideTimer.current = setTimeout(() => setBubble(null), BUBBLE_TIME);
   }
 
-  // ----- WAVE: the mitten lifts from the configured spot, waves 3 times, the body leans a little -----
+  // ----- WAVE: the whole buddy rocks left and right a few times -----
   function wave(text, silent) {
-    const startX = (cfg.hand.x - cfg.shoulder.x) * width;
-    const startY = (cfg.hand.y - cfg.shoulder.y) * size;
-    const base = (Math.atan2(-startX, startY) * 180) / Math.PI; // the angle that points the arm at `hand`
-    const swing = BM.waveDegrees;
-    const each = (BM.waveMs - 500) / 6;
-    waveAngle.setValue(0);
     if (text) say(text, silent);
-    motion
-      .parallel([
-        motion.sequence([
-          motion.parallel([motion.timing(waveShow, 1, { duration: 150 }), motion.timing(waveAngle, base, { duration: 250 })]),
-          ...[1, -1, 1, -1, 1, 0].map((side) => motion.timing(waveAngle, base + side * swing, { duration: each })),
-          motion.timing(waveShow, 0, { duration: 250 }),
-        ]),
-        motion.sequence([
-          motion.timing(lean, 1, { duration: 300 }),
-          motion.delay(BM.waveMs - 600),
-          motion.timing(lean, 0, { duration: 300 }),
-        ]),
-      ])
-      .start();
+    const each = BM.waveMs / 5;
+    motion.sequence([-1, 1, -1, 1, 0].map((side) => motion.timing(waveTilt, side, { duration: each }))).start();
   }
 
   // ----- WALK: a waddle to (x, y) points away from home -----
   function step(side) {
-    const foot = side < 0 ? footL : footR;
     const half = BM.stepMs / 2;
     return motion.parallel([
       motion.timing(walkTilt, side, { duration: BM.stepMs, easing: Easing.inOut(Easing.sin) }),
@@ -213,7 +147,6 @@ const BuddyCharacter = forwardRef(function BuddyCharacter(
         motion.timing(stepLift, -BM.stepHop, { duration: half, easing: Easing.out(Easing.quad) }),
         motion.timing(stepLift, 0, { duration: half, easing: Easing.in(Easing.quad) }),
       ]),
-      motion.sequence([motion.timing(foot, -BM.footLift, { duration: half }), motion.timing(foot, 0, { duration: half })]),
     ]);
   }
 
@@ -225,7 +158,7 @@ const BuddyCharacter = forwardRef(function BuddyCharacter(
     const duration = clamp(distance * BM.walkMsPerPoint, minMs, BM.walkMaxMs);
     const pairs = Math.max(1, Math.round(duration / (BM.stepMs * 2)));
     walking.current = true;
-    facing.setValue(cfg.flipWhenWalkingLeft && dx < -2 ? -1 : 1);
+    facing.setValue(BM.flipWhenWalkingLeft && dx < -2 ? -1 : 1);
 
     const animation = motion.sequence([
       motion.parallel([
@@ -373,9 +306,7 @@ const BuddyCharacter = forwardRef(function BuddyCharacter(
   const heldTilt = held.interpolate({ inputRange: [0, 1], outputRange: ['0deg', '-6deg'] });
   const thinkTilt = tilt.interpolate({ inputRange: [0, 1], outputRange: ['0deg', '-9deg'] });
   const rock = walkTilt.interpolate({ inputRange: [-1, 1], outputRange: [`-${BM.stepTilt}deg`, `${BM.stepTilt}deg`] });
-  const leanTilt = lean.interpolate({ inputRange: [0, 1], outputRange: ['0deg', `${BM.waveLean}deg`] });
-  const shadowScale = Animated.add(lift, stepLift).interpolate({ inputRange: [-30, 0], outputRange: [0.6, 1], extrapolate: 'clamp' });
-  const feet = cfg.feet;
+  const waveRock = waveTilt.interpolate({ inputRange: [-1, 1], outputRange: [`-${BM.waveDegrees}deg`, `${BM.waveDegrees}deg`] });
 
   return (
     <Animated.View
@@ -394,10 +325,6 @@ const BuddyCharacter = forwardRef(function BuddyCharacter(
     >
       {bubble ? <SpeechBubble key={bubble.key} text={bubble.text} side={bubbleSide} /> : null}
       <Sparkles burstKey={sparkleKey} size={20} count={4} />
-      <Animated.View
-        pointerEvents="none"
-        style={[styles.shadow, { width: width * cfg.shadowWidth, transform: [{ scaleX: shadowScale }] }]}
-      />
       <Animated.View style={idle}>
         <Animated.View
           style={{
@@ -409,45 +336,12 @@ const BuddyCharacter = forwardRef(function BuddyCharacter(
               { rotate: wiggleRotate(wiggleValue) },
               { rotate: thinkTilt },
               { rotate: rock },
-              { rotate: leanTilt },
+              { rotate: waveRock },
             ],
           }}
         >
           <Animated.View style={{ transform: [{ scaleX: facing }] }}>
             <Mascot size={size} avatar={avatar} />
-            {feet.show && (
-              <>
-                <Animated.View
-                  style={[
-                    styles.foot,
-                    {
-                      backgroundColor: feet.color,
-                      left: width / 2 - (feet.gap * width) / 2 - (feet.width * size) / 2,
-                      top: feet.y * size,
-                      width: feet.width * size,
-                      height: feet.height * size,
-                      borderRadius: (feet.height * size) / 2,
-                      transform: [{ translateY: footL }],
-                    },
-                  ]}
-                />
-                <Animated.View
-                  style={[
-                    styles.foot,
-                    {
-                      backgroundColor: feet.color,
-                      left: width / 2 + (feet.gap * width) / 2 - (feet.width * size) / 2,
-                      top: feet.y * size,
-                      width: feet.width * size,
-                      height: feet.height * size,
-                      borderRadius: (feet.height * size) / 2,
-                      transform: [{ translateY: footR }],
-                    },
-                  ]}
-                />
-              </>
-            )}
-            <WaveArm cfg={cfg} width={width} height={size} angle={waveAngle} show={waveShow} />
           </Animated.View>
         </Animated.View>
       </Animated.View>
@@ -462,16 +356,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     zIndex: 20,
     elevation: 20,
-  },
-  shadow: {
-    position: 'absolute',
-    bottom: -4,
-    height: 10,
-    borderRadius: 5,
-    backgroundColor: 'rgba(61, 31, 92, 0.14)',
-  },
-  foot: {
-    position: 'absolute',
   },
   bubble: {
     position: 'absolute',

@@ -12,7 +12,7 @@ export const HOME = {
   USE_SHEET: true, // true = "What shall we learn?" and the module tiles sit on the rounded pale sheet (inspo look)
 
   // ----- the buddy (hero) -----
-  BUDDY_SIZE: 150, // height of the buddy
+  BUDDY_SIZE: 135, // height of the buddy
   HERO_GAP: 14, // space between the buddy and the speech bubble / stars chip
   BUBBLE_DELAY: 250, // after the buddy has arrived and waved, wait this long before the greeting bubble appears
 

@@ -16,7 +16,7 @@ import { useIdleBob } from '../../shared/utils/motion';
 import { CALM_SHADOW, PALETTE } from '../../shared/theme/theme';
 
 export const ONBOARDING_ART = {
-  MASCOT: 0.66, // height of the buddy (part of the card height)
+  MASCOT: 0.62, // height of the buddy (part of the card height)
   BADGE: 0.24, // size of one round icon badge (part of the card height)
   ICON: 0.5, // size of the icon inside its badge (part of the badge)
   BIG_CIRCLE: 0.75, // the soft circle behind the top corner

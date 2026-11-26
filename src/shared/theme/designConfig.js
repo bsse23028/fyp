@@ -8,12 +8,12 @@ export const DESIGN = {
   EYEBROW_SIZE: 16, // the small line above the title ("Psst,", "Good morning, Sarah")
   TITLE_SIZE: 30, // the big purple title
   TITLE_LINE: 36, // line height of the title
-  TITLE_MASCOT: 96, // height of the buddy peeking next to the title
+  TITLE_MASCOT: 88, // height of the buddy peeking next to the title
 
   // ----- form screens (AuthHeading.js: log in, sign up, codes ...) -----
   AUTH_MASCOT: 110, // height of the buddy peeking in above the title
-  AUTH_MASCOT_SIDE: 96, // height of the buddy when it stands BESIDE the title (Sign Up: <AuthHeading side />)
-  CHILD_PREVIEW_MASCOT: 130, // Create child profile: the chosen buddy beside the title, big enough to see its whole body
+  AUTH_MASCOT_SIDE: 84, // height of the buddy when it stands BESIDE the title (Sign Up: <AuthHeading side />)
+  CHILD_PREVIEW_MASCOT: 115, // Create child profile: the chosen buddy beside the title, big enough to see its whole body
 
   // ----- welcome screen -----
   WELCOME_MASCOT: 0.22, // height of the buddy on the left of the Welcome text: a part of the screen height

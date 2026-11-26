@@ -38,7 +38,7 @@ export default function AvatarPicker({ selectedId, onSelect }) {
             <Image
               source={avatar.mascot}
               resizeMode="contain"
-              style={{ height: 50, width: 50 * avatar.ratio }}
+              style={{ height: 44, width: 44 * avatar.ratio }}
             />
           </Pressable>
         );
