@@ -2,7 +2,8 @@
 //
 // When it opens, the session is sent to the server (POST /api/children/:id/sessions).
 // The server adds the stars to today's total and sends the new totals back, so they show
-// up on Child Home and in Parent Progress. "Finish" goes back to "Pick a level".
+// up on Child Home and in Parent Progress. "Finish" goes back to "Pick a level"; "Read again" starts the same
+// topic and level at sentence 1 (reaching this page again counts as another session).
 //
 // Props: { navigation }
 
@@ -34,6 +35,19 @@ export default function ReadingSummaryScreen({ navigation }) {
       routes: [{ name: 'ChildHome' }, { name: 'EnglishHub' }, { name: 'ReadingTopics' }, { name: 'ReadingLevel' }],
     });
   }
+  // The same stack, plus sentence 1 of the level that was just read.
+  function readAgain() {
+    navigation.reset({
+      index: 4,
+      routes: [
+        { name: 'ChildHome' },
+        { name: 'EnglishHub' },
+        { name: 'ReadingTopics' },
+        { name: 'ReadingLevel' },
+        { name: 'ReadingAlong', params: { index: 0 } },
+      ],
+    });
+  }
   // Runs once, when the screen opens: send this session to the server.
   // The session (with its clientSessionId) is made ONCE here. If saving fails, the pop-up's
   // "Retry" sends this same object again, so the stars are never counted twice.
@@ -57,14 +71,20 @@ export default function ReadingSummaryScreen({ navigation }) {
         <View style={styles.center}>
           <Mascot size={150} />
           <Text style={styles.title}>Nice reading!</Text>
-          <Text style={styles.copy}>You kept trying and found the tricky words.</Text>
+          <Text style={styles.copy}>Nice work. Great job.</Text>
           <View style={styles.stars}>
             <StarRow filled={STARS_PER_SESSION} />
           </View>
         </View>
 
-        <Pressable onPress={backToLevels} accessibilityRole="button" style={styles.button}>          <Text style={styles.buttonText}>Finish</Text>
-        </Pressable>
+        <View style={styles.buttons}>
+          <Pressable onPress={readAgain} accessibilityRole="button" style={[styles.button, styles.againButton]}>
+            <Text style={[styles.buttonText, styles.againText]}>Read again</Text>
+          </Pressable>
+          <Pressable onPress={backToLevels} accessibilityRole="button" style={styles.button}>
+            <Text style={styles.buttonText}>Finish</Text>
+          </Pressable>
+        </View>
       </View>
     </Screen>
   );
@@ -97,8 +117,14 @@ const styles = StyleSheet.create({
   stars: {
     marginTop: 24,
   },
+  buttons: {
+    flexDirection: 'row',
+    gap: 12,
+  },
   button: {
+    flex: 1,
     minHeight: 70,
+    paddingHorizontal: 8,
     borderRadius: 22,
     backgroundColor: BUTTON.fill,
     alignItems: 'center',
@@ -108,5 +134,14 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.nunitoBlack,
     fontSize: 20,
     color: COLORS.white,
+    textAlign: 'center',
+  },
+  againButton: {
+    backgroundColor: COLORS.white,
+    borderWidth: 2,
+    borderColor: COLORS.primary,
+  },
+  againText: {
+    color: COLORS.primary,
   },
 });

@@ -7,8 +7,10 @@
 //   2. The child taps the big microphone button ("Tap to speak"). The first
 //      time, the phone may ask for the microphone (see shared/utils/permissions.js).
 //   3. That opens "Your turn" for the same sentence.
+//   Or "Next sentence" skips the child's turn and goes to the next one ("Finish" on the last one).
 //
-// The progress dots at the top show which sentence of the session this is.
+// The progress bars and "Sentence n of m" at the top show which sentence of the session this is.
+// Sizes are in ../readingConfig.js.
 //
 // The sentences come from the topic + level the child picked (kept in Redux, see
 // ../store/englishSlice.js). The sentences themselves come from the database.
@@ -25,6 +27,10 @@ import Screen from '../../../shared/components/Screen';
 import BackButton from '../../../shared/components/BackButton';
 import SpeakButton from '../../../shared/components/SpeakButton';
 import Mascot from '../../../shared/components/Mascot';
+import Button from '../../../shared/components/Button';
+import ReadingWord from '../components/ReadingWord';
+import { READING } from '../readingConfig';
+import { translate } from '../../../shared/i18n/translate';
 import { ensureMicrophone } from '../../../shared/utils/permissions';
 import { useLanguage } from '../../../app/context/LanguageContext';
 import { selectSentences } from '../store/englishSlice';
@@ -68,7 +74,8 @@ export default function ReadingAlongScreen({ navigation, route }) {
   const sentences = useSelector(selectSentences); // the sentences of the picked topic + level
   const sentence = getSentence(sentences, index, language); // English or Urdu words
   const { height } = useWindowDimensions();
-  const wordSize = height < 720 ? 26 : 32; // smaller words on small phones
+  const wordSize = height < READING.SMALL_PHONE_HEIGHT ? READING.WORD_SIZE_SMALL : READING.WORD_SIZE; // smaller on small phones
+  const isLast = index >= sentences.length - 1;
 
   // Which word is lit right now (-1 = none).
   const [highlighted, setHighlighted] = useState(-1);
@@ -194,6 +201,13 @@ export default function ReadingAlongScreen({ navigation, route }) {
     if (allowed) navigation.push('ReadingYourTurn', { index });
   }
 
+  // Next sentence: skips the child's turn for this one (the microphone is still the way to say the word).
+  function handleNext() {
+    stopReading();
+    if (isLast) navigation.navigate('ReadingSummary');
+    else navigation.push('ReadingAlong', { index: index + 1 });
+  }
+
   return (
     <Screen scroll mode="child" scene="lesson">
       <View style={styles.body}>
@@ -204,28 +218,21 @@ export default function ReadingAlongScreen({ navigation, route }) {
           <SpeakButton text={sentence.words.join(' ')} onPress={startReading} />
         </View>
 
-        {/* progress dots: one per sentence */}
+        {/* progress bars: one per sentence */}
         <View style={styles.dots}>
           {sentences.map((_, i) => (
             <View key={i} style={[styles.dot, i <= index && styles.dotDone]} />
           ))}
         </View>
 
+        <Text style={styles.count}>{translate('Sentence {n} of {total}', { n: index + 1, total: sentences.length })}</Text>
+
         {/* reading card */}
         <View style={styles.card}>
           <Text style={styles.cardLabel}>READ ALOUD:</Text>
           <View style={styles.words}>
             {sentence.words.map((word, i) => (
-              <Text
-                key={i}
-                style={[
-                  styles.word,
-                  { fontSize: wordSize, lineHeight: wordSize * 1.4 },
-                  i === highlighted && styles.wordLit,
-                ]}
-              >
-                {word}
-              </Text>
+              <ReadingWord key={i} word={word} lit={i === highlighted} size={wordSize} lineHeight={wordSize * READING.LINE_HEIGHT} />
             ))}
           </View>
 
@@ -247,17 +254,20 @@ export default function ReadingAlongScreen({ navigation, route }) {
           </View>
         </View>
 
-        {/* microphone button */}
-        <View style={styles.micWrap}>
-          <Pressable
-            onPress={handleSpeak}
-            accessibilityRole="button"
-            accessibilityLabel="Tap to speak"
-            style={({ pressed }) => [styles.mic, pressed && styles.micPressed]}
-          >
-            <Text style={styles.micIcon}>🎤</Text>
-          </Pressable>
-          <Text style={styles.micLabel}>Tap to speak</Text>
+        {/* the microphone, with "Next sentence" beside it */}
+        <View style={styles.actions}>
+          <View style={styles.micWrap}>
+            <Pressable
+              onPress={handleSpeak}
+              accessibilityRole="button"
+              accessibilityLabel="Tap to speak"
+              style={({ pressed }) => [styles.mic, pressed && styles.micPressed]}
+            >
+              <Text style={styles.micIcon}>🎤</Text>
+            </Pressable>
+            <Text style={styles.micLabel}>Tap to speak</Text>
+          </View>
+          <Button title={isLast ? 'Finish' : 'Next sentence'} variant="secondary" onPress={handleNext} style={styles.next} />
         </View>
       </View>
     </Screen>
@@ -286,19 +296,26 @@ const styles = StyleSheet.create({
     marginTop: 14,
   },
   dot: {
-    width: 8,
-    height: 8,
-    marginHorizontal: 3.5,
-    borderRadius: 4,
+    flex: 1,
+    maxWidth: READING.BAR_WIDTH,
+    height: READING.BAR_HEIGHT,
+    marginHorizontal: READING.BAR_GAP / 2,
+    borderRadius: READING.BAR_HEIGHT / 2,
     backgroundColor: COLORS.warmBorder,
   },
   dotDone: {
-    width: 26,
     backgroundColor: COLORS.primary,
+  },
+  count: {
+    marginTop: 8,
+    fontFamily: FONTS.nunitoExtraBold,
+    fontSize: 16,
+    color: COLORS.warmText,
+    textAlign: 'center',
   },
   card: {
     flex: 1,
-    marginTop: 14,
+    marginTop: 12,
     padding: 22,
     borderRadius: 28,
     backgroundColor: COLORS.white,
@@ -319,20 +336,6 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     alignItems: 'center',
     marginTop: 12,
-  },
-  word: {
-    marginEnd: 10,
-    marginBottom: 4,
-    paddingHorizontal: 4,
-    borderRadius: 12,
-    overflow: 'hidden',
-    fontFamily: FONTS.nunitoExtraBold,
-    color: COLORS.warmText,
-  },
-  wordLit: {
-    backgroundColor: COLORS.primary,
-    color: COLORS.white,
-    paddingHorizontal: 10,
   },
   wave: {
     flexDirection: 'row',
@@ -361,9 +364,19 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: COLORS.warmText,
   },
+  actions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: READING.ACTIONS_GAP,
+    marginTop: 14,
+  },
   micWrap: {
     alignItems: 'center',
-    marginTop: 14,
+  },
+  next: {
+    flex: 1,
+    height: READING.NEXT_HEIGHT,
   },
   mic: {
     width: 90,

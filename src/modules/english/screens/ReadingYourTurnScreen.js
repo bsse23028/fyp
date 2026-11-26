@@ -1,7 +1,7 @@
 // READING YOUR TURN SCREEN - "Listen, then say the glowing word".
 //
 // The sentence is shown with ONE glowing word. The speaker says that word
-// aloud, Buddy encourages, and the child taps "I said it".
+// aloud, Buddy encourages, and the child taps "I said it". "Sentence n of m" shows where the child is.
 // (The app does not check the voice yet - that comes with the speech
 // feature in a later phase.)
 //
@@ -20,6 +20,9 @@ import ChildHeader from '../../../shared/components/ChildHeader';
 import ChildInstruction from '../../../shared/components/ChildInstruction';
 import SpeakButton from '../../../shared/components/SpeakButton';
 import Mascot from '../../../shared/components/Mascot';
+import ReadingWord from '../components/ReadingWord';
+import { READING } from '../readingConfig';
+import { translate } from '../../../shared/i18n/translate';
 import { useLanguage } from '../../../app/context/LanguageContext';
 import { selectSentences } from '../store/englishSlice';
 import { getSentence } from '../readingData';
@@ -43,6 +46,8 @@ export default function ReadingYourTurnScreen({ navigation, route }) {
       <View style={styles.body}>
         <ChildHeader title="Your turn" onBack={() => navigation.goBack()} speakText="Your turn" />
 
+        <Text style={styles.count}>{translate('Sentence {n} of {total}', { n: index + 1, total: sentences.length })}</Text>
+
         <View style={styles.instruction}>
           <ChildInstruction text="Listen, then say the glowing word" />
         </View>
@@ -51,9 +56,13 @@ export default function ReadingYourTurnScreen({ navigation, route }) {
           {/* the sentence, with the focus word lit up */}
           <View style={styles.sentence}>
             {sentence.words.map((word, i) => (
-              <Text key={i} style={[styles.word, i === sentence.focus && styles.wordLit]}>
-                {word}
-              </Text>
+              <ReadingWord
+                key={i}
+                word={word}
+                lit={i === sentence.focus}
+                size={READING.TURN_WORD_SIZE}
+                lineHeight={READING.TURN_WORD_SIZE * READING.LINE_HEIGHT}
+              />
             ))}
           </View>
 
@@ -74,8 +83,15 @@ const styles = StyleSheet.create({
   body: {
     flex: 1,
   },
+  count: {
+    marginTop: 10,
+    fontFamily: FONTS.nunitoExtraBold,
+    fontSize: 16,
+    color: COLORS.warmText,
+    textAlign: 'center',
+  },
   instruction: {
-    marginTop: 18,
+    marginTop: 10,
   },
   card: {
     flex: 1,
@@ -97,22 +113,6 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  word: {
-    marginHorizontal: 5,
-    marginVertical: 2,
-    paddingHorizontal: 4,
-    borderRadius: 10,
-    overflow: 'hidden',
-    fontFamily: FONTS.nunitoExtraBold,
-    fontSize: 28,
-    lineHeight: 46,
-    color: COLORS.warmText,
-  },
-  wordLit: {
-    backgroundColor: COLORS.primary,
-    color: COLORS.white,
-    paddingHorizontal: 10,
   },
   speaker: {
     marginVertical: 18,

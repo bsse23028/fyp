@@ -62,8 +62,8 @@ In section 11, the log lines that say "website" describe each website change: re
 
 | Area | Status |
 |---|---|
-| Buddies + header logos ("Cuddle Pals") | ported 2026-11-26 (not yet checked on a phone) |
-| Child screens and behaviour | not ported |
+| Buddies + header logos ("Cuddle Pals") | ported 2026-11-26 (committed by the user) |
+| Child screens and behaviour | partly. Approved: 1-3 Read Along (DONE 2026-11-26; summary says "Nice work. Great job.", not the website's "You tried every sentence", because Next sentence can skip turns) and 4-6 Talk board button sizes, "Good night" greeting, Preview exit + empty alphabet stars (to do). NOT decided yet: 7 "Read to me" button, 8 hold-to-mute sound switch, 9 instructions in a buddy speech bubble, 10 faded "Coming soon" tiles sorted last, 11 still sky, 12 "That was tricky" (new server request from the app) |
 | Welcome / intro / login look + new logo | not ported |
 | Parent screens | not ported |
 | Colours and fonts | not decided: ask the user |
@@ -493,3 +493,4 @@ scripts/makeSounds.js        generates the WAVs: `node scripts/makeSounds.js`
 - 2026-11-25: Child Mode made a step smaller on request, website only: scoped compact scale for .kid-app at >=641px (end of english.css): tokens --k-sm 14 / --k-base 16 / --k-lg 20 / --k-xl 24 / --k-2xl 34, top bar 64px with 44px controls, smaller Home buddy/tiles, hub tiles, titles, reading passage (clamp 30-50px), mic 88px, buttons 48px. Phones keep the larger sizes; Parent Mode, Welcome, intro, Login untouched. Preview capture: no overflow, no console errors, desktop tap targets 44px or more (My Buddy 108x41 and the stars pill 361x39 are the two exceptions).
 - 2026-11-26: Merged Eashal's branch (a541921: website/ + her log lines; app code was identical) into zunaira with --no-ff --no-commit (the user commits). metro.config.js now ignores website/ too. Added section 2b 'Website ↔ app guide' (folders, file map, sync state: nothing ported to the app yet) and replaced the 'branch local' rule. No app screens changed.
 - 2026-11-26: Ported the website's "Cuddle Pals" buddies (website step 2a): new mascot + logo PNGs, avatars.js ratios + MASCOT_SCALE 0.85, wave = whole-body rock (drawn arm, feet, code shadow and per-avatar buddyConfig removed), smaller TITLE_MASCOT / AUTH_MASCOT_SIDE / CHILD_PREVIEW_MASCOT / HOME.BUDDY_SIZE / onboarding buddy / picker picture. No packages, no server change. Untested on a phone.
+- 2026-11-26: Website child port STEP 1 (Read Along): Reading Time got 'Sentence n of m', a Next sentence / Finish button beside the mic, bigger words and wider progress bars; new components/ReadingWord.js (yellow glow + gold line, also on Your turn) + readingConfig.js; Summary: 'Nice work. Great job.', Read again + Finish. 4 Urdu lines (need review). No packages. Step 2 (items 4-6) waits for 'continue'. Untested on a phone.
