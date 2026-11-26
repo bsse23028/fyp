@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#F7F8FC" />
+    <meta name="description" content="KidBuddy: calm, playful home practice for autistic children, guided by their therapist's plan, with a parent space you control." />
+    <link rel="icon" type="image/png" href="/media/auth/favicon.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Nunito:wght@700;800&display=swap"
+      rel="stylesheet"
+    />
+    <title>KidBuddy</title>
+    <style>
+      /* The first thing painted, before any script runs: the branded loader. The app draws the same markup while it checks the saved login (BootScreen). */
+      .kb-boot { position: fixed; inset: 0; display: grid; place-content: center; justify-items: center; gap: 20px; overflow: hidden; background: linear-gradient(155deg, #e8e4f8 0%, #e7f0ec 62%, #f7e4c9 100%); font-family: Inter, system-ui, sans-serif; }
+      .kb-boot > * { position: relative; z-index: 1; }
+      .kb-boot-c1, .kb-boot-c2 { position: absolute !important; z-index: 0 !important; border-radius: 50%; opacity: 0.6; }
+      .kb-boot-c1 { width: 36vmin; height: 36vmin; right: -8vmin; top: 12vmin; background: #d6d1ef; }
+      .kb-boot-c2 { width: 28vmin; height: 28vmin; left: -8vmin; bottom: 10vmin; background: #f0c8a6; }
+      .kb-boot-logo { height: 64px; width: auto; display: block; }
+      .kb-boot-bar { width: 160px; height: 4px; border-radius: 4px; background: rgba(79, 70, 229, 0.18); overflow: hidden; }
+      .kb-boot-bar i { display: block; width: 40%; height: 100%; border-radius: 4px; background: #4f46e5; animation: kb-slide 1.4s ease-in-out infinite; }
+      .kb-boot-text { margin: 0; color: #344054; font-size: 15px; opacity: 0; animation: kb-show 0.4s ease 1s forwards; }
+      @keyframes kb-slide { 0% { margin-inline-start: -40%; } 100% { margin-inline-start: 100%; } }
+      @keyframes kb-show { to { opacity: 1; } }
+      @media (prefers-reduced-motion: reduce) { .kb-boot-bar i { animation: none; } }
+    </style>
+  </head>
+  <body>
+    <div id="root">
+      <div class="kb-boot" role="status" aria-label="Loading">
+        <i class="kb-boot-c1"></i><i class="kb-boot-c2"></i>
+        <img class="kb-boot-logo" src="/media/auth/logo.png" alt="KidBuddy" />
+        <div class="kb-boot-bar"><i></i></div>
+        <p class="kb-boot-text">Getting KidBuddy ready…</p>
+      </div>
+    </div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>

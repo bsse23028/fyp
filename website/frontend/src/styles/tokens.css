@@ -1,0 +1,115 @@
+/* TOKENS - the KidBuddy WEBSITE design system, taken from the Figma ("KidBuddy Web App Extension").
+   Parent palette: indigo #4F46E5 actions on ink #172033 text and a #F7F8FC page; the category colours are
+   the colour-blind-safe set from the Figma (sky, gold, mint, rose). Child palette (--ch-*) for Child Mode.
+   Inter for the parent UI, Nunito for the child, Noto Nastaliq for Urdu. Change a value once here. */
+
+:root {
+  /* ----- core ----- */
+  --ink: #172033;
+  --ink-2: #344054;
+  --ink-3: #5b6577; /* R5: 5.5:1 on --paper (was #667085, 4.2-4.7:1) */
+  --ink-4: #98a2b3; /* borders and disabled states only, never text (2.6:1) */
+  --lilac: #4f46e5;
+  --lilac-hover: #3730a3;
+  --lilac-soft: #eef2ff;
+  --lilac-line: #c7d2fe;
+  --paper: #f7f8fc;
+  --surface: #ffffff;
+  --surface-2: #f9fafb;
+  --line: #e6e9ef;
+  --line-strong: #d5dae3;
+
+  /* ----- crayons (categories) ----- */
+  --sun: #e69f00;
+  --sun-soft: #fff6df;
+  --sun-ink: #986e0d;
+  --leaf: #009e73;
+  --leaf-soft: #e9f7f2;
+  --leaf-ink: #17745a;
+  --sky: #0072b2;
+  --sky-soft: #e6f6fb;
+  --sky-ink: #08709e;
+  --berry: #cc79a7;
+  --berry-soft: #f5edfb;
+  --berry-ink: #8551a4;
+
+  /* ----- feedback ----- */
+  --danger: #b54738;
+  --danger-soft: #fff3f1;
+  --success: #17745a;
+  --success-soft: #e9f7f2;
+  --warning-soft: #fdf3df;
+
+  /* ----- type ----- */
+  --font-display: 'Inter', system-ui, sans-serif;
+  --font-ui: 'Inter', system-ui, sans-serif;
+  --font-kid: 'Nunito', 'Inter', system-ui, sans-serif;
+  --font-urdu: 'Noto Nastaliq Urdu', 'Inter', serif;
+
+  /* type scale (1.25 minor third from 16px) */
+  --t-xs: 13px; /* small print only */
+  --t-sm: 14.5px; /* secondary text: never smaller */
+  --t-base: 16px;
+  --t-md: 18px;
+  --t-lg: 22px;
+  --t-xl: 28px;
+  --t-2xl: 36px;
+  --t-3xl: 48px;
+  --t-hero: clamp(44px, 5.6vw, 76px);
+  /* child type scale (Nunito) */
+  --k-sm: 15px; /* the smallest text a child reads */
+  --k-base: 18px;
+  --k-lg: 22px;
+  --k-xl: 28px;
+  --k-2xl: 40px;
+
+  /* ----- space (4px grid) ----- */
+  --s-1: 4px;
+  --s-2: 8px;
+  --s-3: 12px;
+  --s-4: 16px;
+  --s-5: 20px;
+  --s-6: 24px;
+  --s-8: 32px;
+  --s-10: 40px;
+  --s-12: 48px;
+  --s-16: 64px;
+  --s-24: 96px;
+
+  /* ----- shape: two radii, by hierarchy ----- */
+  --r-control: 12px;
+  --r-panel: 16px;
+  --r-chip: 8px;
+  --r-pill: 999px;
+  --r-kid-s: 14px; /* child: small tiles, chips */
+  --r-kid: 22px; /* child: tiles, panels */
+
+  --shadow-pop: 0 16px 45px rgba(27, 36, 54, 0.09);
+  --shadow-card: 0 1px 2px rgba(23, 32, 51, 0.06); /* Parent Mode cards */
+  --shadow-menu: 0 8px 24px -8px rgba(23, 32, 51, 0.18); /* Parent Mode menus */
+  --shadow-raise: 0 2px 8px rgba(25, 34, 61, 0.06);
+  --focus: 0 0 0 3px rgba(79, 70, 229, 0.3);
+  --shadow-press: 0 3px 0 #efe6d6; /* child: a tile you can press */
+
+  /* ----- child palette (Figma) ----- */
+  --ch-purple: #7567d8;
+  --ch-blue: #65aee8;
+  --ch-sun: #f5bd4f;
+  --ch-leaf: #5bbf95;
+  --ch-coral: #ef896d;
+  --ch-cream: #fffaf0;
+
+  /* breakpoints (in the media queries): 640 phone · 900 tablet · 1024 app shell / small laptop · 1200 wide */
+  --sidebar: 264px;
+  --content: 1180px;
+  --header-h: 72px;
+
+  /* ----- a few shared values that are not colours of the scale ----- */
+  --tap: 56px;
+  --bubble-accent: #b8aef5;
+  --calm-backdrop: rgba(30, 27, 58, 0.4);
+  --glass-fill: rgba(255, 255, 255, 0.7);
+  --glass-fill-strong: rgba(255, 255, 255, 0.9);
+  --glass-border: rgba(255, 255, 255, 0.9);
+  --glass-star: var(--sun);
+}

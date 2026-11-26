@@ -1,14 +1,18 @@
-// METRO CONFIG - Expo's normal bundler settings, plus ONE change: the video/ folder (the Remotion project
-// that makes the letter story videos) is ignored, because it is a separate tool with its own packages and
-// is not part of the app. Only the finished videos in assets/videos are used by the app.
+// METRO CONFIG - Expo's normal bundler settings, plus ONE change: two folders are ignored because they are
+// separate projects with their own packages and are not part of the app:
+//   video/    the Remotion project that makes the letter story videos (the app only uses assets/videos)
+//   website/  the KidBuddy website
 
 const path = require('path');
 const { getDefaultConfig } = require('expo/metro-config');
 
 const config = getDefaultConfig(__dirname);
 
-const videoFolder = path.resolve(__dirname, 'video').replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-const ignoreVideo = new RegExp(`^${videoFolder}[\\\\/].*`);
-config.resolver.blockList = [].concat(config.resolver.blockList || [], ignoreVideo);
+function ignoreFolder(name) {
+  const folder = path.resolve(__dirname, name).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return new RegExp(`^${folder}[\\\\/].*`);
+}
+
+config.resolver.blockList = [].concat(config.resolver.blockList || [], ignoreFolder('video'), ignoreFolder('website'));
 
 module.exports = config;
