@@ -205,6 +205,14 @@ export const CATEGORY = {
   music: { pale: PALETTE.pastelBlue, main: PALETTE.blue, deep: '#2E6A8A' }, // Music / Sounds / Extra
 };
 
+// A tile that is not built yet ("Coming soon"): quiet grey-lilac, faded icon, soft words.
+export const SOON = {
+  tile: '#EFEBF3',
+  icon: PALETTE.mutedPlum,
+  text: PALETTE.mutedPlum,
+  iconOpacity: 0.5, // 1 = full colour, 0 = invisible
+};
+
 // Soft "yes" glow (mint, never harsh).
 export const CALM_SUCCESS = { pale: PALETTE.pastelMint, main: PALETTE.mint, deep: PALETTE.mintDeep };
 

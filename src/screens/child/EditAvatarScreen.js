@@ -36,7 +36,7 @@ export default function EditAvatarScreen({ navigation }) {
         <ChildHeader title="My Buddy" onBack={() => navigation.goBack()} speakText="My Buddy. Pick the buddy you like" />
 
         <View style={styles.instruction}>
-          <ChildInstruction text="Pick the buddy you like" />
+          <ChildInstruction text="Pick the buddy you like" avatar={avatarId} />
         </View>
 
         {/* big preview */}

@@ -6,6 +6,7 @@
 // Props: title, subtitle, icon (an emoji, or an Ionicons name with iconSet="ionicons"), iconColor,
 //        iconName (a flat AppIcon name, e.g. "gamepad-variant" - the inspo look),
 //        iconNode (anything to draw instead of the icon, e.g. a bobbing icon),
+//        soon (true = not built yet: quiet grey tile, faded icon, SOON in theme.js),
 //        color (the tile colour), textColor, onPress, disabled, minHeight (taller tiles), style, children (drawn in the tile, e.g. a buddy)
 // Half width by default (two tiles per row): pass style={{ width: '100%' }} for a full-width tile.
 
@@ -16,7 +17,7 @@ import Text from './AppText';
 import AnimatedPressable from './AnimatedPressable';
 import AppIcon from './AppIcon';
 import { DESIGN } from '../theme/designConfig';
-import { FONTS, PALETTE } from '../theme/theme';
+import { FONTS, PALETTE, SOON } from '../theme/theme';
 
 export default function PastelTile({
   title,
@@ -33,7 +34,9 @@ export default function PastelTile({
   minHeight,
   style,
   children,
+  soon = false,
 }) {
+  const shownIconColor = soon ? SOON.icon : iconColor;
   // the outer View takes the place in the grid (width, gap); the tile inside fills it
   return (
     <View style={[styles.place, style]}>
@@ -41,21 +44,23 @@ export default function PastelTile({
       onPress={onPress}
       disabled={disabled}
       accessibilityLabel={title}
-      style={[styles.tile, { backgroundColor: color }, minHeight ? { minHeight } : null]}
+      style={[styles.tile, { backgroundColor: soon ? SOON.tile : color }, minHeight ? { minHeight } : null]}
     >
-      {iconNode ? (
-        iconNode
-      ) : iconName ? (
-        <AppIcon name={iconName} size={DESIGN.TILE_ICON + 4} color={iconColor} />
-      ) : icon ? (
-        iconSet === 'ionicons' ? (
-          <Ionicons name={icon} size={DESIGN.TILE_ICON} color={iconColor} />
-        ) : (
-          <Text style={styles.emoji}>{icon}</Text>
-        )
-      ) : null}
+      <View style={soon ? styles.iconSoon : null}>
+        {iconNode ? (
+          iconNode
+        ) : iconName ? (
+          <AppIcon name={iconName} size={DESIGN.TILE_ICON + 4} color={shownIconColor} />
+        ) : icon ? (
+          iconSet === 'ionicons' ? (
+            <Ionicons name={icon} size={DESIGN.TILE_ICON} color={shownIconColor} />
+          ) : (
+            <Text style={styles.emoji}>{icon}</Text>
+          )
+        ) : null}
+      </View>
       <View style={styles.spacer} />
-      <Text style={[styles.title, { color: textColor }]} numberOfLines={2}>
+      <Text style={[styles.title, { color: soon ? SOON.text : textColor }]} numberOfLines={2}>
         {title}
       </Text>
       {subtitle ? (
@@ -80,6 +85,9 @@ const styles = StyleSheet.create({
     padding: 16,
     borderRadius: DESIGN.TILE_RADIUS,
     overflow: 'hidden',
+  },
+  iconSoon: {
+    opacity: SOON.iconOpacity,
   },
   emoji: {
     fontSize: DESIGN.TILE_ICON,

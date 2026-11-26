@@ -50,6 +50,7 @@ export const KID_SCENES = {
 };
 
 export const KID_SCENE_MOTION = {
+  skyMoves: false, // false = the sun and clouds are a still picture (calm, like the website); true = they move
   cloudCount: 3, // how many clouds float across the sky
   cloudMinMs: 38000, // the fastest cloud takes this long to cross the screen (very slow on purpose)
   cloudMaxMs: 60000, // the slowest cloud

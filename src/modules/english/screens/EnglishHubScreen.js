@@ -22,7 +22,7 @@ import { useIdleBob } from '../../../shared/utils/motion';
 import { ENGLISH_MODULES } from '../data/englishSections';
 import { useChild } from '../../../app/store/useChild';
 import { activityOn } from '../../../shared/utils/childActivities';
-import { CATEGORY, CALM, CALM_RADIUS, PALETTE } from '../../../shared/theme/theme';
+import { CATEGORY, CALM, CALM_RADIUS, PALETTE, SOON } from '../../../shared/theme/theme';
 
 const GREETING = 'What do you want to learn?';
 
@@ -73,7 +73,8 @@ export default function EnglishHubScreen({ navigation }) {
                   key={module.no}
                   title={module.title}
                   subtitle={module.subtitle}
-                  iconNode={<BobbingIcon icon={module.icon} index={i} color={accent.deep} />}
+                  iconNode={<BobbingIcon icon={module.icon} index={i} color={built ? accent.deep : SOON.icon} />}
+                  soon={!built}
                   color={accent.pale}
                   minHeight={150}
                   onPress={() => open(module)}

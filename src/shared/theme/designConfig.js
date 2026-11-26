@@ -18,6 +18,10 @@ export const DESIGN = {
   // ----- welcome screen -----
   WELCOME_MASCOT: 0.22, // height of the buddy on the left of the Welcome text: a part of the screen height
 
+  // ----- the buddy asking something (ChildInstruction.js) -----
+  ASK_MASCOT: 72, // size of the buddy beside the speech bubble
+  ASK_GAP: 12, // space between the buddy and the bubble
+
   // ----- detail header (DetailHeader.js) -----
   DETAIL_MASCOT: 120, // height of the big buddy on a detail screen (Progress, Edit profile ...)
 

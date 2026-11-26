@@ -58,6 +58,7 @@ export default function LearningGroupScreen({ navigation, route }) {
                 iconName={item.iconName}
                 iconColor={group.accent.deep}
                 color={group.accent.pale}
+                soon={!built}
                 minHeight={150}
                 onPress={() => open(item)}
               >

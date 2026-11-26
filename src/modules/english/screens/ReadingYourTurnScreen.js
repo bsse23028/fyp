@@ -19,7 +19,6 @@ import Screen from '../../../shared/components/Screen';
 import ChildHeader from '../../../shared/components/ChildHeader';
 import ChildInstruction from '../../../shared/components/ChildInstruction';
 import SpeakButton from '../../../shared/components/SpeakButton';
-import Mascot from '../../../shared/components/Mascot';
 import ReadingWord from '../components/ReadingWord';
 import { READING } from '../readingConfig';
 import { translate } from '../../../shared/i18n/translate';
@@ -67,7 +66,6 @@ export default function ReadingYourTurnScreen({ navigation, route }) {
           </View>
 
           <SpeakButton text={focusWord} style={styles.speaker} />
-          <Mascot size={82} />
           <Text style={styles.tryText}>Try “{focusWord}” with me</Text>
         </View>
 

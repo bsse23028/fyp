@@ -19,7 +19,7 @@ import SectionHeader from '../components/SectionHeader';
 import { BobbingIcon } from './EnglishHubScreen';
 import { speakUi, stopSpeaking } from '../../../shared/utils/speech';
 import { getEnglishModule } from '../data/englishSections';
-import { CATEGORY, PALETTE } from '../../../shared/theme/theme';
+import { CATEGORY, PALETTE, SOON } from '../../../shared/theme/theme';
 
 const GREETING = 'Pick one!';
 
@@ -56,7 +56,8 @@ export default function EnglishActivitiesScreen({ navigation, route }) {
                   key={activity.title}
                   title={activity.title}
                   subtitle={activity.subtitle}
-                  iconNode={<BobbingIcon icon={activity.icon} index={i} color={accent.deep} />}
+                  iconNode={<BobbingIcon icon={activity.icon} index={i} color={activity.screen ? accent.deep : SOON.icon} />}
+                  soon={!activity.screen}
                   color={accent.pale}
                   minHeight={150}
                   onPress={() => open(activity)}

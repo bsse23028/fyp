@@ -1,5 +1,5 @@
-// KID SCENE - a soft, animated picture-book background: sky gradient, a smiling sun that breathes
-// slowly, clouds that float across very slowly, rolling hills and a few swaying flowers.
+// KID SCENE - a soft picture-book background: sky gradient, a smiling sun, clouds, rolling hills and a few
+// swaying flowers. The sun and clouds are still; KID_SCENE_MOTION.skyMoves = true makes them breathe and float.
 //   <KidScene scene="day" active={focused}>{the screen}</KidScene>
 // `active` = false (screen not in front) stops every loop. With animations off nothing moves.
 // Colours and numbers live in kidSceneConfig.js. All motion goes through utils/motion.js.
@@ -19,6 +19,7 @@ function Cloud({ index, width, screenWidth, screenHeight, active }) {
     if (!active) return undefined;
     const travel = screenWidth + width * 2;
     x.setValue((start + width) / travel);
+    if (!M.skyMoves) return undefined; // a still sky: the cloud stays where it starts
     const first = motion.timing(x, 1, { duration: duration * (1 - (start + width) / travel), easing: Easing.linear });
     const loop = motion.loop(
       motion.sequence([motion.timing(x, 0, { duration: 0 }), motion.timing(x, 1, { duration, easing: Easing.linear })])
@@ -40,7 +41,7 @@ function Cloud({ index, width, screenWidth, screenHeight, active }) {
 }
 
 function Sun({ sun, screenWidth, screenHeight, active }) {
-  const breath = usePulse(active, { duration: M.sunBreathMs });
+  const breath = usePulse(active && M.skyMoves, { duration: M.sunBreathMs });
   const scale = breath.interpolate({ inputRange: [0, 1], outputRange: [1, 1.07] });
   const s = sun.size;
   return (

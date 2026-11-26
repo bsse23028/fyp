@@ -9,7 +9,8 @@
 //   wobbleKey changes -> a small shy wobble (a module that is not built yet)
 // The icon is the picture from moduleIcons.js, or the module's flat icon (iconName, AppIcon) in its category
 // colour while there is none (or its emoji, when it has no iconName).
-// A group with nothing built yet (`module.soon`) shows a small "Coming soon" label (it still opens its group page).
+// A group with nothing built yet (`module.soon`) is a quiet grey tile with a faded icon (SOON in theme.js) and a
+// small "Coming soon" label; it keeps its place and still opens its group page.
 // Props: { module, index, active, isPreview, wobbleKey, onPress(module) }
 
 import React, { useEffect, useRef } from 'react';
@@ -17,7 +18,7 @@ import { Animated, Easing, Image, Pressable, StyleSheet, Text as PlainText, View
 import Text from '../../../shared/components/AppText';
 import AppIcon from '../../../shared/components/AppIcon';
 import { hop, motion, pressIn, pressOut, useEntrance, wiggle, wiggleRotate } from '../../../shared/utils/motion';
-import { CALM, FONTS, PALETTE } from '../../../shared/theme/theme';
+import { CALM, FONTS, PALETTE, SOON } from '../../../shared/theme/theme';
 import { DESIGN } from '../../../shared/theme/designConfig';
 import { MODULE_ICONS } from '../moduleIcons';
 import { HOME } from '../homeConfig';
@@ -73,21 +74,20 @@ export default function ModuleCard({ module, index, active, isPreview, wobbleKey
         accessibilityLabel={module.label}
       >
         <Animated.View style={{ transform: [{ scale: press }, { rotate: wiggleRotate(shy, HOME.CARD_WOBBLE) }] }}>
-          <View style={[styles.card, { backgroundColor: module.accent.pale }]}>
-
+          <View style={[styles.card, { backgroundColor: module.soon ? SOON.tile : module.accent.pale }]}>
             <Animated.View style={{ transform: [{ translateY: iconMove }, { scale: squash }] }}>
-              <View style={styles.disc}>
+              <View style={[styles.disc, module.soon && styles.discSoon]}>
                 {icon.image ? (
                   <Image source={icon.image} style={styles.picture} resizeMode="contain" />
                 ) : module.iconName ? (
-                  <AppIcon name={module.iconName} size={HOME.CARD_DISC * 0.52} color={module.accent.deep} />
+                  <AppIcon name={module.iconName} size={HOME.CARD_DISC * 0.52} color={module.soon ? SOON.icon : module.accent.deep} />
                 ) : (
                   <PlainText style={styles.emoji}>{module.icon}</PlainText>
                 )}
               </View>
             </Animated.View>
 
-            <Text style={styles.label} numberOfLines={1} adjustsFontSizeToFit>
+            <Text style={[styles.label, module.soon && styles.labelSoon]} numberOfLines={1} adjustsFontSizeToFit>
               {module.label}
             </Text>
 
@@ -123,6 +123,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: 'rgba(255, 255, 255, 0.7)',
+  },
+  discSoon: {
+    opacity: SOON.iconOpacity,
+  },
+  labelSoon: {
+    color: SOON.text,
   },
   picture: {
     width: HOME.CARD_DISC * 0.72,
