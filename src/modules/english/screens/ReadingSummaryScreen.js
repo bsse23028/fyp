@@ -25,13 +25,13 @@ export default function ReadingSummaryScreen({ navigation }) {
   const { activeChild, addReadingResult } = useChild();
   const { topicId, level } = useSelector((state) => state.english); // what the child picked
   const topics = useSelector(selectAllTopics);
-  // Back to "Pick a level". The stack is rebuilt as Child Home > Words > Topics > Level,
+  // Back to "Pick a level". The stack is rebuilt as Child Home > English > Topics > Level,
   // so the long chain of reading screens is cleared, Child Home stays the first screen
   // (a child can never go back into Parent Mode) and back still walks up one step at a time.
   function backToLevels() {
     navigation.reset({
       index: 3,
-      routes: [{ name: 'ChildHome' }, { name: 'WordsHub' }, { name: 'ReadingTopics' }, { name: 'ReadingLevel' }],
+      routes: [{ name: 'ChildHome' }, { name: 'EnglishHub' }, { name: 'ReadingTopics' }, { name: 'ReadingLevel' }],
     });
   }
   // Runs once, when the screen opens: send this session to the server.
@@ -52,7 +52,7 @@ export default function ReadingSummaryScreen({ navigation }) {
   }, []);
 
   return (
-    <Screen mode="child">
+    <Screen mode="child" scene="lesson">
       <View style={styles.body}>
         <View style={styles.center}>
           <Mascot size={150} />

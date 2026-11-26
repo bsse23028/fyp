@@ -31,6 +31,7 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { api } from '../../shared/api/client';
 import { logOut, sessionExpired } from './authSlice';
+import { notInPreview } from './previewSlice';
 
 // Runs one request. If it fails, the thunk is "rejected" with { message, status }
 // (status 0 = the server could not be reached). useChild.js uses the status to decide
@@ -62,36 +63,49 @@ export const fetchChildren = createAsyncThunk('child/fetchChildren', async (_, {
 );
 
 // POST /api/children  ->  { child }
-export const createChild = createAsyncThunk('child/createChild', async (profile, { rejectWithValue }) =>
-  callServer(() => api.post('/api/children', profile), rejectWithValue)
+export const createChild = createAsyncThunk(
+  'child/createChild',
+  async (profile, { rejectWithValue }) => callServer(() => api.post('/api/children', profile), rejectWithValue),
+  { condition: notInPreview }
 );
 
 // PATCH /api/children/:id  (only the fields that change)  ->  { child }
-export const saveChildChanges = createAsyncThunk('child/saveChildChanges', async ({ id, changes }, { rejectWithValue }) =>
-  callServer(() => api.patch(`/api/children/${id}`, changes), rejectWithValue)
+export const saveChildChanges = createAsyncThunk(
+  'child/saveChildChanges',
+  async ({ id, changes }, { rejectWithValue }) => callServer(() => api.patch(`/api/children/${id}`, changes), rejectWithValue),
+  { condition: notInPreview }
 );
 
 // DELETE /api/children/:id  ->  204 (no body). We return the id so the reducer knows which one.
-export const removeChild = createAsyncThunk('child/removeChild', async (id, { rejectWithValue }) =>
-  callServer(async () => {
-    await api.delete(`/api/children/${id}`);
-    return id;
-  }, rejectWithValue)
+export const removeChild = createAsyncThunk(
+  'child/removeChild',
+  async (id, { rejectWithValue }) =>
+    callServer(async () => {
+      await api.delete(`/api/children/${id}`);
+      return id;
+    }, rejectWithValue),
+  { condition: notInPreview }
 );
 
 // "Continue as Zara": POST /api/children/:id/select  ->  { activeId }
-export const selectChild = createAsyncThunk('child/selectChild', async (id, { rejectWithValue }) =>
-  callServer(() => api.post(`/api/children/${id}/select`), rejectWithValue)
+export const selectChild = createAsyncThunk(
+  'child/selectChild',
+  async (id, { rejectWithValue }) => callServer(() => api.post(`/api/children/${id}/select`), rejectWithValue),
+  { condition: notInPreview }
 );
 
 // A Read-Along session finished: POST /api/children/:id/sessions
 //   session = { childId, clientSessionId, stars, topicId, level, language, sessionDate }
 // The server answers with the child's NEW totals: { duplicate, reading, activity }.
 // Sending the same clientSessionId again (Retry) never adds the stars twice.
-export const saveReadingSession = createAsyncThunk('child/saveReadingSession', async (session, { rejectWithValue }) => {
-  const { childId, ...body } = session;
-  return callServer(() => api.post(`/api/children/${childId}/sessions`, body), rejectWithValue);
-});
+export const saveReadingSession = createAsyncThunk(
+  'child/saveReadingSession',
+  async (session, { rejectWithValue }) => {
+    const { childId, ...body } = session;
+    return callServer(() => api.post(`/api/children/${childId}/sessions`, body), rejectWithValue);
+  },
+  { condition: notInPreview }
+);
 
 // Loads the children ONCE even if two places ask at the same time
 // (ChildLoader and the Log In screen both ask right after logging in).

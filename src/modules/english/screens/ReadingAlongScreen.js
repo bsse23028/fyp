@@ -195,7 +195,7 @@ export default function ReadingAlongScreen({ navigation, route }) {
   }
 
   return (
-    <Screen scroll mode="child">
+    <Screen scroll mode="child" scene="lesson">
       <View style={styles.body}>
         {/* top row: back, title, play again */}
         <View style={styles.topRow}>

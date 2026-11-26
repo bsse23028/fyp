@@ -97,3 +97,106 @@ export const SIZES = {
   input: 50, // height of every text input
   otpBox: 50, // height of one OTP digit box
 };
+
+// ---------- CALM DESIGN (new look: Splash, Welcome, Parent Home, Preview) ----------
+// Soft, predictable colours for autistic children and their parents. The old tokens above stay
+// for every screen that has not been redesigned yet.
+export const CALM = {
+  background: '#FBF8F3', // warm off-white
+  surface: '#FFFFFF',
+  surfaceSoft: '#F4EFE8',
+  line: '#ECE4DA',
+
+  primary: '#4FA3A5', // soft teal
+  primaryDark: '#2F7476', // teal text on light backgrounds (high contrast)
+  primaryPale: '#E2F1F1',
+  sky: '#8CC7E3',
+  skyPale: '#E3F2FA',
+  coral: '#EFA48B',
+  coralPale: '#FCE7DF',
+  yellow: '#F3CF6B',
+  yellowPale: '#FDF3D6',
+  sage: '#9CC59A',
+  sagePale: '#E5F1E3',
+  lavender: '#B9AEE0',
+  lavenderPale: '#ECE8F8',
+
+  text: '#2E2A26', // near-black warm text
+  textSoft: '#6B625A', // secondary text (still AA on the background)
+  onPrimary: '#FFFFFF',
+  backdrop: 'rgba(46, 42, 38, 0.32)',
+};
+
+// Soft accent families (pale card + readable deep text colour), used in turn by the alphabet letters.
+export const CALM_ACCENTS = [
+  { pale: '#E2F1F1', main: '#4FA3A5', deep: '#2F7476' },
+  { pale: '#E3F2FA', main: '#8CC7E3', deep: '#2E6A8A' },
+  { pale: '#FCE7DF', main: '#EFA48B', deep: '#9A5338' },
+  { pale: '#FDF3D6', main: '#F3CF6B', deep: '#86650F' },
+  { pale: '#E5F1E3', main: '#9CC59A', deep: '#4A7448' },
+  { pale: '#ECE8F8', main: '#B9AEE0', deep: '#5E50A0' },
+];
+
+// Soft "yes" glow (green-ish, never harsh).
+export const CALM_SUCCESS = { pale: '#E3F4E6', main: '#8FCB9B', deep: '#3F7A4B' };
+
+export const CALM_RADIUS = {
+  small: 14,
+  medium: 20,
+  large: 24,
+  xl: 28,
+  pill: 999,
+};
+
+export const CALM_SPACING = {
+  xs: 4,
+  s: 8,
+  m: 12,
+  l: 16,
+  xl: 20,
+  xxl: 28,
+  screen: 20,
+};
+
+export const CALM_SIZES = {
+  tap: 56, // smallest tap target
+  bigButton: 60,
+};
+
+export const CALM_SHADOW = {
+  soft: {
+    shadowColor: '#6B4E2E',
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 2,
+  },
+  lifted: {
+    shadowColor: '#6B4E2E',
+    shadowOpacity: 0.12,
+    shadowRadius: 18,
+    shadowOffset: { width: 0, height: 8 },
+    elevation: 5,
+  },
+};
+
+// ---------- GLASS (the Child Home look) ----------
+// A see-through white layer with a thin light border and a soft shadow, on a soft gradient.
+export const GLASS = {
+  gradient: [CALM.background, CALM.skyPale], // the page background, from top to bottom
+  fill: 'rgba(255, 255, 255, 0.55)', // the glass layer (about 55 percent white)
+  fillStrong: 'rgba(255, 255, 255, 0.78)', // a more solid glass for small things with text on them
+  border: 'rgba(255, 255, 255, 0.85)', // the thin light edge
+  borderWidth: 1.5,
+  star: '#E0A91B', // the star of the stars chip (a warm gold that is readable on glass)
+  radius: 24, // rounded corners of glass cards and bubbles
+  radiusLarge: 32, // the quick-start bar
+  radiusPill: 999, // chips
+  shadow: {
+    shadowColor: '#6B4E2E',
+    shadowOpacity: 0.1,
+    shadowRadius: 16,
+    shadowOffset: { width: 0, height: 6 },
+    elevation: 0, // Android draws a hard grey edge under see-through views, so the glass has no elevation there
+  },
+};

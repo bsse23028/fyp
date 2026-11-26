@@ -15,6 +15,7 @@ import { StatusBar } from 'expo-status-bar';
 import { useFonts } from 'expo-font';
 import { NavigationContainer } from '@react-navigation/native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Provider } from 'react-redux';
 import { store } from './src/app/store/store';
 import ChildLoader from './src/app/store/ChildLoader';
@@ -22,6 +23,7 @@ import { LanguageProvider } from './src/app/context/LanguageContext';
 import { AuthProvider } from './src/app/context/AuthContext';
 import { DeviceProvider } from './src/app/context/DeviceContext';
 import AppNavigator from './src/app/navigation/AppNavigator';
+import ModuleMusic from './src/app/navigation/ModuleMusic';
 import { HeaderProvider } from './src/app/context/HeaderContext';
 import { navigationRef, notifyRouteChange } from './src/app/navigation/navigationRef';
 import { useDirection } from './src/shared/utils/direction';
@@ -46,13 +48,16 @@ export default function App() {
     );
   }
 
+  // GestureHandlerRootView: needed by react-native-gesture-handler (the drag of the Spelling game).
   return (
+    <GestureHandlerRootView style={{ flex: 1 }}>
     <SafeAreaProvider>
       <Provider store={store}>
         <LanguageProvider>
           <DeviceProvider>
             <AuthProvider>
               <ChildLoader />
+              <ModuleMusic />
               <DirectionRoot>
                 <HeaderProvider>
                   <NavigationContainer
@@ -70,5 +75,6 @@ export default function App() {
         </LanguageProvider>
       </Provider>
     </SafeAreaProvider>
+    </GestureHandlerRootView>
   );
 }

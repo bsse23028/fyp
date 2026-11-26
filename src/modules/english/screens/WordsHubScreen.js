@@ -1,33 +1,44 @@
 // WORDS HUB SCREEN - "Pick a word activity".
-// Only "Read Along" is built so far (it opens the topic list); the other tiles say "Coming soon".
+// "Read Along" opens the topic list and "Spelling" the spelling game; the other tiles say "Coming soon".
 //
 // Props: { navigation }
 
 import React from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { Animated, StyleSheet, View } from 'react-native';
 import Text from '../../../shared/components/AppText';
 import Screen from '../../../shared/components/Screen';
 import ChildHeader from '../../../shared/components/ChildHeader';
 import ChildInstruction from '../../../shared/components/ChildInstruction';
+import AnimatedPressable from '../../../shared/components/AnimatedPressable';
+import FadeInView from '../../../shared/components/FadeInView';
+import { useIdleBob } from '../../../shared/utils/motion';
 import { showComingSoon } from '../../../shared/utils/alerts';
+import { usePreview } from '../../../app/store/usePreview';
 import { COLORS, FONTS } from '../../../shared/theme/theme';
 
 const ITEMS = [
   { title: 'Read Along', icon: '📖', tint: COLORS.bluePale, screen: 'ReadingTopics' },
   { title: 'Reading Helper', icon: '👓', tint: COLORS.sagePale, screen: null },
   { title: 'Phonics', icon: '🔊', tint: COLORS.yellowPale, screen: null },
-  { title: 'Spelling', icon: '🔤', tint: COLORS.purplePale, screen: null },
+  { title: 'Spelling', icon: '🔤', tint: COLORS.purplePale, screen: 'SpellingWords' },
   { title: 'Writing', icon: '✏️', tint: COLORS.orangePale, screen: null },
 ];
 
+// The tile icon bobs gently a few times (each tile a little later), then rests.
+function BobbingIcon({ icon, index }) {
+  const bob = useIdleBob({ height: 5, duration: 1400, cycles: 4, delay: 400 + index * 200 });
+  return <Animated.Text style={[styles.tileIcon, bob]}>{icon}</Animated.Text>;
+}
+
 export default function WordsHubScreen({ navigation }) {
+  const { isPreview } = usePreview();
   function openItem(item) {
     if (item.screen) navigation.navigate(item.screen);
     else showComingSoon(item.title);
   }
 
   return (
-    <Screen scroll mode="child">
+    <Screen scroll mode="child" scene="day">
       <View style={styles.body}>
         <ChildHeader title="English" onBack={() => navigation.goBack()}/>
 
@@ -36,16 +47,22 @@ export default function WordsHubScreen({ navigation }) {
         </View>
 
         <View style={styles.grid}>
-          {ITEMS.map((item) => (
-            <Pressable
-              key={item.title}
+          {ITEMS.map((item, i) => (
+            <FadeInView key={item.title} index={i} style={styles.tileWrap}>
+            <AnimatedPressable
               onPress={() => openItem(item)}
-              accessibilityRole="button"
+              accessibilityLabel={item.title}
               style={[styles.tile, { backgroundColor: item.tint }]}
             >
-              <Text style={styles.tileIcon}>{item.icon}</Text>
+              <BobbingIcon icon={item.icon} index={i} />
               <Text style={styles.tileTitle}>{item.title}</Text>
-            </Pressable>
+              {isPreview && !item.screen && (
+                <View style={styles.soonTag}>
+                  <Text style={styles.soonText}>Coming soon</Text>
+                </View>
+              )}
+            </AnimatedPressable>
+            </FadeInView>
           ))}
         </View>
       </View>
@@ -66,16 +83,30 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     justifyContent: 'space-between',
   },
-  tile: {
+  tileWrap: {
     width: '48%',
-    minHeight: 144,
     marginBottom: 13,
+  },
+  tile: {
+    minHeight: 144,
     padding: 12,
     borderRadius: 24,
     borderWidth: 2,
     borderColor: 'rgba(61, 43, 31, 0.05)',
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  soonTag: {
+    marginTop: 8,
+    paddingVertical: 3,
+    paddingHorizontal: 10,
+    borderRadius: 999,
+    backgroundColor: 'rgba(255, 255, 255, 0.85)',
+  },
+  soonText: {
+    fontFamily: FONTS.nunitoExtraBold,
+    fontSize: 12,
+    color: COLORS.warmMuted,
   },
   tileIcon: {
     fontSize: 44,

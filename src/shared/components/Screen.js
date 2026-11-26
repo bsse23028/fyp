@@ -8,6 +8,7 @@
 //   <Screen scroll>          -> FORM screen. Fits on the phone normally, but
 //                               can scroll when the keyboard is open.
 //   <Screen scroll footerMascot>  -> also puts a small Buddy at the bottom.
+//   <Screen scene="day">     -> an animated sky / clouds / hills background (KidScene); it pauses off screen.
 //   <Screen avatar="wolf">   -> preview an avatar in the header before saving.
 //
 // MODES (what the screen belongs to):
@@ -26,8 +27,9 @@
 import React, { useLayoutEffect } from 'react';
 import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRoute } from '@react-navigation/native';
+import { useIsFocused, useRoute } from '@react-navigation/native';
 import Mascot from './Mascot';
+import KidScene from './KidScene';
 import { useHeaderConfig } from '../../app/context/HeaderContext';
 import { COLORS, SPACING } from '../theme/theme';
 
@@ -39,24 +41,42 @@ export default function Screen({
   avatar,
   contentStyle,
   scrollRef, // optional: lets a screen scroll itself back to the top
+  background, // optional: a background colour (white when not given)
+  onMenuPress, // optional: shows a ☰ menu button in the header (Parent Home)
+  scene, // optional: an animated KidScene background ('day' | 'lesson' | 'spelling' | 'sunset')
 }) {
   const route = useRoute();
-  const { setConfig, removeConfig } = useHeaderConfig();
+  const { setConfig, removeConfig, setMenuHandler } = useHeaderConfig();
+  const hasMenu = Boolean(onMenuPress);
+  const focused = useIsFocused();
+  const bg = scene ? styles.clear : background ? { backgroundColor: background } : null;
 
   // The header is NOT drawn here any more: it is one fixed header above the navigator
   // (see FixedHeader.js). This screen only tells it what to show.
   useLayoutEffect(() => {
-    setConfig(route.key, { mode, avatar });
-  }, [route.key, mode, avatar]);
+    setConfig(route.key, { mode, avatar, menu: hasMenu });
+  }, [route.key, mode, avatar, hasMenu]);
 
   useLayoutEffect(() => {
-    return () => removeConfig(route.key);
+    setMenuHandler(route.key, onMenuPress || null);
+  }, [route.key, onMenuPress]);
+
+  useLayoutEffect(() => {
+    return () => {
+      removeConfig(route.key);
+      setMenuHandler(route.key, null);
+    };
   }, [route.key]);
 
   return (
-    <View style={styles.root}>
+    <View style={[styles.root, bg]}>
+      {scene ? (
+        <View style={StyleSheet.absoluteFill} pointerEvents="none">
+          <KidScene scene={scene} active={focused} />
+        </View>
+      ) : null}
       {/* edges: no "top" - the fixed header above the navigator already covers the notch */}
-      <SafeAreaView style={styles.safe} edges={['bottom', 'left', 'right']}>
+      <SafeAreaView style={[styles.safe, bg]} edges={['bottom', 'left', 'right']}>
         {scroll ? (
           <KeyboardAvoidingView
             style={styles.flex}
@@ -88,6 +108,9 @@ export default function Screen({
 }
 
 const styles = StyleSheet.create({
+  clear: {
+    backgroundColor: 'transparent',
+  },
   root: {
     flex: 1,
     backgroundColor: COLORS.white,

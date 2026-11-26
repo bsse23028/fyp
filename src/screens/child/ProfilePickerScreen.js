@@ -20,11 +20,19 @@ import { goToChildHome, goToParentHome } from '../../app/navigation/helpers';
 import { getAvatar } from '../../shared/theme/avatars';
 import { COLORS, FONTS } from '../../shared/theme/theme';
 
-export default function ProfilePickerScreen({ navigation }) {
+export default function ProfilePickerScreen({ navigation, route }) {
   const { childProfiles, activeChild, enterChildMode, exitChildMode } = useChild();
 
-  // The child who used the app last is pre-selected.
-  const [selectedId, setSelectedId] = useState(activeChild ? activeChild.id : childProfiles.length > 0 ? childProfiles[0].id : null);
+  // The child chosen on Parent Home is pre-selected; otherwise the child who used the app last.
+  const askedId = route && route.params ? route.params.childId : null;
+  const startId = childProfiles.some((c) => c.id === askedId)
+    ? askedId
+    : activeChild
+    ? activeChild.id
+    : childProfiles.length > 0
+    ? childProfiles[0].id
+    : null;
+  const [selectedId, setSelectedId] = useState(startId);
   const [pinOpen, setPinOpen] = useState(false);
 
   const selected = childProfiles.find((c) => c.id === selectedId) || null;

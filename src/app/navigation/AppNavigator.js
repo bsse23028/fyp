@@ -160,7 +160,7 @@ export default function AppNavigator() {
       {/* LEARNING MODULES (English, later Numbers, Feelings ...).
           Their screens are listed by each module, see src/modules/index.js */}
       {MODULE_SCREENS.map((screen) => (
-        <Stack.Screen key={screen.name} name={screen.name} component={screen.component} />
+        <Stack.Screen key={screen.name} name={screen.name} component={screen.component} options={screen.options} />
       ))}
     </Stack.Navigator>
     </View>

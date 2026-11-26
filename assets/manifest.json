@@ -1,0 +1,862 @@
+{
+  "canvas": {
+    "width": 512,
+    "height": 512
+  },
+  "font": "Fredoka Bold (700)",
+  "font_size_px": 424.0,
+  "baseline_y": 360.75,
+  "note": "All letters share the same canvas, font size and baseline. Do not crop them. No shadow and no eyes are baked in.",
+  "textures": [
+    "stripes",
+    "dots",
+    "waves",
+    "zigzag",
+    "diagonal",
+    "checks",
+    "scallops",
+    "stars"
+  ],
+  "colours": {
+    "red": {
+      "main_colour": "#DC4238",
+      "light_colour": "#F6A093"
+    },
+    "orange": {
+      "main_colour": "#EE7B2B",
+      "light_colour": "#FBBB63"
+    },
+    "yellow": {
+      "main_colour": "#D99A0E",
+      "light_colour": "#F8D45E"
+    },
+    "lime": {
+      "main_colour": "#86A51C",
+      "light_colour": "#CFE070"
+    },
+    "green": {
+      "main_colour": "#2F9150",
+      "light_colour": "#93D8A0"
+    },
+    "teal": {
+      "main_colour": "#169C98",
+      "light_colour": "#86DCD3"
+    },
+    "sky": {
+      "main_colour": "#2B92D8",
+      "light_colour": "#9CD2F4"
+    },
+    "navy": {
+      "main_colour": "#36489F",
+      "light_colour": "#9DA9E4"
+    },
+    "purple": {
+      "main_colour": "#8151C4",
+      "light_colour": "#C3ABEE"
+    },
+    "pink": {
+      "main_colour": "#D2468A",
+      "light_colour": "#F7B3CF"
+    },
+    "brown": {
+      "main_colour": "#99582F",
+      "light_colour": "#DBAA7E"
+    },
+    "grey": {
+      "main_colour": "#5E6E82",
+      "light_colour": "#B5C2D0"
+    }
+  },
+  "letters": [
+    {
+      "letter": "a",
+      "case": "lower",
+      "file": "letters/lower/a.png",
+      "texture": "stripes",
+      "colour": "orange",
+      "main_colour": "#EE7B2B",
+      "light_colour": "#FBBB63",
+      "bbox": [
+        144,
+        148,
+        362,
+        365
+      ]
+    },
+    {
+      "letter": "b",
+      "case": "lower",
+      "file": "letters/lower/b.png",
+      "texture": "stars",
+      "colour": "purple",
+      "main_colour": "#8151C4",
+      "light_colour": "#C3ABEE",
+      "bbox": [
+        149,
+        51,
+        367,
+        364
+      ]
+    },
+    {
+      "letter": "c",
+      "case": "lower",
+      "file": "letters/lower/c.png",
+      "texture": "diagonal",
+      "colour": "teal",
+      "main_colour": "#169C98",
+      "light_colour": "#86DCD3",
+      "bbox": [
+        160,
+        146,
+        353,
+        367
+      ]
+    },
+    {
+      "letter": "d",
+      "case": "lower",
+      "file": "letters/lower/d.png",
+      "texture": "stripes",
+      "colour": "grey",
+      "main_colour": "#5E6E82",
+      "light_colour": "#B5C2D0",
+      "bbox": [
+        144,
+        51,
+        362,
+        365
+      ]
+    },
+    {
+      "letter": "e",
+      "case": "lower",
+      "file": "letters/lower/e.png",
+      "texture": "checks",
+      "colour": "yellow",
+      "main_colour": "#D99A0E",
+      "light_colour": "#F8D45E",
+      "bbox": [
+        148,
+        144,
+        363,
+        370
+      ]
+    },
+    {
+      "letter": "f",
+      "case": "lower",
+      "file": "letters/lower/f.png",
+      "texture": "waves",
+      "colour": "navy",
+      "main_colour": "#36489F",
+      "light_colour": "#9DA9E4",
+      "bbox": [
+        168,
+        51,
+        343,
+        366
+      ]
+    },
+    {
+      "letter": "g",
+      "case": "lower",
+      "file": "letters/lower/g.png",
+      "texture": "stripes",
+      "colour": "red",
+      "main_colour": "#DC4238",
+      "light_colour": "#F6A093",
+      "bbox": [
+        146,
+        147,
+        360,
+        455
+      ]
+    },
+    {
+      "letter": "h",
+      "case": "lower",
+      "file": "letters/lower/h.png",
+      "texture": "waves",
+      "colour": "sky",
+      "main_colour": "#2B92D8",
+      "light_colour": "#9CD2F4",
+      "bbox": [
+        147,
+        52,
+        365,
+        365
+      ]
+    },
+    {
+      "letter": "i",
+      "case": "lower",
+      "file": "letters/lower/i.png",
+      "texture": "zigzag",
+      "colour": "lime",
+      "main_colour": "#86A51C",
+      "light_colour": "#CFE070",
+      "bbox": [
+        217,
+        51,
+        296,
+        365
+      ]
+    },
+    {
+      "letter": "j",
+      "case": "lower",
+      "file": "letters/lower/j.png",
+      "texture": "checks",
+      "colour": "teal",
+      "main_colour": "#169C98",
+      "light_colour": "#86DCD3",
+      "bbox": [
+        178,
+        51,
+        323,
+        455
+      ]
+    },
+    {
+      "letter": "k",
+      "case": "lower",
+      "file": "letters/lower/k.png",
+      "texture": "waves",
+      "colour": "pink",
+      "main_colour": "#D2468A",
+      "light_colour": "#F7B3CF",
+      "bbox": [
+        161,
+        50,
+        361,
+        367
+      ]
+    },
+    {
+      "letter": "l",
+      "case": "lower",
+      "file": "letters/lower/l.png",
+      "texture": "scallops",
+      "colour": "brown",
+      "main_colour": "#99582F",
+      "light_colour": "#DBAA7E",
+      "bbox": [
+        204,
+        50,
+        321,
+        365
+      ]
+    },
+    {
+      "letter": "m",
+      "case": "lower",
+      "file": "letters/lower/m.png",
+      "texture": "diagonal",
+      "colour": "sky",
+      "main_colour": "#2B92D8",
+      "light_colour": "#9CD2F4",
+      "bbox": [
+        99,
+        147,
+        413,
+        365
+      ]
+    },
+    {
+      "letter": "n",
+      "case": "lower",
+      "file": "letters/lower/n.png",
+      "texture": "checks",
+      "colour": "purple",
+      "main_colour": "#8151C4",
+      "light_colour": "#C3ABEE",
+      "bbox": [
+        148,
+        148,
+        365,
+        365
+      ]
+    },
+    {
+      "letter": "o",
+      "case": "lower",
+      "file": "letters/lower/o.png",
+      "texture": "waves",
+      "colour": "orange",
+      "main_colour": "#EE7B2B",
+      "light_colour": "#FBBB63",
+      "bbox": [
+        143,
+        144,
+        369,
+        369
+      ]
+    },
+    {
+      "letter": "p",
+      "case": "lower",
+      "file": "letters/lower/p.png",
+      "texture": "dots",
+      "colour": "green",
+      "main_colour": "#2F9150",
+      "light_colour": "#93D8A0",
+      "bbox": [
+        151,
+        149,
+        367,
+        455
+      ]
+    },
+    {
+      "letter": "q",
+      "case": "lower",
+      "file": "letters/lower/q.png",
+      "texture": "scallops",
+      "colour": "grey",
+      "main_colour": "#5E6E82",
+      "light_colour": "#B5C2D0",
+      "bbox": [
+        145,
+        149,
+        361,
+        455
+      ]
+    },
+    {
+      "letter": "r",
+      "case": "lower",
+      "file": "letters/lower/r.png",
+      "texture": "zigzag",
+      "colour": "green",
+      "main_colour": "#2F9150",
+      "light_colour": "#93D8A0",
+      "bbox": [
+        176,
+        147,
+        344,
+        365
+      ]
+    },
+    {
+      "letter": "s",
+      "case": "lower",
+      "file": "letters/lower/s.png",
+      "texture": "diagonal",
+      "colour": "navy",
+      "main_colour": "#36489F",
+      "light_colour": "#9DA9E4",
+      "bbox": [
+        165,
+        144,
+        347,
+        369
+      ]
+    },
+    {
+      "letter": "t",
+      "case": "lower",
+      "file": "letters/lower/t.png",
+      "texture": "stars",
+      "colour": "pink",
+      "main_colour": "#D2468A",
+      "light_colour": "#F7B3CF",
+      "bbox": [
+        168,
+        76,
+        343,
+        365
+      ]
+    },
+    {
+      "letter": "u",
+      "case": "lower",
+      "file": "letters/lower/u.png",
+      "texture": "dots",
+      "colour": "red",
+      "main_colour": "#DC4238",
+      "light_colour": "#F6A093",
+      "bbox": [
+        147,
+        148,
+        365,
+        364
+      ]
+    },
+    {
+      "letter": "v",
+      "case": "lower",
+      "file": "letters/lower/v.png",
+      "texture": "scallops",
+      "colour": "lime",
+      "main_colour": "#86A51C",
+      "light_colour": "#CFE070",
+      "bbox": [
+        140,
+        145,
+        373,
+        367
+      ]
+    },
+    {
+      "letter": "w",
+      "case": "lower",
+      "file": "letters/lower/w.png",
+      "texture": "zigzag",
+      "colour": "brown",
+      "main_colour": "#99582F",
+      "light_colour": "#DBAA7E",
+      "bbox": [
+        101,
+        146,
+        411,
+        366
+      ]
+    },
+    {
+      "letter": "x",
+      "case": "lower",
+      "file": "letters/lower/x.png",
+      "texture": "dots",
+      "colour": "yellow",
+      "main_colour": "#D99A0E",
+      "light_colour": "#F8D45E",
+      "bbox": [
+        146,
+        145,
+        367,
+        368
+      ]
+    },
+    {
+      "letter": "y",
+      "case": "lower",
+      "file": "letters/lower/y.png",
+      "texture": "stripes",
+      "colour": "teal",
+      "main_colour": "#169C98",
+      "light_colour": "#86DCD3",
+      "bbox": [
+        138,
+        144,
+        373,
+        458
+      ]
+    },
+    {
+      "letter": "z",
+      "case": "lower",
+      "file": "letters/lower/z.png",
+      "texture": "stars",
+      "colour": "red",
+      "main_colour": "#DC4238",
+      "light_colour": "#F6A093",
+      "bbox": [
+        145,
+        148,
+        367,
+        365
+      ]
+    },
+    {
+      "letter": "A",
+      "case": "upper",
+      "file": "letters/upper/A.png",
+      "texture": "stripes",
+      "colour": "orange",
+      "main_colour": "#EE7B2B",
+      "light_colour": "#FBBB63",
+      "bbox": [
+        107,
+        67,
+        404,
+        370
+      ]
+    },
+    {
+      "letter": "B",
+      "case": "upper",
+      "file": "letters/upper/B.png",
+      "texture": "stars",
+      "colour": "purple",
+      "main_colour": "#8151C4",
+      "light_colour": "#C3ABEE",
+      "bbox": [
+        138,
+        66,
+        377,
+        365
+      ]
+    },
+    {
+      "letter": "C",
+      "case": "upper",
+      "file": "letters/upper/C.png",
+      "texture": "diagonal",
+      "colour": "teal",
+      "main_colour": "#169C98",
+      "light_colour": "#86DCD3",
+      "bbox": [
+        128,
+        64,
+        385,
+        370
+      ]
+    },
+    {
+      "letter": "D",
+      "case": "upper",
+      "file": "letters/upper/D.png",
+      "texture": "stripes",
+      "colour": "grey",
+      "main_colour": "#5E6E82",
+      "light_colour": "#B5C2D0",
+      "bbox": [
+        127,
+        67,
+        391,
+        365
+      ]
+    },
+    {
+      "letter": "E",
+      "case": "upper",
+      "file": "letters/upper/E.png",
+      "texture": "checks",
+      "colour": "yellow",
+      "main_colour": "#D99A0E",
+      "light_colour": "#F8D45E",
+      "bbox": [
+        143,
+        67,
+        379,
+        366
+      ]
+    },
+    {
+      "letter": "F",
+      "case": "upper",
+      "file": "letters/upper/F.png",
+      "texture": "waves",
+      "colour": "navy",
+      "main_colour": "#36489F",
+      "light_colour": "#9DA9E4",
+      "bbox": [
+        140,
+        67,
+        376,
+        365
+      ]
+    },
+    {
+      "letter": "G",
+      "case": "upper",
+      "file": "letters/upper/G.png",
+      "texture": "stripes",
+      "colour": "red",
+      "main_colour": "#DC4238",
+      "light_colour": "#F6A093",
+      "bbox": [
+        119,
+        62,
+        390,
+        369
+      ]
+    },
+    {
+      "letter": "H",
+      "case": "upper",
+      "file": "letters/upper/H.png",
+      "texture": "waves",
+      "colour": "sky",
+      "main_colour": "#2B92D8",
+      "light_colour": "#9CD2F4",
+      "bbox": [
+        129,
+        67,
+        383,
+        365
+      ]
+    },
+    {
+      "letter": "I",
+      "case": "upper",
+      "file": "letters/upper/I.png",
+      "texture": "zigzag",
+      "colour": "lime",
+      "main_colour": "#86A51C",
+      "light_colour": "#CFE070",
+      "bbox": [
+        216,
+        67,
+        296,
+        365
+      ]
+    },
+    {
+      "letter": "J",
+      "case": "upper",
+      "file": "letters/upper/J.png",
+      "texture": "checks",
+      "colour": "teal",
+      "main_colour": "#169C98",
+      "light_colour": "#86DCD3",
+      "bbox": [
+        149,
+        67,
+        354,
+        369
+      ]
+    },
+    {
+      "letter": "K",
+      "case": "upper",
+      "file": "letters/upper/K.png",
+      "texture": "waves",
+      "colour": "pink",
+      "main_colour": "#D2468A",
+      "light_colour": "#F7B3CF",
+      "bbox": [
+        145,
+        63,
+        372,
+        370
+      ]
+    },
+    {
+      "letter": "L",
+      "case": "upper",
+      "file": "letters/upper/L.png",
+      "texture": "scallops",
+      "colour": "brown",
+      "main_colour": "#99582F",
+      "light_colour": "#DBAA7E",
+      "bbox": [
+        155,
+        67,
+        371,
+        365
+      ]
+    },
+    {
+      "letter": "M",
+      "case": "upper",
+      "file": "letters/upper/M.png",
+      "texture": "diagonal",
+      "colour": "sky",
+      "main_colour": "#2B92D8",
+      "light_colour": "#9CD2F4",
+      "bbox": [
+        95,
+        68,
+        417,
+        365
+      ]
+    },
+    {
+      "letter": "N",
+      "case": "upper",
+      "file": "letters/upper/N.png",
+      "texture": "checks",
+      "colour": "purple",
+      "main_colour": "#8151C4",
+      "light_colour": "#C3ABEE",
+      "bbox": [
+        125,
+        67,
+        388,
+        365
+      ]
+    },
+    {
+      "letter": "O",
+      "case": "upper",
+      "file": "letters/upper/O.png",
+      "texture": "waves",
+      "colour": "orange",
+      "main_colour": "#EE7B2B",
+      "light_colour": "#FBBB63",
+      "bbox": [
+        109,
+        64,
+        404,
+        370
+      ]
+    },
+    {
+      "letter": "P",
+      "case": "upper",
+      "file": "letters/upper/P.png",
+      "texture": "dots",
+      "colour": "green",
+      "main_colour": "#2F9150",
+      "light_colour": "#93D8A0",
+      "bbox": [
+        144,
+        66,
+        377,
+        364
+      ]
+    },
+    {
+      "letter": "Q",
+      "case": "upper",
+      "file": "letters/upper/Q.png",
+      "texture": "scallops",
+      "colour": "grey",
+      "main_colour": "#5E6E82",
+      "light_colour": "#B5C2D0",
+      "bbox": [
+        96,
+        64,
+        416,
+        369
+      ]
+    },
+    {
+      "letter": "R",
+      "case": "upper",
+      "file": "letters/upper/R.png",
+      "texture": "zigzag",
+      "colour": "green",
+      "main_colour": "#2F9150",
+      "light_colour": "#93D8A0",
+      "bbox": [
+        141,
+        67,
+        380,
+        367
+      ]
+    },
+    {
+      "letter": "S",
+      "case": "upper",
+      "file": "letters/upper/S.png",
+      "texture": "diagonal",
+      "colour": "navy",
+      "main_colour": "#36489F",
+      "light_colour": "#9DA9E4",
+      "bbox": [
+        147,
+        62,
+        365,
+        369
+      ]
+    },
+    {
+      "letter": "T",
+      "case": "upper",
+      "file": "letters/upper/T.png",
+      "texture": "stars",
+      "colour": "pink",
+      "main_colour": "#D2468A",
+      "light_colour": "#F7B3CF",
+      "bbox": [
+        126,
+        66,
+        386,
+        365
+      ]
+    },
+    {
+      "letter": "U",
+      "case": "upper",
+      "file": "letters/upper/U.png",
+      "texture": "dots",
+      "colour": "red",
+      "main_colour": "#DC4238",
+      "light_colour": "#F6A093",
+      "bbox": [
+        124,
+        67,
+        388,
+        370
+      ]
+    },
+    {
+      "letter": "V",
+      "case": "upper",
+      "file": "letters/upper/V.png",
+      "texture": "scallops",
+      "colour": "lime",
+      "main_colour": "#86A51C",
+      "light_colour": "#CFE070",
+      "bbox": [
+        113,
+        64,
+        400,
+        365
+      ]
+    },
+    {
+      "letter": "W",
+      "case": "upper",
+      "file": "letters/upper/W.png",
+      "texture": "zigzag",
+      "colour": "brown",
+      "main_colour": "#99582F",
+      "light_colour": "#DBAA7E",
+      "bbox": [
+        61,
+        65,
+        450,
+        365
+      ]
+    },
+    {
+      "letter": "X",
+      "case": "upper",
+      "file": "letters/upper/X.png",
+      "texture": "dots",
+      "colour": "yellow",
+      "main_colour": "#D99A0E",
+      "light_colour": "#F8D45E",
+      "bbox": [
+        113,
+        62,
+        399,
+        370
+      ]
+    },
+    {
+      "letter": "Y",
+      "case": "upper",
+      "file": "letters/upper/Y.png",
+      "texture": "stripes",
+      "colour": "teal",
+      "main_colour": "#169C98",
+      "light_colour": "#86DCD3",
+      "bbox": [
+        122,
+        63,
+        390,
+        366
+      ]
+    },
+    {
+      "letter": "Z",
+      "case": "upper",
+      "file": "letters/upper/Z.png",
+      "texture": "stars",
+      "colour": "red",
+      "main_colour": "#DC4238",
+      "light_colour": "#F6A093",
+      "bbox": [
+        134,
+        67,
+        378,
+        366
+      ]
+    }
+  ],
+  "words": [
+    {
+      "word": "umbrella",
+      "file": "words/umbrella.png"
+    },
+    {
+      "word": "cake",
+      "file": "words/cake.png"
+    }
+  ]
+}

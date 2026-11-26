@@ -1,63 +1,62 @@
-// SPLASH SCREEN - first screen: Buddy says hi.
-//
-// It is a FIXED screen (no scrolling). Sizes are worked out from the phone's
-// height so the whole screen always fits, on small and big phones alike:
-//
-//   header
-//   [ Buddy + speech bubble ]
-//   Welcome to KidBuddy
-//   subtitle
-//   ...space...
-//   [ Continue ]
-//   small print
-//
-// Props: { navigation }
+// SPLASH SCREEN - first screen on a new phone: logo + Buddy pop in over soft floating shapes.
+// It stays until "Continue" is pressed; Continue saves introSeen and replaces it with Welcome
+// (so the next launch skips it and "back" can never return here).
 
 import React from 'react';
-import { StyleSheet, View, useWindowDimensions } from 'react-native';
+import { Animated, StyleSheet, View, useWindowDimensions } from 'react-native';
 import Text from '../../shared/components/AppText';
 import Screen from '../../shared/components/Screen';
-import MascotSpeech from '../../shared/components/MascotSpeech';
-import Button from '../../shared/components/Button';
+import Mascot from '../../shared/components/Mascot';
+import BrandLogo from '../../shared/components/BrandLogo';
+import SoftButton from '../../shared/components/SoftButton';
+import SoftShapes from '../../shared/components/SoftShapes';
+import FadeInView from '../../shared/components/FadeInView';
 import { useDevice } from '../../app/context/DeviceContext';
-import { COLORS, FONTS, FONT_SIZES } from '../../shared/theme/theme';
+import { useIdleBob, useScaleIn } from '../../shared/utils/motion';
+import { CALM, FONTS } from '../../shared/theme/theme';
 
 export default function SplashScreen({ navigation }) {
   const { height } = useWindowDimensions();
   const { markIntroSeen } = useDevice();
 
-  // Mascot is ~21% of the screen height, but never too small or too big.
-  const mascotSize = Math.max(110, Math.min(190, height * 0.21));
+  const mascotSize = Math.max(120, Math.min(210, height * 0.24));
+  const logoPop = useScaleIn(80);
+  const mascotPop = useScaleIn(260);
+  const bob = useIdleBob();
+
+  function handleContinue() {
+    markIntroSeen();
+    navigation.replace('Welcome');
+  }
 
   return (
-    <Screen>
+    <Screen background={CALM.background}>
+      <SoftShapes />
       <View style={styles.body}>
-        <View style={{ marginTop: height * 0.05 }}>
-          <MascotSpeech size={mascotSize} line1="Hi, I'm" line2="Buddy!" />
+        <View style={styles.center}>
+          <Animated.View style={logoPop}>
+            <BrandLogo height={Math.max(44, Math.min(60, height * 0.065))} />
+          </Animated.View>
+
+          <Animated.View style={[styles.mascotWrap, mascotPop]}>
+            <View style={[styles.halo, { width: mascotSize * 1.15, height: mascotSize * 1.15, borderRadius: mascotSize }]} />
+            <Animated.View style={bob}>
+              <Mascot size={mascotSize} />
+            </Animated.View>
+          </Animated.View>
+
+          <FadeInView index={4}>
+            <Text style={styles.title}>KidBuddy</Text>
+          </FadeInView>
+          <FadeInView index={5}>
+            <Text style={styles.tagline}>Calm, playful learning, one small step at a time.</Text>
+          </FadeInView>
         </View>
 
-        <Text style={[styles.title, { marginTop: height * 0.05 }]}>Welcome to KidBuddy</Text>
-        <Text style={styles.subtitle}>A safe, ad-free place to practice, play, and grow.</Text>
-
-        {/* pushes the button to the bottom */}
-        <View style={styles.spacer} />
-
-        {/* replace (not navigate) so "back" can never return to the splash.
-            markIntroSeen() saves that the splash was shown, so the next time
-            the app opens it starts directly on Welcome. */}
-        <Button
-          title="Continue"
-          onPress={() => {
-            markIntroSeen();
-            navigation.replace('Welcome');
-          }}
-          style={styles.button}
-        />
-
-        <Text style={styles.smallPrint}>
-          <Text style={styles.smallPrintBold}>Learning, your way.</Text> Activities that adjust to
-          your child, step by step.
-        </Text>
+        <FadeInView index={7} style={styles.bottom}>
+          <SoftButton title="Continue" onPress={handleContinue} />
+          <Text style={styles.smallPrint}>A safe, ad-free place to practice, play, and grow.</Text>
+        </FadeInView>
       </View>
     </Screen>
   );
@@ -66,38 +65,47 @@ export default function SplashScreen({ navigation }) {
 const styles = StyleSheet.create({
   body: {
     flex: 1,
+  },
+  center: {
+    flex: 1,
     alignItems: 'center',
+    justifyContent: 'center',
+  },
+  mascotWrap: {
+    marginTop: 22,
+    marginBottom: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  halo: {
+    position: 'absolute',
+    backgroundColor: CALM.surface,
+    opacity: 0.85,
   },
   title: {
     fontFamily: FONTS.nunitoBlack,
-    fontSize: FONT_SIZES.welcomeTitle,
-    color: COLORS.warmText,
+    fontSize: 34,
+    color: CALM.text,
     textAlign: 'center',
   },
-  subtitle: {
-    marginTop: 10,
+  tagline: {
+    marginTop: 8,
+    paddingHorizontal: 12,
     fontFamily: FONTS.nunitoSemiBold,
-    fontSize: FONT_SIZES.copy,
-    lineHeight: 22,
-    color: COLORS.warmMuted,
+    fontSize: 17,
+    lineHeight: 24,
+    color: CALM.textSoft,
     textAlign: 'center',
   },
-  spacer: {
-    flex: 1,
-  },
-  button: {
+  bottom: {
     alignSelf: 'stretch',
   },
   smallPrint: {
     marginTop: 12,
-    fontFamily: FONTS.interRegular,
-    fontSize: FONT_SIZES.small,
+    fontFamily: FONTS.nunitoSemiBold,
+    fontSize: 13,
     lineHeight: 18,
-    color: COLORS.textMuted,
+    color: CALM.textSoft,
     textAlign: 'center',
-  },
-  smallPrintBold: {
-    fontFamily: FONTS.interBold,
-    color: COLORS.text,
   },
 });

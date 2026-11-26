@@ -39,7 +39,7 @@ export default function ReadingTopicsScreen({ navigation }) {
   }
 
   return (
-    <Screen scroll mode="child">
+    <Screen scroll mode="child" scene="day">
       <View style={styles.body}>
         <ChildHeader
           title="Pick a topic"

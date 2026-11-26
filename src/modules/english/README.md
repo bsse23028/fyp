@@ -1,4 +1,4 @@
-# English module (Read Along)
+# English module (Alphabets · Words · Sentences)
 
 Everything about the English / Words activities lives in THIS folder.
 **When you want changes to this module, send only this folder** (plus this README) - nothing else is needed.
@@ -7,15 +7,31 @@ Everything about the English / Words activities lives in THIS folder.
 english/
   index.js            what the module contains (name, Redux slice, screens, Urdu words)
   readingData.js      small helpers for the topics (findSentences, getSentence) + the DEMO_MODE fallback
-  data/               readingTopics.json (DEMO_MODE fallback ONLY) · sampleStruggleWords.json
+  data/               readingTopics.json (DEMO_MODE fallback ONLY) · sampleStruggleWords.json · alphabetData.js (A-Z)
+                      spellingWords.js (the spelling game's words) · letterImages.js (require() map of the letter PNGs)
   store/              englishSlice.js  (Redux Toolkit: picked topic + level, reading content, struggle words)
+                      alphabetSlice.js (state.englishAlphabet: best stars per child + letter, saved on the phone)
+  components/         SectionHeader · LessonLayout (the fixed lesson frame) · LessonProgress (icon dots) · ArrowButton
+                      alphabet/  LetterTile · LetterCase (capital/small) · CaseToggle
+                                 learn/ (LookPage, ListenPage, SayPage, JumpingLetter, ListenPicture, useLessonSequence)
+                                 play/ (drag + bubbles rounds) · check/ (questions + result)
+                      spelling/  SpellingBoard (the word) · SentenceBoard (the sentence) · LooseLetter (a draggable
+                                 letter or word) · LetterSlot · SlotBurst · PieceSpot · LetterArt · WordArt · LetterEyes
+                                 wordLayout.js (positions) · spellingConfig.js (all numbers) · pictures/SpellingPicture
   i18n/ur.json        Urdu words used only by this module
-  screens/            WordsHub · ReadingTopics · ReadingLevel · ReadingAlong · ReadingYourTurn
+  screens/            EnglishHub · AlphabetList · LetterLesson
+                      WordsHub · SpellingWords · SpellingGame · ReadingTopics · ReadingLevel · ReadingAlong · ReadingYourTurn
                       ReadingSummary · StruggleWords (Parent -> Plan)
 ```
 
 ## Flow
-Child Home (English) -> **WordsHub** -> Read Along -> **ReadingTopics** -> **ReadingLevel** ->
+Child Home (English) -> **EnglishHub**:
+- Alphabets -> **AlphabetList** -> **LetterLesson** (`{ letter }`): ONE swipe pager of 7 pages
+  (Look · Listen · Listen · Say · Play · Star Check · Result, forward locked until each page is done). Stars are saved only by `recordLetterResult` (nothing in Preview mode).
+- Words -> **WordsHub** -> Spelling -> **SpellingWords** -> **SpellingGame** (`{ wordId }`): drag the scattered
+  letters onto the pale placeholder word. Art: `assets/letters/`, `assets/words/`, `assets/manifest.json`.
+  TO ADD A WORD: one line in `data/spellingWords.js` (+ its picture in `data/letterImages.js`).
+- Sentences -> **ReadingTopics** -> **ReadingLevel** ->
 **ReadingAlong** <-> **ReadingYourTurn** (one pair per sentence) -> **ReadingSummary**.
 Parent: Plan -> Struggle words -> **StruggleWords**.
 

@@ -1,0 +1,82 @@
+// LOOK PAGE - the big letter on its floor shadow, gently pulsing to invite a tap.
+// TAP = one joyful sequence, chained to the voice:
+//   big jump with one full turn at the top + squash landing  ->  says the letter NAME ("ay")
+//   then 3 small hops, each with the recorded SOUND of the letter and a tiny sparkle
+//   then the buddy does a happy hop (onCheer).
+// The sequence also plays ONCE by itself `demoDelay` ms (default ~1.7 s) after the page first appears (a demonstration that does
+// NOT finish the page: the child must tap). Taps during a sequence are ignored; leaving the page stops it.
+
+import React, { useEffect, useRef, useState } from 'react';
+import { StyleSheet, View } from 'react-native';
+import AnimatedPressable from '../../../../../shared/components/AnimatedPressable';
+import Sparkles from '../../../../../shared/components/Sparkles';
+import JumpingLetter from './JumpingLetter';
+import useLessonSequence from './useLessonSequence';
+import { playSound } from '../../../../../shared/utils/sounds';
+
+const DEMO_DELAY = 1700;
+const SOUND_REPEATS = 3;
+const land = () => playSound('boing');
+
+export default function LookPage({ item, active, cardSize, onDone, onCheer, demoDelay = DEMO_DELAY }) {
+  const letter = useRef(null);
+  const sequence = useLessonSequence(active);
+  const [tapped, setTapped] = useState(false);
+  const [sparkle, setSparkle] = useState(0);
+  const demoShown = useRef(false);
+
+  async function perform(byChild) {
+    const finished = await sequence.play(async ({ anim, say, sound }) => {
+      playSound('whistleUp');
+      await Promise.all([anim(letter.current.bigJump(land)), say(item.nameSpeech)]);
+      for (let i = 0; i < SOUND_REPEATS; i++) {
+        setSparkle((k) => k + 1);
+        await Promise.all([anim(letter.current.smallHop(land)), sound(item.letter)]);
+      }
+    });
+    if (finished && byChild) {
+      onDone();
+      onCheer();
+    }
+  }
+
+  useEffect(() => {
+    if (!active) {
+      if (letter.current) letter.current.reset();
+      return undefined;
+    }
+    if (demoShown.current) return undefined;
+    const timer = setTimeout(() => {
+      demoShown.current = true;
+      perform(false);
+    }, demoDelay);
+    return () => clearTimeout(timer);
+  }, [active]);
+
+  function handleTap() {
+    if (sequence.playing) return;
+    setTapped(true);
+    perform(true);
+  }
+
+  return (
+    <View style={styles.center}>
+      <AnimatedPressable onPress={handleTap} accessibilityLabel={`Letter ${item.letter}`}>
+        <JumpingLetter ref={letter} item={item} size={cardSize} inviting={active && !tapped && !sequence.playing} />
+        <Sparkles burstKey={sparkle} size={22} count={2} style={styles.sparkles} />
+      </AnimatedPressable>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  center: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  sparkles: {
+    start: '70%',
+    end: '-20%',
+  },
+});
